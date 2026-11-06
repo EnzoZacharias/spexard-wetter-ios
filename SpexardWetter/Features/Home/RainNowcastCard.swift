@@ -79,7 +79,7 @@ struct RainNowcastCard: View {
 
     private func nearText(_ s: NowcastResponse.Summary?) -> String {
         if s?.rainWithin3kmNow == true { return "Regen gerade" }
-        if s?.rainNearbyInNowcast == true { return "Regen im Nowcast" }
+        if s?.rainNearbyInNowcast == true { return "im Nowcast" }
         return "trocken"
     }
 }

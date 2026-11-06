@@ -196,6 +196,10 @@ def radar() -> None:
         f"{str(now['max_mm_h']).replace('.', ',')} mm/h ({now['max_km']} km {ADVERB[now['max_dir']]})."
     )
     save("mock_radar", d)
+    # the home screen's line about the surroundings (/radar/umkreis) from the same made-up radar
+    save("mock_radar_umkreis", {"generated_at": d["generated_at"], "location": d["location"], "map": d["map"],
+                                "classes": d["classes"], "analysis": d["analysis"], "umkreis": u,
+                                "source_errors": None, "attribution": d.get("attribution")})
 
 
 # --- hours: the evening wet ---------------------------------------------------------------------

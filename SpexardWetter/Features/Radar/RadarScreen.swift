@@ -300,7 +300,9 @@ struct RadarScreen: View {
 
     private func factLine(_ f: RadarResponse.Frame) -> String {
         guard f.nearestKm != nil else { return "Kein Niederschlag im Umkreis auf diesem Bild." }
-        var parts = ["Nächster Niederschlag \(RadarWords.whereText(f.nearestKm, f.nearestDir))"]
+        var parts = [f.nearestDir == nil
+            ? "Niederschlag am Standort"
+            : "Nächster Niederschlag \(RadarWords.whereText(f.nearestKm, f.nearestDir))"]
         if let max = f.maxMmH {
             parts.append("stärkste Stelle \(Fmt.value(max, 1, "mm/h")) (\(RadarWords.whereText(f.maxKm, f.maxDir)))")
         }
