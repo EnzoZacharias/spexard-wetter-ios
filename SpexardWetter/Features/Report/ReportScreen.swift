@@ -62,8 +62,34 @@ struct ReportScreen: View {
             .screenBackground()
             .navigationTitle("Wetterbericht")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if let report = loader.value {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ShareLink(item: Self.shareText(report)) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .accessibilityLabel("Bericht teilen")
+                    }
+                }
+            }
         }
         .task(id: kind) { await loader.loadIfNeeded(kind.endpoint, maxAge: 600) }
+    }
+}
+
+extension ReportScreen {
+    /// Plain text of the report for sharing: title, headline, summary and the sections.
+    static func shareText(_ r: ReportResponse) -> String {
+        var parts: [String] = []
+        if let title = r.titel { parts.append(title) }
+        if let headline = r.schlagzeile { parts.append(headline) }
+        parts.append(contentsOf: r.kurzfassung ?? [])
+        for section in r.abschnitte {
+            let text = (section.absaetze ?? []).joined(separator: " ")
+            if !text.isEmpty { parts.append("\(section.titel): \(text)") }
+        }
+        if let stand = r.stand { parts.append("Stand: \(stand)") }
+        return parts.joined(separator: "\n\n")
     }
 }
 

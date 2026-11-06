@@ -202,6 +202,28 @@ struct HazardTimeline: View {
 
     private static let labelWidth: CGFloat = 86
 
+    struct Run {
+        let start: Date
+        var end: Date
+        let level: Int
+    }
+
+    /// Hours with the same level joined into runs (each hour lasts until the next full hour).
+    static func runs(times: [Date?], levels: [Int?]) -> [Run] {
+        var out: [Run] = []
+        for (i, date) in times.enumerated() {
+            guard let date else { continue }
+            let level = levels.indices.contains(i) ? (levels[i] ?? 0) : 0
+            let end = date.addingTimeInterval(3600)
+            if let last = out.last, last.level == level, last.end == date {
+                out[out.count - 1].end = end
+            } else {
+                out.append(Run(start: date, end: end, level: level))
+            }
+        }
+        return out
+    }
+
     var body: some View {
         let span = max(domain.upperBound.timeIntervalSince(domain.lowerBound), 3600)
         VStack(alignment: .leading, spacing: 5) {
@@ -215,11 +237,11 @@ struct HazardTimeline: View {
                         .frame(width: Self.labelWidth, alignment: .leading)
                     Canvas { context, size in
                         context.fill(Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 3), with: .color(.white.opacity(0.07)))
-                        for (i, date) in times.enumerated() {
-                            guard let date, levels.indices.contains(i), let level = levels[i], level > 0 else { continue }
-                            let x = CGFloat(date.timeIntervalSince(domain.lowerBound) / span) * size.width
-                            let w = CGFloat(3600 / span) * size.width
-                            context.fill(Path(CGRect(x: x, y: 0, width: w + 0.5, height: size.height)), with: .color(HazardMatrixView.color(level)))
+                        // consecutive hours with the same level as one block (no seams between hours)
+                        for run in HazardTimeline.runs(times: times, levels: levels) where run.level > 0 {
+                            let x = CGFloat(run.start.timeIntervalSince(domain.lowerBound) / span) * size.width
+                            let w = CGFloat(run.end.timeIntervalSince(run.start) / span) * size.width
+                            context.fill(Path(CGRect(x: x, y: 0, width: w, height: size.height)), with: .color(HazardMatrixView.color(run.level)))
                         }
                         for tick in ChartTime.ticks(from: domain.lowerBound, to: domain.upperBound) {
                             let x = CGFloat(tick.timeIntervalSince(domain.lowerBound) / span) * size.width
