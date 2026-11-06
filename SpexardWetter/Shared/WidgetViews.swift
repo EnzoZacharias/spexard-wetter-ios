@@ -6,8 +6,18 @@ import WidgetKit
 struct WidgetContent: View {
     let family: WidgetFamily
     let snapshot: WidgetSnapshot?
+    var placeholder = false
 
     var body: some View {
+        if placeholder {
+            WidgetPlaceholder()
+        } else {
+            content
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch family {
         case .systemMedium: MediumWidget(snapshot: snapshot)
         case .accessoryRectangular: RectangularWidget(snapshot: snapshot)
@@ -212,9 +222,12 @@ struct WidgetNoData: View {
 struct RainWidgetContent: View {
     let family: WidgetFamily
     let snapshot: WidgetSnapshot?
+    var placeholder = false
 
     var body: some View {
-        if let s = snapshot {
+        if placeholder {
+            WidgetPlaceholder()
+        } else if let s = snapshot {
             if family == .accessoryRectangular {
                 VStack(alignment: .leading, spacing: 2) {
                     Label(s.rainHeadline ?? "Keine Radardaten", systemImage: "cloud.rain")
@@ -298,5 +311,19 @@ struct RainBars: View {
         } else {
             base.chartXAxis(.hidden)
         }
+    }
+}
+
+/// Grey placeholder while the system prepares the widget (no invented values).
+struct WidgetPlaceholder: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Spexard").font(.footnote.weight(.semibold))
+            Text("00°").font(.system(size: 40, weight: .light))
+            Text("Wetter wird geladen").font(.caption)
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .redacted(reason: .placeholder)
     }
 }

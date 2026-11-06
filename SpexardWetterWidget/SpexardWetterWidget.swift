@@ -4,11 +4,13 @@ import WidgetKit
 struct WeatherEntry: TimelineEntry {
     let date: Date
     let snapshot: WidgetSnapshot?
+    /// Gallery placeholder: grey shapes instead of a "no connection" note.
+    var placeholder = false
 }
 
 struct WeatherProvider: TimelineProvider {
     func placeholder(in context: Context) -> WeatherEntry {
-        WeatherEntry(date: Date(), snapshot: nil)
+        WeatherEntry(date: Date(), snapshot: nil, placeholder: true)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (WeatherEntry) -> Void) {
@@ -34,7 +36,7 @@ struct WeatherWidgetView: View {
     let entry: WeatherEntry
 
     var body: some View {
-        WidgetContent(family: family, snapshot: entry.snapshot)
+        WidgetContent(family: family, snapshot: entry.snapshot, placeholder: entry.placeholder)
             .containerBackground(for: .widget) {
                 BackgroundGradient(night: entry.snapshot?.night ?? false)
             }
@@ -66,7 +68,7 @@ struct RainWidgetView: View {
     let entry: WeatherEntry
 
     var body: some View {
-        RainWidgetContent(family: family, snapshot: entry.snapshot)
+        RainWidgetContent(family: family, snapshot: entry.snapshot, placeholder: entry.placeholder)
             .containerBackground(for: .widget) {
                 BackgroundGradient(night: entry.snapshot?.night ?? false)
             }
