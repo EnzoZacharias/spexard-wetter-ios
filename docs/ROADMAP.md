@@ -89,12 +89,13 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Wert und nur, wenn der Server einen Wert auffällig findet (Schwellen nur auf dem Server); Startseite
       „Gerade auffällig“ mit Sprung zur passenden Seite; Mehr → Lexikon mit Suche (`-screen lexikon -entry cape`)
 
+- [x] Verlauf-Widget: das Spalten-Symbol beschreibt dieselben 3 Stunden wie die Regenzeile (Nebel, Regen,
+      Schnee oder Gewitter einer dieser Stunden gewinnt, sonst die mittlere Stunde)
+
 ## Als Nächstes
 
 - [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,
       Stunden und Umkreis), danach deren Diagramme mit Regen in den Screenshots prüfen
-- [ ] Spalten-Symbol und Regenwert im Verlauf-Widget zeigen leicht verschobene Stunden (Symbol zur
-      Spaltenzeit, Regen der 3 Stunden danach) – eventuell das Symbol der Spaltenmitte nehmen
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
 - [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
 
