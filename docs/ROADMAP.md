@@ -65,7 +65,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Quelle und Zeit, Taupunkt, Feuchte, Wind mit Richtung, Böen, Luftdruck, Regen der letzten Stunde,
       Stationen) und 3-Stunden-Spalten aus `/vorhersage/stunden`: Symbol mit Nachtvariante,
       Temperaturkurve, Regen, Wind- und Böenzeile in Beaufort-Farben, Richtungspfeile, dunkle Nachtspalten,
-      Wochentag beim Tageswechsel; Tipp öffnet das Meteogramm
+      Wochentag beim Tageswechsel; Tipp öffnet das Meteogramm. Groß: höhere Kurve, Regenzeile immer
+      sichtbar (0 = trocken), Regenrisiko-Zeile, Legende passend zu den Zeilen
 
 ## Als Nächstes
 

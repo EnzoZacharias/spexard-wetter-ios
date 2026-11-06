@@ -11,6 +11,8 @@ struct StripColumn: Identifiable {
     let temp: Double?
     /// Sum of the hourly precipitation of the step (nil when the server has no values).
     let precip: Double?
+    /// Highest hourly rain probability of the step (percent).
+    let rainProb: Double?
     /// Mean wind at the column hour.
     let wind: Double?
     /// Highest gust of the step.
@@ -94,9 +96,11 @@ extension WeatherDerived {
             guard let i = index[t] else { break }
             var rain: Double?
             var gustMax: Double?
+            var probMax: Double?
             for s in 0..<step {
                 guard let j = index[t.addingTimeInterval(Double(s) * 3600)] else { continue }
                 if let p = h.precipMm[j] { rain = (rain ?? 0) + p }
+                if let q = h.rainProbPct[j] { probMax = Swift.max(probMax ?? q, q) }
                 if let g = h.gustMaxKmh[j] { gustMax = Swift.max(gustMax ?? g, g) }
             }
             let day = Fmt.calendar.component(.day, from: t)
@@ -111,6 +115,7 @@ extension WeatherDerived {
                 symbol: WeatherSymbol.name(code: h.symbol[i], night: night),
                 temp: h.tC[i],
                 precip: rain,
+                rainProb: probMax,
                 wind: h.windKmh[i],
                 gust: gustMax ?? h.gustMaxKmh[i],
                 windDir: h.windDirDeg[i],

@@ -140,7 +140,7 @@ struct LiveStripWidget: View {
             }
             ForecastStrip(columns: Array(s.strip.prefix(13)), compact: false)
             HStack(spacing: 8) {
-                Text("Zeilen: Regen (mm in 3 h) · Wind · Böen (km/h) · Pfeil: wohin der Wind weht")
+                Text("Zeilen: Regen mm in 3 h · Regenrisiko % · Wind · Böen km/h · Pfeil: wohin der Wind weht")
                 Spacer(minLength: 0)
                 Text(Fmt.time(live.temp.time ?? s.stand))
             }
@@ -238,13 +238,25 @@ struct ForecastStrip: View {
                     .frame(height: compact ? 13 : 24)
             }
             curve(lo: lo, hi: hi)
-                .frame(height: compact ? 27 : 80)
+                .frame(height: compact ? 27 : 70)
+            // precipitation always shown: "0" for a dry step (dimmed), "–" without a value
             row { c in
-                Text(c.precip.flatMap { $0 >= 0.1 ? Fmt.number($0, decimals: $0 < 10 ? 1 : 0) : nil } ?? " ")
+                Text(Self.precipText(c.precip))
                     .font(.system(size: compact ? 8 : 10, weight: .semibold))
                     .foregroundStyle(Palette.rain)
+                    .opacity((c.precip ?? 0) >= 0.1 ? 1 : 0.45)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
+            }
+            if !compact {
+                row { c in
+                    Text(c.rainProb.map { Fmt.number($0, decimals: 0) } ?? "–")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(Palette.rain)
+                        .opacity((c.rainProb ?? 0) >= 10 ? 1 : 0.45)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
             }
             row { c in WindCell(kmh: c.wind, height: compact ? 12 : 19) }
             row { c in WindCell(kmh: c.gust, height: compact ? 12 : 19) }
@@ -271,6 +283,13 @@ struct ForecastStrip: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityHidden(true)
+    }
+
+    /// "0,3" (mm), "0" for less than 0,1 mm, "–" without a value.
+    static func precipText(_ mm: Double?) -> String {
+        guard let mm else { return "–" }
+        guard mm >= 0.1 else { return "0" }
+        return Fmt.number(mm, decimals: mm < 10 ? 1 : 0)
     }
 
     private func row<Cell: View>(@ViewBuilder _ cell: @escaping (StripColumn) -> Cell) -> some View {
