@@ -102,6 +102,8 @@ jobs:
           shot profil-schnitt -screen profil -option icon_d2
           shot modellguete -screen modellguete
           shot status -screen status
+          shot lexikon -screen lexikon
+          shot lexikon-cape -screen lexikon -entry cape
           # made-up rainy test answers (mock_*_szenario_regen.json), only for these screenshots
           shot regen-home -scenario regen
           WAIT=14 shot regen-radar -tab radar -scenario regen

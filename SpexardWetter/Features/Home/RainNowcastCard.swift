@@ -11,7 +11,7 @@ struct RainNowcastCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            CardTitle("Regen in 2 Stunden", systemImage: "cloud.rain", trailing: radarTime)
+            CardTitle("Regen in 2 Stunden", systemImage: "cloud.rain", trailing: radarTime, info: "nowcast")
             if let nowcast {
                 content(nowcast)
             } else if let error {

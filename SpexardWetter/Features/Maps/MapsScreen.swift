@@ -549,6 +549,15 @@ struct MapLayerInfoSheet: View {
     let run: MapsResponse.Run?
     @Environment(\.dismiss) private var dismiss
 
+    /// Glossary entry of the server behind a map layer.
+    static let glossaryId: [String: String] = [
+        "cape": "cape",
+        "nullgradgrenze": "nullgradgrenze",
+        "boeen": "boee",
+        "neuschnee": "schneefallgrenze",
+        "schneehoehe": "schneefallgrenze",
+    ]
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -570,6 +579,14 @@ struct MapLayerInfoSheet: View {
                                 Text(MapWords.range(c, layer)).font(.caption.monospacedDigit())
                             }
                         }
+                    }
+                    if let id = Self.glossaryId[layer.id], let entry = Glossary.shared.entry(id) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Im Lexikon: \(entry.begriff)").font(.footnote.weight(.semibold)).opacity(0.8)
+                            GlossaryEntryView(entry: entry)
+                        }
+                        .padding(12)
+                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.white.opacity(0.08)))
                     }
                     if let run {
                         Text(runText(run)).font(.caption).opacity(0.75)

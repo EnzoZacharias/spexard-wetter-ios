@@ -69,8 +69,10 @@ targets:
       - path: SpexardWetter/Data/Symbols.swift
       - path: SpexardWetter/Data/WeatherDerived.swift
       - path: SpexardWetter/Data/LiveStrip.swift
+      - path: SpexardWetter/Data/Glossary.swift
       - path: SpexardWetter/Shared
       - path: SpexardWetter/UI/Theme.swift
+      - path: SpexardWetter/UI/GlossaryViews.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.enzozacharias.spexardwetter.widget

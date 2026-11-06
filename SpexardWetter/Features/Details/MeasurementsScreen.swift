@@ -189,7 +189,7 @@ struct TodayCard: View {
             HStack(alignment: .top, spacing: 8) {
                 Fact(label: "Höchstwert", value: extreme(today.tmax, unit: "°", decimals: 1))
                 Fact(label: "Tiefstwert", value: extreme(today.tmin, unit: "°", decimals: 1))
-                Fact(label: "Stärkste Böe", value: extreme(today.gustMax, unit: " km/h", decimals: 0))
+                Fact(label: "Stärkste Böe", value: extreme(today.gustMax, unit: " km/h", decimals: 0), info: "boee")
             }
             HStack(alignment: .top, spacing: 8) {
                 Fact(label: "Niederschlag", value: precipText)
@@ -197,8 +197,9 @@ struct TodayCard: View {
                 Fact(label: "Luftdruck", value: tendency?.text.map { t in
                     let change = tendency?.changeHpa.map { " (" + ($0 >= 0 ? "+" : "") + Fmt.number($0, decimals: 1) + " hPa in 3 h)" } ?? ""
                     return t + change
-                } ?? "–")
+                } ?? "–", info: "drucktendenz")
             }
+            GlossaryNotesView(["boee", "drucktendenz", "taupunkt", "spread"])
             if let normal = today.normal {
                 Text("Normal für diesen Tag (\(normal.label ?? "Klima")): Max \(Fmt.temp(normal.tmaxC, decimals: 1)), Min \(Fmt.temp(normal.tminC, decimals: 1)), Niederschlag \(Fmt.precip(normal.precipMm)).")
                     .font(.caption)

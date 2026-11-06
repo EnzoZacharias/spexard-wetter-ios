@@ -71,7 +71,7 @@ struct TrendContent: View {
             }
             if let weeks = data.weeks, !weeks.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
-                    CardTitle("Wochen 2 bis 6", systemImage: "calendar")
+                    CardTitle("Wochen 2 bis 6", systemImage: "calendar", info: "ec46")
                     ForEach(weeks) { week in
                         weekRow(week)
                         Divider().overlay(.white.opacity(0.15))
@@ -88,7 +88,7 @@ struct TrendContent: View {
         let lo = (values.min() ?? 0) - 1
         let hi = (values.max() ?? 1) + 1
         return VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Höchstwerte Tag 8 bis 16", systemImage: "chart.line.uptrend.xyaxis")
+            CardTitle("Höchstwerte Tag 8 bis 16", systemImage: "chart.line.uptrend.xyaxis", info: "anomalie")
             HStack(spacing: 10) {
                 legend(Palette.warm.opacity(0.5), "ECMWF 80 %")
                 legend(Palette.warm, "ECMWF")

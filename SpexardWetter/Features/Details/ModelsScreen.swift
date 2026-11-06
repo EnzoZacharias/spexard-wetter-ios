@@ -180,7 +180,7 @@ struct DailyModelTable: View {
         let ids = data.modelIds.filter { !(data.days?[$0] ?? []).isEmpty }
         let dates = Array(Set(ids.flatMap { id in (data.days?[id] ?? []).map(\.date) })).sorted()
         VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Tageswerte je Modell", systemImage: "tablecells")
+            CardTitle("Tageswerte je Modell", systemImage: "tablecells", info: "modellspanne")
             ScrollView(.horizontal) {
                 Grid(alignment: .trailing, horizontalSpacing: 14, verticalSpacing: 6) {
                     GridRow {

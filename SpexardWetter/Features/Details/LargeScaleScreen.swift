@@ -55,6 +55,7 @@ struct LargeScaleContent: View {
                 if let ao = data.ao { OscillationCard(index: ao, short: "AO") }
                 if let nao = data.nao { OscillationCard(index: nao, short: "NAO") }
             }
+            GlossaryNotesView(["nao", "ao"])
             if let hint = catalog?.quelleKatalog {
                 Text("Katalog: \(hint)").font(.caption2).opacity(0.7)
             }
@@ -74,7 +75,7 @@ struct LargeScaleContent: View {
 
     private func gwlCard(_ g: LargeScaleResponse.Gwl) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Großwetterlage (DWD)", systemImage: "globe.europe.africa.fill")
+            CardTitle("Großwetterlage (DWD)", systemImage: "globe.europe.africa.fill", info: "gwl")
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(g.code ?? "–")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
@@ -117,7 +118,7 @@ struct LargeScaleContent: View {
 
     private func regimeCard(_ r: LargeScaleResponse.Regime) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Wetterregime (DWD Mittelfrist)", systemImage: "arrow.triangle.branch")
+            CardTitle("Wetterregime (DWD Mittelfrist)", systemImage: "arrow.triangle.branch", info: "wetterregime")
             if let headline = r.schlagzeile {
                 Text(headline).font(.system(.body, design: .serif).weight(.semibold))
             }
@@ -156,7 +157,8 @@ struct VortexCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Polarwirbel", systemImage: "tornado")
+            CardTitle("Polarwirbel", systemImage: "tornado", info: "polarwirbel")
+            GlossaryNotesView(["polarwirbel"])
             if let now = vortex.aktuell?.u10Ms {
                 HStack(alignment: .firstTextBaseline) {
                     Text("\(Fmt.number(now, decimals: 1)) m/s")
@@ -252,7 +254,11 @@ struct OscillationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(short).font(.headline)
+            HStack(spacing: 2) {
+                Text(short).font(.headline)
+                Spacer(minLength: 0)
+                InfoButton(short.lowercased())
+            }
             Text(index.index ?? "").font(.caption2).opacity(0.75).lineLimit(2)
             if let v = index.letzterWert {
                 Text((v > 0 ? "+" : "") + Fmt.number(v, decimals: 2))
@@ -269,6 +275,6 @@ struct OscillationCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
     }
 }
