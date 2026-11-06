@@ -79,7 +79,12 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 
 ## Als Nächstes
 
-
+- [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,
+      Stunden und Umkreis), danach deren Diagramme mit Regen in den Screenshots prüfen
+- [ ] Spalten-Symbol und Regenwert im Verlauf-Widget zeigen leicht verschobene Stunden (Symbol zur
+      Spaltenzeit, Regen der 3 Stunden danach) – eventuell das Symbol der Spaltenmitte nehmen
+- [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
+- [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
 
 ## Hinweise
 
