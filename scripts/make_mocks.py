@@ -43,6 +43,7 @@ MOCKS: dict[str, str] = {
     "mock_verifikation_90": "api/verifikation__auswertung__tage-90.json",
     "mock_status": "api/status__uebersicht.json",
     "mock_radar_umkreis": "api/radar__umkreis.json",
+    "mock_nowcast_full": "rain_nowcast__detail-full.json",
     "mock_profil_schnitt_icon_d2": "api/profil__schnitt__modell-icon_d2.json",
     "mock_profil_schnitt_ecmwf": "api/profil__schnitt__modell-ecmwf.json",
 }

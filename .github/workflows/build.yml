@@ -9,6 +9,11 @@ on:
 permissions:
   contents: write
 
+# a newer push to the same branch replaces a running build (it contains the older commits)
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
@@ -77,6 +82,7 @@ jobs:
           shot warnungen -screen warnungen
           WAIT=14 shot radar -tab radar
           WAIT=12 shot radar-prognose -tab radar -radarFrame 30
+          shot radar-standort -tab radar -radarPoint
           shot bericht -tab bericht
           shot bericht-woche -tab bericht -option woche
           shot widgets -screen widgets

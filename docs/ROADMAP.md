@@ -55,6 +55,10 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] 24-Stunden-Leiste: Umschalter Regen (Risiko + Menge) / Wind (Richtungspfeil, Stärke, Böen),
       Sonnenauf- und -untergang zwischen den Stunden
 
+- [x] Radar → „Radar am Standort“ (`rain_nowcast?detail=full`): Standort, ±1 km, ±3 km, Regenphasen,
+      Radar gegen ICON-D2 je 15 Minuten (`-tab radar -radarPoint`)
+- [x] CI: neuere Pushes ersetzen laufende Builds (concurrency)
+
 ## Als Nächstes
 
 

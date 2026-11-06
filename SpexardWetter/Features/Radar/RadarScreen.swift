@@ -16,6 +16,7 @@ struct RadarScreen: View {
     @State private var panelHeight: CGFloat = 260
     /// Map position the user tapped (shows the rain rate there).
     @State private var probe: CLLocationCoordinate2D?
+    @State private var showPoint = ProcessInfo.processInfo.arguments.contains("-radarPoint")
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isNight) private var night
@@ -43,6 +44,9 @@ struct RadarScreen: View {
             }
             .foregroundStyle(.white)
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $showPoint) {
+                RadarPointSheet()
+            }
         }
         .task {
             await loader.loadIfNeeded(.radarFrames, maxAge: 240)
@@ -119,6 +123,13 @@ struct RadarScreen: View {
                 }
             }
             Spacer(minLength: 0)
+            Button {
+                showPoint = true
+            } label: {
+                Image(systemName: "scope")
+                    .frame(width: 32, height: 32)
+            }
+            .accessibilityLabel("Radar am Standort im Detail")
             Button {
                 Task {
                     Haptics.armRefresh()
