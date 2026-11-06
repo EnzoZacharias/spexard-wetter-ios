@@ -1,0 +1,114 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      # server address built into the app (repository variable); empty = the app asks on first start
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      BUNDLE_ID: com.enzozacharias.spexardwetter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select the newest Xcode
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen >/dev/null
+          xcodegen generate
+
+      - name: Build for the simulator
+        run: |
+          xcodebuild -project SpexardWetter.xcodeproj -scheme SpexardWetter -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee build-sim.log | grep -E "error:|warning: .*\.swift|BUILD (SUCCEEDED|FAILED)"
+
+      - name: Screenshots with example data (simulator)
+        run: |
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          found = []
+          for runtime, items in devices.items():
+              if "iOS" not in runtime:
+                  continue
+              for d in items:
+                  n = d["name"]
+                  if n.startswith("iPhone") and "Pro" in n and "Max" not in n:
+                      found.append((runtime, n, d["udid"]))
+          found.sort()
+          print(found[-1][2])
+          print(found[-1][1], found[-1][0], file=sys.stderr)
+          ')
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b >/dev/null
+          xcrun simctl install "$DEVICE" build/sim/Build/Products/Debug-iphonesimulator/SpexardWetter.app
+          xcrun simctl status_bar "$DEVICE" override --time 17:35 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3
+          mkdir -p screenshots
+          shot() {
+            local name=$1; shift
+            xcrun simctl launch --terminate-running-process "$DEVICE" "$BUNDLE_ID" -mock "$@" >/dev/null
+            sleep 7
+            xcrun simctl io "$DEVICE" screenshot "screenshots/$name.png" >/dev/null
+          }
+          xcrun simctl ui "$DEVICE" appearance light
+          shot home
+          shot days -scrollDays
+          xcrun simctl ui "$DEVICE" appearance dark
+          shot home-dark
+          ls -la screenshots
+
+      - name: Build the app for the iPhone (unsigned .ipa, AltStore signs it)
+        run: |
+          xcodebuild -project SpexardWetter.xcodeproj -scheme SpexardWetter -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build/dev \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" API_BASE_URL="$API_BASE_URL" \
+            build 2>&1 | tee build-dev.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)"
+          mkdir -p build/ipa/Payload
+          cp -R build/dev/Build/Products/Release-iphoneos/SpexardWetter.app build/ipa/Payload/
+          (cd build/ipa && zip -qry ../../SpexardWetter.ipa Payload)
+          ls -la SpexardWetter.ipa
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots-and-logs
+          path: |
+            screenshots/
+            build-*.log
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SpexardWetter-ipa
+          path: SpexardWetter.ipa
+
+      - name: Publish as release "latest" (download on the iPhone, open with AltStore)
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="Build ${GITHUB_RUN_NUMBER} (${GITHUB_SHA::7}) vom $(TZ=Europe/Berlin date '+%d.%m.%Y %H:%M'). Auf dem iPhone laden und mit AltStore öffnen."
+          gh release view latest >/dev/null 2>&1 || \
+            gh release create latest --title "Spexard Wetter – aktueller Build" --notes "$NOTES" --prerelease
+          gh release edit latest --notes "$NOTES"
+          gh release upload latest SpexardWetter.ipa --clobber
