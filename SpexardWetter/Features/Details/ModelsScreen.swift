@@ -12,7 +12,7 @@ enum ModelVariable: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .temp: return "Temperatur"
+        case .temp: return "Temp."
         case .precip: return "Regen"
         case .wind: return "Wind"
         case .gust: return "Böen"
@@ -95,7 +95,7 @@ struct ModelsScreen: View {
                 )
             }
             TimeChart(
-                title: "\(variable.label) je Modell",
+                title: "\(variable == .temp ? "Temperatur" : variable.label) je Modell",
                 subtitle: "Jedes Modell eine Linie; Lücke = Modell rechnet so weit nicht.",
                 unit: variable.unit,
                 series: series,

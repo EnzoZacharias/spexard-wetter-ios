@@ -186,13 +186,18 @@ struct RadarScreen: View {
                     .font(.footnote)
                     .opacity(0.8)
                 Spacer(minLength: 0)
-                Button("Jetzt") {
+                Button {
                     playing = false
                     index = latest
+                } label: {
+                    Text("Jetzt")
+                        .font(.footnote.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(.white.opacity(0.2)))
                 }
-                .font(.footnote.weight(.semibold))
-                .buttonStyle(.bordered)
-                .tint(.white)
+                .buttonStyle(.plain)
+                .opacity(index == latest ? 0.35 : 1)
                 .disabled(index == latest)
                 .accessibilityLabel("Jüngstes Radarbild")
             }
