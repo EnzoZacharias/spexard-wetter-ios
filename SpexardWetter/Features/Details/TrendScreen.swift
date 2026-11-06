@@ -89,12 +89,15 @@ struct TrendContent: View {
         let hi = (values.max() ?? 1) + 1
         return VStack(alignment: .leading, spacing: 8) {
             CardTitle("Höchstwerte Tag 8 bis 16", systemImage: "chart.line.uptrend.xyaxis")
-            HStack(spacing: 12) {
-                legend(Palette.warm.opacity(0.5), "ECMWF 10–90 %")
-                legend(Palette.warm, "ECMWF Median")
-                legend(Palette.model("gfs"), "GEFS Median")
+            HStack(spacing: 10) {
+                legend(Palette.warm.opacity(0.5), "ECMWF 80 %")
+                legend(Palette.warm, "ECMWF")
+                legend(Palette.model("gfs"), "GEFS")
                 legend(.white.opacity(0.7), "normal")
             }
+            Text("Fläche: 80 % der ECMWF-Läufe (10 bis 90 %), Linien: Median der Ensembles, gepunktet: Klimamittel.")
+                .font(.caption2)
+                .opacity(0.7)
             Chart {
                 ForEach(pts) { p in
                     if let a = p.p10, let b = p.p90 {
@@ -156,7 +159,7 @@ struct TrendContent: View {
     private func legend(_ color: Color, _ text: String) -> some View {
         HStack(spacing: 4) {
             RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 12, height: 6)
-            Text(text).font(.caption2)
+            Text(text).font(.caption2).fixedSize()
         }
     }
 
