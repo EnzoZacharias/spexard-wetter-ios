@@ -21,11 +21,18 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Links des Berichts öffnen die passenden App-Seiten (`-tab bericht -option woche`)
 - [x] Widgets (WidgetKit-Extension, ohne App Group): klein, mittel, Sperrbildschirm rechteckig,
       rund und einzeilig; Aktualisierung alle 20 Minuten, Vorschau unter Mehr → Widgets (`-screen widgets`)
+- [x] Mehr → Warnungen & Gefahren: amtliche Warnungen plus Gefahren-Zeitleiste (`/gefahren/matrix`)
+- [x] Mehr → Messwerte: `/messwerte/verlauf?stunden=24|48|72`, heute bisher, Diagramme je Größe, Stationen
+- [x] Mehr → Meteogramm: `/meteogramm/modell?modell=icon_d2|arome|ecmwf|gfs`, gestapelte Diagramme
+      auf einer Zeitachse mit Nachtschattierung und Wettersymbolen
+- [x] Mehr → Modellvergleich (`/modelle/stunden`): Kurven je Modell (abschaltbar), Spanne, Tageswerte
+- [x] Mehr → Ensembles: Temperaturfahnen ECMWF/GEFS, Regenrisiko ICON-D2-EPS, Sicherheit je Tag
+- [x] Mehr → Trend (`weather_trend`): Tag 8–16, Blöcke, Wochen 2–6
 
 ## Als Nächstes
 
-- [ ] Mehr: Gefahren-Matrix, Messwerte, Meteogramm
-- [ ] Mehr: Modellvergleich, Ensembles, Trend, Großwetterlage, Profil, Modellgüte, Status
+- [ ] Mehr: Großwetterlage (`large_scale`, `/grosswetterlage/katalog`), Profil (`/profil/sonde`,
+      `/profil/schnitt`), Modellgüte (`/verifikation/auswertung`), Status (`/status/uebersicht`)
 - [ ] Feinschliff: Pull to refresh überall, Haptik, leere Zustände
 
 ## Hinweise

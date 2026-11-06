@@ -107,6 +107,9 @@ enum RadarWords {
         return "\(Int(km.rounded())) km \(directions[dir] ?? dir)"
     }
 
+    /// "W" -> "westlich".
+    static func directionWord(_ dir: String) -> String { directions[dir] ?? dir }
+
     static func trend(_ value: String?) -> String? {
         switch value {
         case "näher": return "kommt näher"

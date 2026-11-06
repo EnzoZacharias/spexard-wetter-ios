@@ -79,6 +79,14 @@ jobs:
           shot bericht -tab bericht
           shot bericht-woche -tab bericht -option woche
           shot widgets -screen widgets
+          shot gefahren -screen warnungen -scrollBottom
+          shot messwerte -screen messwerte
+          shot meteogramm -screen meteogramm
+          shot meteogramm-ecmwf -screen meteogramm -option ecmwf
+          shot modelle -screen modelle
+          shot ensembles -screen ensembles
+          shot ensembles-tage -screen ensembles -option tage
+          shot trend -screen trend
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots

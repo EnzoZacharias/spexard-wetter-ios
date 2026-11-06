@@ -3,6 +3,11 @@ import SwiftUI
 /// Detail screens of the "Mehr" tab (in list order).
 enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case warnungen
+    case messwerte
+    case meteogramm
+    case modelle
+    case ensembles
+    case trend
     case widgets
 
     var id: String { rawValue }
@@ -10,6 +15,11 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     private var info: (title: String, subtitle: String, icon: String, web: String?) {
         switch self {
         case .warnungen: return ("Warnungen & Gefahren", "Amtliche Warnungen des DWD", "exclamationmark.triangle.fill", "/gefahren")
+        case .messwerte: return ("Messwerte", "Stationen der Umgebung, 24 bis 72 Stunden", "chart.xyaxis.line", "/messwerte")
+        case .meteogramm: return ("Meteogramm", "Stunde für Stunde je Modell", "chart.bar.xaxis", "/meteogramm")
+        case .modelle: return ("Modellvergleich", "ICON, ECMWF, GFS und UKMO nebeneinander", "square.stack.3d.up.fill", "/modelle")
+        case .ensembles: return ("Ensembles", "Temperaturfahnen, Regenrisiko, Sicherheit je Tag", "point.3.filled.connected.trianglepath.dotted", "/ensembles")
+        case .trend: return ("Trend", "Tag 8 bis 16 und die Wochen danach", "chart.line.uptrend.xyaxis", "/trend")
         case .widgets: return ("Widgets", "Vorschau für Home- und Sperrbildschirm", "rectangle.3.group.fill", nil)
         }
     }
@@ -24,6 +34,11 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     func screen(home: HomeModel) -> some View {
         switch self {
         case .warnungen: WarningsScreen(home: home)
+        case .messwerte: MeasurementsScreen()
+        case .meteogramm: MeteogramScreen()
+        case .modelle: ModelsScreen()
+        case .ensembles: EnsemblesScreen()
+        case .trend: TrendScreen()
         case .widgets: WidgetPreviewScreen()
         }
     }
@@ -96,35 +111,5 @@ struct MoreRow: View {
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-    }
-}
-
-/// Official warnings (full list) with pull to refresh.
-struct WarningsScreen: View {
-    let home: HomeModel
-    @StateObject private var alerts = Loader<AlertsResponse>()
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                if alerts.fromCache { OfflineBanner(date: alerts.date) }
-                if let value = alerts.value {
-                    WarningList(block: value.warnungen, reference: home.reference)
-                } else if let error = alerts.error {
-                    StateMessage(kind: .error, text: error) { await alerts.reload() }.card()
-                } else {
-                    StateMessage(kind: .loading).card()
-                }
-                StandFooter(date: alerts.date, fromCache: alerts.fromCache)
-            }
-            .padding(16)
-        }
-        .refreshable {
-            Haptics.armRefresh()
-            await alerts.reload()
-        }
-        .task { await alerts.loadIfNeeded(.alerts) }
-        .screenBackground()
-        .navigationTitle("Warnungen")
     }
 }

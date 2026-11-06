@@ -21,6 +21,20 @@ MOCKS: dict[str, str] = {
     "mock_bericht_heute": "api/wetterbericht__art-heute.json",
     "mock_bericht_wochenende": "api/wetterbericht__art-wochenende.json",
     "mock_bericht_woche": "api/wetterbericht__art-woche.json",
+    "mock_gefahren_matrix": "api/gefahren__matrix.json",
+    "mock_messwerte_24": "api/messwerte__verlauf__stunden-24.json",
+    "mock_messwerte_48": "api/messwerte__verlauf__stunden-48.json",
+    "mock_messwerte_72": "api/messwerte__verlauf__stunden-72.json",
+    "mock_meteogramm_icon_d2": "api/meteogramm__modell__modell-icon_d2.json",
+    "mock_meteogramm_arome": "api/meteogramm__modell__modell-arome.json",
+    "mock_meteogramm_ecmwf": "api/meteogramm__modell__modell-ecmwf.json",
+    "mock_meteogramm_gfs": "api/meteogramm__modell__modell-gfs.json",
+    "mock_modelle_stunden": "api/modelle__stunden.json",
+    "mock_ensembles_temperatur_ecmwf": "api/ensembles__temperatur__modell-ecmwf.json",
+    "mock_ensembles_temperatur_gefs": "api/ensembles__temperatur__modell-gefs.json",
+    "mock_ensembles_regen": "api/ensembles__regen.json",
+    "mock_ensembles_tage": "api/ensembles__tage.json",
+    "mock_trend": "weather_trend.json",
 }
 
 DROP_TOP = ("how_to_read", "sources")
