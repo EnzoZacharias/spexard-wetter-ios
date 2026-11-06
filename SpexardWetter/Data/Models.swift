@@ -1,20 +1,106 @@
 import Foundation
 
-/// A series from the server (`[1.2, null, 3.4]`). The server may collapse a constant series into a
-/// sentence ("0.0 mm in allen Stunden"); such a value decodes as an empty series instead of failing
-/// the whole answer.
+/// A series from the server (`[1.2, null, 3.4]`). The server collapses a constant series into a
+/// sentence ("0.0 mm in allen Stunden", "0 % in der gesamten Vorhersage"): such a value decodes as
+/// `constant`, which every index then returns. Anything else unreadable decodes as an empty series
+/// instead of failing the whole answer.
 struct Series<T: Decodable>: Decodable {
     let values: [T?]
+    /// Value of a collapsed series, else nil.
+    let constant: T?
+    /// The server's sentence of a collapsed series.
+    let text: String?
 
-    init(values: [T?] = []) { self.values = values }
+    init(values: [T?] = []) {
+        self.values = values
+        constant = nil
+        text = nil
+    }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        values = (try? container.decode([T?].self)) ?? []
+        if let list = try? container.decode([T?].self) {
+            values = list
+            constant = nil
+            text = nil
+        } else if let sentence = try? container.decode(String.self) {
+            values = []
+            text = sentence
+            constant = Self.collapsedValue(sentence)
+        } else {
+            values = []
+            constant = nil
+            text = nil
+        }
     }
 
-    subscript(index: Int) -> T? { values.indices.contains(index) ? values[index] : nil }
+    subscript(index: Int) -> T? {
+        if values.indices.contains(index) { return values[index] }
+        return values.isEmpty ? constant : nil
+    }
+
     var count: Int { values.count }
+    var isCollapsed: Bool { values.isEmpty && text != nil }
+
+    /// `length` values aligned with a time axis (a collapsed series repeats its value).
+    func expanded(_ length: Int) -> [T?] {
+        (0..<max(length, 0)).map { self[$0] }
+    }
+
+    /// "0.0 mm in allen Stunden" -> 0 (numbers), "ja in allen ..." -> true, "keine Daten" -> nil.
+    static func collapsedValue(_ text: String) -> T? {
+        guard let head = Self.collapsedHead(text) else { return nil }
+        if T.self == String.self { return head as? T }
+        if T.self == Bool.self {
+            if head == "ja" { return true as? T }
+            if head == "nein" { return false as? T }
+            return nil
+        }
+        let first = head.split(separator: " ").first.map(String.init) ?? head
+        guard let number = Double(first.replacingOccurrences(of: ",", with: ".")) else { return nil }
+        if T.self == Double.self { return number as? T }
+        if T.self == Int.self { return Int(number.rounded()) as? T }
+        return nil
+    }
+
+    private static func collapsedHead(_ text: String) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
+        for marker in [" in allen ", " in der gesamten "] {
+            if let range = trimmed.range(of: marker, options: .backwards) {
+                let rest = trimmed[range.upperBound...]
+                guard !rest.isEmpty, !rest.contains(" ") else { continue }
+                return String(trimmed[..<range.lowerBound]).trimmingCharacters(in: .whitespaces)
+            }
+        }
+        return nil
+    }
+}
+
+/// A value that decodes as nil instead of failing the answer when the server sends something else
+/// (a word instead of a number, a missing key).
+@propertyWrapper
+struct Lenient<T: Decodable>: Decodable {
+    var wrappedValue: T?
+
+    init(wrappedValue: T?) {
+        self.wrappedValue = wrappedValue
+    }
+
+    init(from decoder: Decoder) throws {
+        wrappedValue = try? decoder.singleValueContainer().decode(T.self)
+    }
+}
+
+extension KeyedDecodingContainer {
+    func decode<T>(_ type: Lenient<T>.Type, forKey key: Key) throws -> Lenient<T> {
+        (try? decodeIfPresent(type, forKey: key)) ?? Lenient(wrappedValue: nil)
+    }
+}
+
+/// Entry of `source_errors`: a source that failed or is stale.
+struct SourceProblem: Decodable, Hashable {
+    let source: String?
+    let message: String?
 }
 
 // MARK: - /api/v1/tools/weather_now

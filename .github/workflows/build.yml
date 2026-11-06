@@ -72,6 +72,8 @@ jobs:
           xcrun simctl ui "$DEVICE" appearance light
           shot home
           shot days -scrollDays
+          shot mehr -tab mehr
+          shot warnungen -screen warnungen
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots

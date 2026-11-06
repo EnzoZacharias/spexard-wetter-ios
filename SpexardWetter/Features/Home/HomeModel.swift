@@ -45,9 +45,14 @@ final class HomeModel {
     var now: WeatherNow?
     var hours: HoursResponse?
     var forecast: ForecastResponse?
+    var alerts: AlertsResponse?
+    var nowcast: NowcastResponse?
+    var nowcastError: String?
     var errorText: String?
     var loading = false
     var lastUpdate: Date?
+    /// Set when the server was not reachable and stored answers are shown (oldest of them).
+    var offlineSince: Date?
 
     /// "Now" for the display: the real clock, or the time of the example data in mock mode.
     var reference: Date {
@@ -60,15 +65,52 @@ final class HomeModel {
         loading = true
         defer { loading = false }
         let api = APIClient()
-        async let nowCall = api.now()
-        async let hoursCall = api.hours()
-        async let forecastCall = api.forecast()
+        async let nowCall: Fetched<WeatherNow> = api.fetch(.now)
+        async let hoursCall: Fetched<HoursResponse> = api.fetch(.hours)
+        async let forecastCall: Fetched<ForecastResponse> = api.fetch(.forecast16)
+        async let alertsCall: Fetched<AlertsResponse> = api.fetch(.alerts)
+        async let nowcastCall: Fetched<NowcastResponse> = api.fetch(.nowcast)
         var problems: [String] = []
-        do { now = try await nowCall } catch { problems.append(error.localizedDescription) }
-        do { hours = try await hoursCall } catch { problems.append(error.localizedDescription) }
-        do { forecast = try await forecastCall } catch { problems.append(error.localizedDescription) }
+        var cached: [Date] = []
+        var fresh = 0
+        do {
+            let r = try await nowCall
+            now = r.value
+            if r.fromCache { cached.append(r.date) } else { fresh += 1 }
+        } catch { if !APIClient.isCancellation(error) { problems.append(error.localizedDescription) } }
+        do {
+            let r = try await hoursCall
+            hours = r.value
+            if r.fromCache { cached.append(r.date) } else { fresh += 1 }
+        } catch { if !APIClient.isCancellation(error) { problems.append(error.localizedDescription) } }
+        do {
+            let r = try await forecastCall
+            forecast = r.value
+            if r.fromCache { cached.append(r.date) } else { fresh += 1 }
+        } catch { if !APIClient.isCancellation(error) { problems.append(error.localizedDescription) } }
+        do {
+            alerts = try await alertsCall.value
+        } catch {
+            // no banner without an answer (the warnings screen explains a failed source)
+        }
+        do {
+            nowcast = try await nowcastCall.value
+            nowcastError = nil
+        } catch {
+            if !APIClient.isCancellation(error) { nowcastError = error.localizedDescription }
+        }
         errorText = problems.isEmpty ? nil : Array(Set(problems)).sorted().joined(separator: "\n")
-        if problems.count < 3 { lastUpdate = Date() }
+        offlineSince = cached.min()
+        if fresh > 0 {
+            lastUpdate = Date()
+            Haptics.refreshed()
+        }
+    }
+
+    /// The warning block when it has something for the banner.
+    var bannerBlock: WarningBlock? {
+        guard let block = alerts?.warnungen, block.known, block.top != nil else { return nil }
+        return block
     }
 
     // MARK: current

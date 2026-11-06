@@ -30,6 +30,8 @@ enum Fmt {
     private static let dayFormatter = german("d.M.")
     private static let weekdayFormatter = german("EEEE")
     private static let weekdayShortFormatter = german("EE")
+    private static let weekdayDateFormatter = german("EEEEEE d.M.")
+    private static let longDateFormatter = german("EEEE, d. MMMM")
 
     /// "2026-11-04T17:00+01:00" (with or without seconds) or "2026-11-04".
     static func parse(_ text: String?) -> Date? {
@@ -47,6 +49,30 @@ enum Fmt {
     static func hour(_ date: Date) -> String { hourFormatter.string(from: date) }
     static func time(_ date: Date?) -> String { date.map { timeFormatter.string(from: $0) } ?? "–" }
     static func dayMonth(_ date: Date) -> String { dayFormatter.string(from: date) }
+    static func longDate(_ date: Date) -> String { longDateFormatter.string(from: date) }
+
+    /// "heute 17:43 Uhr", "morgen 10:43 Uhr", "Fr 6.11. 10:43 Uhr".
+    static func relativeDateTime(_ date: Date, reference: Date) -> String {
+        let cal = calendar
+        let clock = timeFormatter.string(from: date) + " Uhr"
+        if cal.isDate(date, inSameDayAs: reference) { return "heute " + clock }
+        if let tomorrow = cal.date(byAdding: .day, value: 1, to: reference), cal.isDate(date, inSameDayAs: tomorrow) {
+            return "morgen " + clock
+        }
+        if let yesterday = cal.date(byAdding: .day, value: -1, to: reference), cal.isDate(date, inSameDayAs: yesterday) {
+            return "gestern " + clock
+        }
+        return weekdayDateFormatter.string(from: date) + " " + clock
+    }
+
+    /// Age of a stand: "vor 5 Min.", "vor 2 Std.", else the date.
+    static func age(_ date: Date, now: Date = Date()) -> String {
+        let minutes = Int(now.timeIntervalSince(date) / 60)
+        if minutes < 1 { return "gerade eben" }
+        if minutes < 60 { return "vor \(minutes) Min." }
+        if minutes < 24 * 60 { return "vor \(minutes / 60) Std." }
+        return relativeDateTime(date, reference: now)
+    }
 
     /// "Heute", "Morgen", else "Samstag" (long) or "Sa" (short).
     static func weekday(_ date: Date, reference: Date, short: Bool = false) -> String {
@@ -82,6 +108,19 @@ enum Fmt {
     static func precip(_ value: Double?) -> String {
         guard let value else { return "–" }
         return number(value, decimals: value < 10 ? 1 : 0) + " mm"
+    }
+
+    /// "1,2 mm/h" / "0,1 mm/h".
+    static func rate(_ value: Double?) -> String {
+        guard let value else { return "–" }
+        return number(value, decimals: value < 10 ? 1 : 0) + " mm/h"
+    }
+
+    /// Number with unit, "–" for nil: `Fmt.value(3.25, 1, "hPa")` -> "3,3 hPa".
+    static func value(_ value: Double?, _ decimals: Int, _ unit: String = "") -> String {
+        guard let value, value.isFinite else { return "–" }
+        let text = number(value, decimals: decimals)
+        return unit.isEmpty ? text : text + " " + unit
     }
 
     static func wind(_ value: Double?) -> String {
