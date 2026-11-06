@@ -132,7 +132,7 @@ struct LiveStripWidget: View {
                 }
             }
             if !live.stations.isEmpty {
-                Text("Gemessen: " + live.stations.joined(separator: ", "))
+                Text("Gemessen: " + live.stations.joined(separator: " · "))
                     .font(.system(size: 8))
                     .opacity(0.65)
                     .lineLimit(1)
@@ -224,37 +224,37 @@ struct ForecastStrip: View {
         let temps = columns.compactMap(\.temp)
         let lo = (temps.min() ?? 0) - 1.5
         let hi = (temps.max() ?? 1) + (compact ? 3.5 : 3)
-        VStack(spacing: compact ? 1 : 3) {
+        VStack(spacing: compact ? 1 : 5) {
             row { c in
                 Text(c.day ?? c.hour)
-                    .font(.system(size: compact ? 9 : 10, weight: c.day == nil ? .medium : .heavy))
+                    .font(.system(size: compact ? 9 : 11, weight: c.day == nil ? .medium : .heavy))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
             row { c in
                 Image(systemName: c.symbol)
                     .symbolRenderingMode(.multicolor)
-                    .font(.system(size: compact ? 11 : 15))
-                    .frame(height: compact ? 13 : 18)
+                    .font(.system(size: compact ? 11 : 18))
+                    .frame(height: compact ? 13 : 24)
             }
             curve(lo: lo, hi: hi)
-                .frame(height: compact ? 27 : 54)
+                .frame(height: compact ? 27 : 80)
             row { c in
                 Text(c.precip.flatMap { $0 >= 0.1 ? Fmt.number($0, decimals: $0 < 10 ? 1 : 0) : nil } ?? " ")
-                    .font(.system(size: compact ? 8 : 9, weight: .semibold))
+                    .font(.system(size: compact ? 8 : 10, weight: .semibold))
                     .foregroundStyle(Palette.rain)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
             }
-            row { c in WindCell(kmh: c.wind, height: compact ? 12 : 15) }
-            row { c in WindCell(kmh: c.gust, height: compact ? 12 : 15) }
+            row { c in WindCell(kmh: c.wind, height: compact ? 12 : 19) }
+            row { c in WindCell(kmh: c.gust, height: compact ? 12 : 19) }
             row { c in
                 if let dir = c.windDir {
                     // drawn pointing up = north; turned to where the air moves (from + 180°)
                     Image(systemName: "arrow.up")
-                        .font(.system(size: compact ? 8 : 10, weight: .bold))
+                        .font(.system(size: compact ? 8 : 12, weight: .bold))
                         .rotationEffect(.degrees(dir + 180))
-                        .frame(height: compact ? 10 : 12)
+                        .frame(height: compact ? 10 : 15)
                 } else {
                     Text(" ").font(.system(size: 8))
                 }
@@ -321,7 +321,7 @@ struct WindCell: View {
 
     var body: some View {
         Text(kmh.map { Fmt.number($0, decimals: 0) } ?? "–")
-            .font(.system(size: height < 14 ? 8 : 9, weight: .bold))
+            .font(.system(size: height < 14 ? 8 : 10, weight: .bold))
             .foregroundStyle(WindScale.ink(kmh))
             .lineLimit(1)
             .minimumScaleFactor(0.6)
