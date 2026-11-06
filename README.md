@@ -2,12 +2,22 @@
 
 Native SwiftUI-App für den eigenen Wetterserver
 ([Wetter-MCP v2](https://github.com/EnzoZacharias/wetter-mcp), läuft als Home-Assistant-App).
-Die App zeigt nur an, was der Server liefert:
-- aktuelle Temperatur, mit dem eigenen Außensensor vor der DWD-Station und dem Modell
-- die nächsten 24 Stunden
-- 16 Tage
+Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darstellung):
 
-Geplant: Radar, Wetterbericht, Warnungen und Widgets.
+- **Wetter**: amtliche DWD-Warnung als Banner, aktuelle Temperatur (eigener Außensensor vor der
+  DWD-Station und dem Modell), Regen in den nächsten 2 Stunden (Radar-Nowcast), 24 Stunden mit
+  Regen/Wind und Sonnenauf- und -untergang, Wetterbericht-Anriss, aktuelle Details, 16 Tage
+  (Tippen öffnet den Tag mit allen Modellen und dem Ensemble)
+- **Radar**: DWD-Radar und Nowcast als animierte Karte mit Legende, Umkreis-Satz, Regenrate unter
+  dem Finger und „Radar am Standort“
+- **Bericht**: Wetterbericht für heute, das Wochenende und die Woche
+- **Mehr**: Warnungen & Gefahren, Messwerte, Meteogramm, Modellvergleich, Ensembles, Trend,
+  Großwetterlage, Profil (Radiosonde und Höhenschnitt), Modellgüte, Server-Status
+- **Widgets**: klein, mittel, groß, Sperrbildschirm (rechteckig, rund, einzeilig) und
+  „Regen in 2 Stunden“
+- Offline: die letzte Antwort jeder Seite bleibt gespeichert und erscheint mit ihrem Stand
+
+Der Stand der Arbeit steht in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 Die App enthält keine Standortdaten und keine Geheimnisse. Sie spricht nur mit der eingestellten
 Server-Adresse.
@@ -43,4 +53,8 @@ xcodegen generate
 open SpexardWetter.xcodeproj
 ```
 
-Startargument `-mock` lädt die Beispieldaten aus `SpexardWetter/Resources/mock_*.json`.
+Startargument `-mock` lädt die Beispieldaten aus `SpexardWetter/Resources/mock_*.json`
+(erzeugt mit `python scripts/make_mocks.py <wetter-mcp>` aus den Fixtures der Webseite). Für die
+Screenshots in CI: `-tab radar|bericht|mehr`, `-screen <seite>` (z. B. `messwerte`, `meteogramm`),
+`-option <wert>` (z. B. `ecmwf`, `woche`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
+`-radarPoint`, `-scrollBottom`.
