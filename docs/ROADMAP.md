@@ -44,6 +44,7 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Tipp auf die Karte zeigt die Regenrate an der Stelle (Klasse des gezeigten Bilds) und die Entfernung
 - [x] Widgets: Tipp öffnet Warnungen (bei Warnung), Radar (bei Regen) oder die Startseite
       (URL-Schema `spexardwetter://<tab oder seite>`); Messzeit im mittleren Widget
+- [x] Zweites Widget „Regen in 2 Stunden“ (mittel und Sperrbildschirm): Nowcast-Satz und 5-Minuten-Balken
 
 - [x] Startseite verlinkt weiter: aktuelle Werte → Messwerte, 24 Stunden → Meteogramm, Tage → Trend;
       Mehr-Liste nach Themen gegliedert

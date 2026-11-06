@@ -61,9 +61,34 @@ struct SpexardWeatherWidget: Widget {
     }
 }
 
+struct RainWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: WeatherEntry
+
+    var body: some View {
+        RainWidgetContent(family: family, snapshot: entry.snapshot)
+            .containerBackground(for: .widget) {
+                BackgroundGradient(night: entry.snapshot?.night ?? false)
+            }
+            .widgetURL(URL(string: "spexardwetter://radar"))
+    }
+}
+
+struct SpexardRainWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "SpexardRegen", provider: WeatherProvider()) { entry in
+            RainWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Regen in 2 Stunden")
+        .description("Radar-Nowcast des DWD am Standort: trocken oder wann der Regen kommt.")
+        .supportedFamilies([.systemMedium, .accessoryRectangular])
+    }
+}
+
 @main
 struct SpexardWidgetBundle: WidgetBundle {
     var body: some Widget {
         SpexardWeatherWidget()
+        SpexardRainWidget()
     }
 }

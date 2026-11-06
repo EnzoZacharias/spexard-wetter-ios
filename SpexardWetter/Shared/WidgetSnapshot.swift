@@ -17,6 +17,9 @@ struct WidgetSnapshot {
     let max: Double?
     let hours: [HourItem]
     let rainHeadline: String?
+    /// Radar nowcast at the location in 5-minute steps (measured, then forecast).
+    let rainSteps: [NowcastResponse.Step]
+    let rainText: String?
     let warningTitle: String?
     let warningLevel: Int?
     let warningIsPre: Bool
@@ -63,6 +66,8 @@ struct WidgetSnapshot {
             max: range.max,
             hours: WeatherDerived.hourItems(hours?.value, reference: reference, limit: 6),
             rainHeadline: nowcast?.value.headline,
+            rainSteps: nowcast?.value.steps ?? [],
+            rainText: nowcast?.value.summary?.text,
             warningTitle: top?.title,
             warningLevel: top?.stufe,
             warningIsPre: block?.topIsPre ?? false,

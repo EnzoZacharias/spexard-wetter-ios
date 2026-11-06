@@ -29,6 +29,10 @@ struct WidgetPreviewScreen: View {
                 section("Mittel") {
                     systemWidget(.systemMedium, width: 364, height: 170)
                 }
+                section("Regen in 2 Stunden") {
+                    rainWidget()
+                    accessoryRain()
+                }
                 section("Sperrbildschirm") {
                     HStack(alignment: .top, spacing: 14) {
                         accessory(.accessoryRectangular, width: 172, height: 76)
@@ -65,6 +69,23 @@ struct WidgetPreviewScreen: View {
             .background(BackgroundGradient(night: snapshot?.night ?? false))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))
+    }
+
+    private func rainWidget() -> some View {
+        RainWidgetContent(family: .systemMedium, snapshot: snapshot)
+            .padding(16)
+            .frame(width: 364, height: 170)
+            .background(BackgroundGradient(night: snapshot?.night ?? false))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))
+    }
+
+    private func accessoryRain() -> some View {
+        RainWidgetContent(family: .accessoryRectangular, snapshot: snapshot)
+            .foregroundStyle(.white)
+            .frame(width: 172, height: 76, alignment: .leading)
+            .padding(8)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.black.opacity(0.45)))
     }
 
     private func accessory(_ family: WidgetFamily, width: CGFloat, height: CGFloat) -> some View {

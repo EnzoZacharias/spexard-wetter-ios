@@ -1,3 +1,4 @@
+import Charts
 import SwiftUI
 import WidgetKit
 
@@ -204,5 +205,98 @@ struct WidgetNoData: View {
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+/// Rain widget: the nowcast sentence and the 2-hour bars of the DWD radar at the location.
+struct RainWidgetContent: View {
+    let family: WidgetFamily
+    let snapshot: WidgetSnapshot?
+
+    var body: some View {
+        if let s = snapshot {
+            if family == .accessoryRectangular {
+                VStack(alignment: .leading, spacing: 2) {
+                    Label(s.rainHeadline ?? "Keine Radardaten", systemImage: "cloud.rain")
+                        .font(.headline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    RainBars(steps: s.rainSteps, tinted: false, axis: false)
+                        .frame(height: 22)
+                }
+                .accessibilityElement(children: .combine)
+            } else {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Label("Regen in 2 Stunden", systemImage: "cloud.rain")
+                            .font(.caption.weight(.semibold))
+                            .opacity(0.85)
+                        Spacer()
+                        Text(s.shortPlace).font(.caption2).opacity(0.7)
+                    }
+                    Text(s.rainHeadline ?? "Keine Radardaten")
+                        .font(.headline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    RainBars(steps: s.rainSteps, tinted: true, axis: true)
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .accessibilityElement(children: .combine)
+            }
+        } else {
+            WidgetNoData()
+        }
+    }
+}
+
+/// 5-minute bars (mm/h) with the start of the forecast marked; only the zero line when dry.
+struct RainBars: View {
+    let steps: [NowcastResponse.Step]
+    let tinted: Bool
+    let axis: Bool
+
+    var body: some View {
+        let top = max(1, (steps.compactMap(\.mmh).max() ?? 0) * 1.1)
+        let first = steps.first.map { $0.end.addingTimeInterval(-300) } ?? Date()
+        let last = max(steps.last?.end ?? first, first.addingTimeInterval(600))
+        let forecastStart = steps.first(where: { $0.forecast }).map { $0.end.addingTimeInterval(-300) }
+        let base = Chart {
+            RuleMark(y: .value("null", 0.0))
+                .foregroundStyle(.white.opacity(0.4))
+            if let forecastStart {
+                RuleMark(x: .value("Prognose", forecastStart))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [2, 2]))
+            }
+            ForEach(steps) { step in
+                if let v = step.mmh, v > 0 {
+                    RectangleMark(
+                        xStart: .value("Beginn", step.end.addingTimeInterval(-290)),
+                        xEnd: .value("Ende", step.end.addingTimeInterval(-10)),
+                        yStart: .value("unten", 0.0),
+                        yEnd: .value("mm/h", v)
+                    )
+                    .foregroundStyle(tinted ? Palette.rain : Color.white)
+                }
+            }
+        }
+        .chartXScale(domain: first...last)
+        .chartYScale(domain: 0...top)
+        .chartYAxis(.hidden)
+        .accessibilityHidden(true)
+        if axis {
+            base.chartXAxis {
+                AxisMarks(values: .stride(by: .minute, count: 30)) { value in
+                    AxisValueLabel {
+                        if let d = value.as(Date.self) {
+                            Text(Fmt.time(d)).font(.system(size: 9))
+                        }
+                    }
+                }
+            }
+        } else {
+            base.chartXAxis(.hidden)
+        }
     }
 }
