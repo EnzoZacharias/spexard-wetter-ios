@@ -94,6 +94,12 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 
 ## Als Nächstes
 
+- [ ] Branch `wip-lexikon-hinweise` (Lexikon, Info-Knöpfe, Hinweise, Karten-Marker, Widget-Symbol) ist noch
+      nicht in CI gebaut: per PR bauen lassen, Screenshots `lexikon`, `lexikon-cape`, `home`, `profil`,
+      `karten*` prüfen, dann nach `main`
+- [ ] Historie-Screen, sobald `/api/v1/historie` auf v2 liegt; danach Profi-Daten (Pollen, UV, Luft, ...)
+- [ ] Hinweis-Zeile im großen Widget (`/api/v1/glossar/hinweise`)
+
 - [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,
       Stunden und Umkreis), danach deren Diagramme mit Regen in den Screenshots prüfen
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
