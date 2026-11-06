@@ -14,6 +14,8 @@ struct RadarScreen: View {
     @State private var playing = false
     @State private var summaryExpanded = false
     @State private var panelHeight: CGFloat = 260
+    /// Map position the user tapped (shows the rain rate there).
+    @State private var probe: CLLocationCoordinate2D?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isNight) private var night
@@ -42,7 +44,15 @@ struct RadarScreen: View {
             .foregroundStyle(.white)
             .toolbar(.hidden, for: .navigationBar)
         }
-        .task { await loader.loadIfNeeded(.radarFrames, maxAge: 240) }
+        .task {
+            await loader.loadIfNeeded(.radarFrames, maxAge: 240)
+            // new radar images every 5 minutes: refresh while the tab is visible
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 300_000_000_000)
+                if Task.isCancelled { break }
+                await loader.loadIfNeeded(.radarFrames, maxAge: 240)
+            }
+        }
         .onChange(of: loader.date) { _, _ in rebuildImages() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await loader.loadIfNeeded(.radarFrames, maxAge: 240) } }
@@ -62,7 +72,11 @@ struct RadarScreen: View {
             placeName: Self.shortPlace(data.location?.label),
             image: image,
             bottomInset: panelHeight + 12,
-            accessibilityText: "Radarkarte, \(label.kind) \(label.time). \(data.umkreis?.text ?? "")"
+            accessibilityText: "Radarkarte, \(label.kind) \(label.time). \(data.umkreis?.text ?? "")",
+            onTap: { coordinate in
+                probe = coordinate
+                Haptics.selection()
+            }
         )
         .ignoresSafeArea(edges: .top)
     }
@@ -211,6 +225,22 @@ struct RadarScreen: View {
                 }
             }
 
+            if let probe, let text = probeText(data, frame: frame, at: probe) {
+                HStack(spacing: 6) {
+                    Image(systemName: "hand.tap")
+                    Text(text).font(.caption.weight(.semibold))
+                    Spacer(minLength: 0)
+                    Button {
+                        self.probe = nil
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .accessibilityLabel("Stelle vergessen")
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(.white.opacity(0.14)))
+            }
             if let frame {
                 Text(factLine(frame))
                     .font(.caption)
@@ -229,6 +259,26 @@ struct RadarScreen: View {
                     .onChange(of: geo.size.height) { _, height in panelHeight = height }
             }
         )
+    }
+
+    /// "Getippte Stelle: 1–2,5 mm/h (leicht), 12 km vom Standort" for the shown frame.
+    private func probeText(_ data: RadarResponse, frame: RadarResponse.Frame?, at c: CLLocationCoordinate2D) -> String? {
+        guard let pixel = RadarImages.pixel(data.map, latitude: c.latitude, longitude: c.longitude) else {
+            return "Getippte Stelle liegt außerhalb des Radarbilds"
+        }
+        guard let value = RadarImages.rainClass(frame?.rle, at: pixel) else { return nil }
+        var text: String
+        if value == 0 {
+            text = "Getippte Stelle: trocken"
+        } else if let cls = data.classes.first(where: { $0.class == value }) {
+            text = "Getippte Stelle: \(RadarWords.range(cls)) mm/h" + (cls.intensity.map { " (\($0))" } ?? "")
+        } else {
+            text = "Getippte Stelle: Niederschlag"
+        }
+        let center = Self.center(data) ?? RadarOverlay(bounds: data.map.bounds).coordinate
+        let km = MKMapPoint(center).distance(to: MKMapPoint(c)) / 1000
+        text += ", \(Fmt.number(km, decimals: 0)) km vom Standort"
+        return text
     }
 
     private func factLine(_ f: RadarResponse.Frame) -> String {

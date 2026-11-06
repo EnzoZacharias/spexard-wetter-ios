@@ -82,6 +82,9 @@ struct MediumWidget: View {
                             Text(s.shortPlace).font(.footnote.weight(.semibold)).lineLimit(1)
                             WidgetWarningMark(snapshot: s)
                         }
+                        Text(s.offline ? "Stand \(Fmt.time(s.time ?? s.stand))" : Fmt.time(s.time ?? s.stand))
+                            .font(.caption2)
+                            .opacity(0.7)
                         HStack(alignment: .center, spacing: 6) {
                             Text(Fmt.temp(s.temp))
                                 .font(.system(size: 40, weight: .light))
@@ -102,7 +105,7 @@ struct MediumWidget: View {
                     HStack(spacing: 0) {
                         ForEach(s.hours.prefix(5)) { hour in
                             VStack(spacing: 4) {
-                                Text(hour.label == "Jetzt" ? "Jetzt" : Fmt.hour(hour.id))
+                                Text(Fmt.hour(hour.id))
                                     .font(.caption2.weight(.medium))
                                 Image(systemName: hour.symbol)
                                     .symbolRenderingMode(.multicolor)

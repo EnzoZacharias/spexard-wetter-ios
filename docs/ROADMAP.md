@@ -33,11 +33,21 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Mehr → Profil (`/profil/sonde`): Temperatur/Taupunkt über der Höhe, Inversionen, Kennwerte, Vergleich ICON-D2
 - [x] Mehr → Modellgüte (`/verifikation/auswertung?tage=7|30|90`): Aussagen, Fehler je Modell und Größe
 - [x] Mehr → Status (`/status/uebersicht`): Ampel, Kontingent, Quellen, geplante Abrufe
+- [x] Profil: Höhenschnitt `/profil/schnitt?modell=icon_d2|ecmwf` (Temperatur über Zeit und Höhe,
+      0-°C-Grenze, Grenzschicht, Wolkenbasis), `-screen profil -option icon_d2`
+- [x] Startseite: „Jetzt im Detail“ (Wind, Feuchte, Taupunkt, Druck, Wolken, Sicht, Regen, Sonne),
+      Umkreis-Satz aus `/radar/umkreis`, Wetterbericht-Anriss, Tagesdetail per Tipp (`-showDay JJJJ-MM-TT`)
+- [x] Feinschliff: Pull to refresh auf allen Listen-Seiten (Radar: Knopf + alle 5 Minuten), Haptik
+      (Aktualisierung, Tabwechsel, Abspielen), leere Zustände, „kein Niederschlag“ in trockenen Diagrammen,
+      VoiceOver-Texte für Stunden, Tage, Diagramme und Karte, Offline-Speicher in den Einstellungen
+- [x] Radar: Bilder direkt aus den Lauflängen gemalt (nur nasse Pixel), Apple-Karten-Logo bleibt sichtbar,
+      Tipp auf die Karte zeigt die Regenrate an der Stelle (Klasse des gezeigten Bilds) und die Entfernung
+- [x] Widgets: Tipp öffnet Warnungen (bei Warnung), Radar (bei Regen) oder die Startseite
+      (URL-Schema `spexardwetter://<tab oder seite>`); Messzeit im mittleren Widget
 
 ## Als Nächstes
 
-- [ ] Profil: Höhenschnitt `/profil/schnitt?modell=icon_d2|ecmwf` (Zeit-Höhen-Diagramm) fehlt noch
-- [ ] Feinschliff: Pull to refresh überall, Haptik, leere Zustände
+- [ ] Mehr: Suche/Favoriten der Detailseiten
 
 ## Hinweise
 

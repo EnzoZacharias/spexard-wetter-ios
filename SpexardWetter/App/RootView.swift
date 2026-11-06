@@ -53,5 +53,15 @@ struct RootView: View {
         .environment(\.calendar, Fmt.calendar)
         .preferredColorScheme(.dark)
         .onChange(of: tab) { _, _ in Haptics.selection() }
+        .onOpenURL { url in
+            guard let route = AppRoute(url: url) else { return }
+            switch route {
+            case .tab(let target):
+                tab = target
+            case .more(let destination):
+                morePath = [destination]
+                tab = .mehr
+            }
+        }
     }
 }

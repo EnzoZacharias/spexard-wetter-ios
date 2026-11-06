@@ -38,6 +38,15 @@ struct WeatherWidgetView: View {
             .containerBackground(for: .widget) {
                 BackgroundGradient(night: entry.snapshot?.night ?? false)
             }
+            .widgetURL(link)
+    }
+
+    /// Tap target: the warnings while the DWD warns, the radar when rain is coming, else home.
+    private var link: URL? {
+        guard let s = entry.snapshot else { return URL(string: "spexardwetter://wetter") }
+        if s.warningTitle != nil { return URL(string: "spexardwetter://warnungen") }
+        if let rain = s.rainHeadline, !rain.hasPrefix("Trocken") { return URL(string: "spexardwetter://radar") }
+        return URL(string: "spexardwetter://wetter")
     }
 }
 

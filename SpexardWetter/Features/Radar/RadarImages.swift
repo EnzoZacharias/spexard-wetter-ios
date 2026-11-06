@@ -79,11 +79,81 @@ enum RadarImages {
         )
     }
 
+    /// RGBA image straight from the runs: only wet runs are painted, dry ones stay transparent
+    /// (most of the raster), so a frame costs about as much as its run list. Nil when the runs do
+    /// not fill the raster.
+    static func image(rle: [Int]?, size: Int) -> CGImage? {
+        guard let rle, rle.count % 2 == 0, size > 0 else { return nil }
+        let pixels = size * size
+        var bytes = [UInt8](repeating: 0, count: pixels * 4)
+        var pos = 0
+        let ok: Bool = bytes.withUnsafeMutableBufferPointer { buffer -> Bool in
+            var i = 0
+            while i < rle.count {
+                let value = rle[i]
+                let count = rle[i + 1]
+                if count < 0 || pos + count > pixels { return false }
+                if value > 0 {
+                    let c = RadarPalette.rgba(forClass: value)
+                    for p in pos..<(pos + count) {
+                        let o = p * 4
+                        buffer[o] = c.0
+                        buffer[o + 1] = c.1
+                        buffer[o + 2] = c.2
+                        buffer[o + 3] = c.3
+                    }
+                }
+                pos += count
+                i += 2
+            }
+            return true
+        }
+        guard ok, pos == pixels else { return nil }
+        guard let provider = CGDataProvider(data: Data(bytes) as CFData) else { return nil }
+        return CGImage(
+            width: size,
+            height: size,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: size * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            provider: provider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        )
+    }
+
+    /// Row-major raster index under a map position (the raster rows are linear in Web Mercator),
+    /// nil outside the raster.
+    static func pixel(_ map: RadarResponse.MapInfo, latitude: Double, longitude: Double) -> Int? {
+        let b = map.bounds
+        guard latitude > b.south, latitude < b.north, longitude > b.west, longitude < b.east else { return nil }
+        func mercY(_ lat: Double) -> Double { log(tan(Double.pi / 4 + lat * Double.pi / 360)) }
+        let col = Int(((longitude - b.west) / (b.east - b.west)) * Double(map.size))
+        let row = Int(((mercY(b.north) - mercY(latitude)) / (mercY(b.north) - mercY(b.south))) * Double(map.size))
+        guard col >= 0, row >= 0, col < map.size, row < map.size else { return nil }
+        return row * map.size + col
+    }
+
+    /// Class of one pixel, read from the runs without decoding the whole frame.
+    static func rainClass(_ rle: [Int]?, at pixel: Int) -> Int? {
+        guard let rle, rle.count % 2 == 0 else { return nil }
+        var pos = 0
+        var i = 0
+        while i < rle.count {
+            let count = rle[i + 1]
+            if pixel < pos + count { return rle[i] }
+            pos += count
+            i += 2
+        }
+        return nil
+    }
+
     /// Images of all frames (nil where a frame has no readable raster).
     static func images(for response: RadarResponse) -> [CGImage?] {
         let size = response.map.size
-        return response.frames.map { frame in
-            decode(frame.rle, pixels: size * size).flatMap { image(classes: $0, size: size) }
-        }
+        return response.frames.map { image(rle: $0.rle, size: size) }
     }
 }

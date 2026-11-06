@@ -44,6 +44,11 @@ targets:
           - UIInterfaceOrientationPortrait
         UIApplicationSupportsIndirectInputEvents: true
         SpexardAPIBaseURL: $(API_BASE_URL)
+        # links from the widgets (spexardwetter://radar, ://warnungen, ...)
+        CFBundleURLTypes:
+          - CFBundleURLName: com.enzozacharias.spexardwetter
+            CFBundleURLSchemes:
+              - spexardwetter
         NSLocalNetworkUsageDescription: Die App holt die Wetterdaten von deinem Wetterserver im Heimnetz.
         NSAppTransportSecurity:
           # private app talking to the own server (LAN over http or the tailnet over https)

@@ -18,6 +18,24 @@ enum AppRoute: Hashable {
     }
 }
 
+extension AppRoute {
+    static let scheme = "spexardwetter"
+
+    /// "spexardwetter://radar", "spexardwetter://warnungen", "spexardwetter://wetter".
+    init?(url: URL) {
+        guard url.scheme == Self.scheme, let host = url.host else { return nil }
+        if let tab = AppTab(rawValue: host) {
+            self = .tab(tab)
+        } else if let destination = MoreDestination(rawValue: host) {
+            self = .more(destination)
+        } else {
+            return nil
+        }
+    }
+
+    static func url(_ name: String) -> URL? { URL(string: "\(scheme)://\(name)") }
+}
+
 /// Opens a route (switches the tab, pushes the screen in "Mehr").
 struct OpenRouteAction {
     let handler: (AppRoute) -> Void

@@ -66,6 +66,8 @@ struct RadarMapView: UIViewRepresentable {
     /// Height covered by the controls at the bottom (keeps the Apple Maps logo and "Legal" visible).
     var bottomInset: CGFloat = 0
     let accessibilityText: String
+    /// Tap on the map: the coordinate under the finger.
+    var onTap: ((CLLocationCoordinate2D) -> Void)?
 
     static let rings: [Double] = [25, 50, 100]
 
@@ -107,11 +109,15 @@ struct RadarMapView: UIViewRepresentable {
         map.accessibilityLabel = accessibilityText
         context.coordinator.overlay = overlay
         context.coordinator.image = image
+        context.coordinator.onTap = onTap
+        let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapped(_:)))
+        map.addGestureRecognizer(tap)
         return map
     }
 
     func updateUIView(_ map: MKMapView, context: Context) {
         context.coordinator.image = image
+        context.coordinator.onTap = onTap
         context.coordinator.renderer?.show(image)
         map.accessibilityValue = accessibilityText
         if abs(map.layoutMargins.bottom - bottomInset) > 1 {
@@ -126,6 +132,13 @@ struct RadarMapView: UIViewRepresentable {
         var overlay: RadarOverlay?
         var renderer: RadarRenderer?
         var image: CGImage?
+        var onTap: ((CLLocationCoordinate2D) -> Void)?
+
+        @objc func tapped(_ gesture: UITapGestureRecognizer) {
+            guard let map = gesture.view as? MKMapView else { return }
+            let point = gesture.location(in: map)
+            onTap?(map.convert(point, toCoordinateFrom: map))
+        }
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let radar = overlay as? RadarOverlay {
