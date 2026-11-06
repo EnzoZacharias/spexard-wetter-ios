@@ -50,6 +50,10 @@ enum Fmt {
     static func time(_ date: Date?) -> String { date.map { timeFormatter.string(from: $0) } ?? "–" }
     static func dayMonth(_ date: Date) -> String { dayFormatter.string(from: date) }
     static func longDate(_ date: Date) -> String { longDateFormatter.string(from: date) }
+    /// "Mi" (without the dot of the German short form).
+    static func weekdayShort(_ date: Date) -> String {
+        weekdayShortFormatter.string(from: date).replacingOccurrences(of: ".", with: "")
+    }
 
     /// "heute 17:43 Uhr", "morgen 10:43 Uhr", "Fr 6.11. 10:43 Uhr".
     static func relativeDateTime(_ date: Date, reference: Date) -> String {

@@ -63,6 +63,8 @@ struct RadarMapView: UIViewRepresentable {
     let center: CLLocationCoordinate2D?
     let placeName: String
     let image: CGImage?
+    /// Height covered by the controls at the bottom (keeps the Apple Maps logo and "Legal" visible).
+    var bottomInset: CGFloat = 0
     let accessibilityText: String
 
     static let rings: [Double] = [25, 50, 100]
@@ -100,6 +102,7 @@ struct RadarMapView: UIViewRepresentable {
         let inner = rect.insetBy(dx: rect.width * 0.18, dy: rect.height * 0.18)
         map.setVisibleMapRect(inner, edgePadding: UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8), animated: false)
 
+        map.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: bottomInset, right: 8)
         map.isAccessibilityElement = true
         map.accessibilityLabel = accessibilityText
         context.coordinator.overlay = overlay
@@ -111,6 +114,9 @@ struct RadarMapView: UIViewRepresentable {
         context.coordinator.image = image
         context.coordinator.renderer?.show(image)
         map.accessibilityValue = accessibilityText
+        if abs(map.layoutMargins.bottom - bottomInset) > 1 {
+            map.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: bottomInset, right: 8)
+        }
     }
 
     final class RingCircle: MKCircle {}

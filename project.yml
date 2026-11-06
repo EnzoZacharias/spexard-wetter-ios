@@ -19,6 +19,9 @@ targets:
     platform: iOS
     sources:
       - path: SpexardWetter
+    dependencies:
+      - target: SpexardWetterWidget
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.enzozacharias.spexardwetter
@@ -44,5 +47,41 @@ targets:
         NSLocalNetworkUsageDescription: Die App holt die Wetterdaten von deinem Wetterserver im Heimnetz.
         NSAppTransportSecurity:
           # private app talking to the own server (LAN over http or the tailnet over https)
+          NSAllowsArbitraryLoads: true
+          NSAllowsLocalNetworking: true
+
+  # Widgets (home screen and lock screen). No App Group: the widget asks the server itself and
+  # takes the built-in address from its own Info.plist (same API_BASE_URL build setting).
+  SpexardWetterWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SpexardWetterWidget
+      - path: SpexardWetter/Data/API.swift
+      - path: SpexardWetter/Data/Format.swift
+      - path: SpexardWetter/Data/Models.swift
+      - path: SpexardWetter/Data/Models+Alerts.swift
+      - path: SpexardWetter/Data/Symbols.swift
+      - path: SpexardWetter/Data/WeatherDerived.swift
+      - path: SpexardWetter/Shared
+      - path: SpexardWetter/UI/Theme.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.enzozacharias.spexardwetter.widget
+        PRODUCT_NAME: SpexardWetterWidget
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+    info:
+      path: SpexardWetterWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Spexard Wetter
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        SpexardAPIBaseURL: $(API_BASE_URL)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
           NSAllowsLocalNetworking: true

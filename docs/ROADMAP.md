@@ -16,11 +16,14 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Radar-Tab: `/api/v1/radar/bilder` (RLE-Klassen) als MapKit-Overlay, Abspielen/Regler,
       „Radar HH:MM“ / „Prognose HH:MM“, Legende in mm/h, 1-km-Kreis am Standort, Ringe 25/50/100 km,
       Umkreis-Satz und Kennzahlen des gezeigten Bilds (`-tab radar`, `-radarFrame N`)
+- [x] Bericht-Tab: `/api/v1/wetterbericht?art=heute|wochenende|woche` mit Segmenten, Abschnitts-Chips,
+      Kennzahlen, Temperaturkurve, DWD-Zitaten, Warum-Fragen, Fachteil und Stundentabelle;
+      Links des Berichts öffnen die passenden App-Seiten (`-tab bericht -option woche`)
+- [x] Widgets (WidgetKit-Extension, ohne App Group): klein, mittel, Sperrbildschirm rechteckig,
+      rund und einzeilig; Aktualisierung alle 20 Minuten, Vorschau unter Mehr → Widgets (`-screen widgets`)
 
 ## Als Nächstes
 
-- [ ] Bericht-Tab: `/api/v1/wetterbericht?art=heute|wochenende|woche`
-- [ ] Widgets (klein, mittel, Sperrbildschirm)
 - [ ] Mehr: Gefahren-Matrix, Messwerte, Meteogramm
 - [ ] Mehr: Modellvergleich, Ensembles, Trend, Großwetterlage, Profil, Modellgüte, Status
 - [ ] Feinschliff: Pull to refresh überall, Haptik, leere Zustände

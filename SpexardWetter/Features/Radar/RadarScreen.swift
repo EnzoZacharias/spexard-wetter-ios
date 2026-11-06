@@ -13,6 +13,7 @@ struct RadarScreen: View {
     @State private var index = 0
     @State private var playing = false
     @State private var summaryExpanded = false
+    @State private var panelHeight: CGFloat = 260
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isNight) private var night
@@ -60,6 +61,7 @@ struct RadarScreen: View {
             center: Self.center(data),
             placeName: Self.shortPlace(data.location?.label),
             image: image,
+            bottomInset: panelHeight + 12,
             accessibilityText: "Radarkarte, \(label.kind) \(label.time). \(data.umkreis?.text ?? "")"
         )
         .ignoresSafeArea(edges: .top)
@@ -220,13 +222,20 @@ struct RadarScreen: View {
         }
         .padding(14)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { panelHeight = geo.size.height }
+                    .onChange(of: geo.size.height) { _, height in panelHeight = height }
+            }
+        )
     }
 
     private func factLine(_ f: RadarResponse.Frame) -> String {
         guard f.nearestKm != nil else { return "Kein Niederschlag im Umkreis auf diesem Bild." }
         var parts = ["Nächster Niederschlag \(RadarWords.whereText(f.nearestKm, f.nearestDir))"]
         if let max = f.maxMmH {
-            parts.append("stärkste Stelle \(Fmt.rate(max)) (\(RadarWords.whereText(f.maxKm, f.maxDir)))")
+            parts.append("stärkste Stelle \(Fmt.value(max, 1, "mm/h")) (\(RadarWords.whereText(f.maxKm, f.maxDir)))")
         }
         parts.append("Fläche \(RadarWords.share(f.wetPct))")
         var text = parts.joined(separator: " · ")

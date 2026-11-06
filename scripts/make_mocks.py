@@ -18,6 +18,9 @@ MOCKS: dict[str, str] = {
     "mock_alerts": "scenarios/warnung/weather_alerts__include_reports-false.json",
     "mock_nowcast": "rain_nowcast.json",
     "mock_radar": "api/radar__bilder.json",
+    "mock_bericht_heute": "api/wetterbericht__art-heute.json",
+    "mock_bericht_wochenende": "api/wetterbericht__art-wochenende.json",
+    "mock_bericht_woche": "api/wetterbericht__art-woche.json",
 }
 
 DROP_TOP = ("how_to_read", "sources")

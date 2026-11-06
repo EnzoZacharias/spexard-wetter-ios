@@ -20,6 +20,7 @@ enum LaunchArgs {
 struct RootView: View {
     @State private var tab: AppTab = LaunchArgs.tab ?? (LaunchArgs.screen != nil ? .mehr : .wetter)
     @State private var home = HomeModel()
+    @State private var morePath: [MoreDestination] = LaunchArgs.screen.flatMap(MoreDestination.init(rawValue:)).map { [$0] } ?? []
 
     var body: some View {
         TabView(selection: $tab) {
@@ -32,12 +33,21 @@ struct RootView: View {
             ReportScreen()
                 .tabItem { Label("Bericht", systemImage: "newspaper") }
                 .tag(AppTab.bericht)
-            MoreScreen(home: home)
+            MoreScreen(home: home, path: $morePath)
                 .tabItem { Label("Mehr", systemImage: "square.grid.2x2") }
                 .tag(AppTab.mehr)
         }
         .tint(.white)
         .environment(\.isNight, home.isNight)
+        .environment(\.openRoute, OpenRouteAction { route in
+            switch route {
+            case .tab(let target):
+                tab = target
+            case .more(let destination):
+                morePath = [destination]
+                tab = .mehr
+            }
+        })
         .environment(\.locale, Fmt.locale)
         .environment(\.timeZone, Fmt.zone)
         .environment(\.calendar, Fmt.calendar)

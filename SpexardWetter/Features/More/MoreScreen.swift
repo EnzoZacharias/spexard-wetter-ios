@@ -1,33 +1,37 @@
 import SwiftUI
 
-/// Detail screens of the "Mehr" tab.
+/// Detail screens of the "Mehr" tab (in list order).
 enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case warnungen
+    case widgets
 
     var id: String { rawValue }
 
-    var title: String {
+    private var info: (title: String, subtitle: String, icon: String, web: String?) {
         switch self {
-        case .warnungen: return "Warnungen & Gefahren"
+        case .warnungen: return ("Warnungen & Gefahren", "Amtliche Warnungen des DWD", "exclamationmark.triangle.fill", "/gefahren")
+        case .widgets: return ("Widgets", "Vorschau für Home- und Sperrbildschirm", "rectangle.3.group.fill", nil)
         }
     }
 
-    var subtitle: String {
-        switch self {
-        case .warnungen: return "Amtliche Warnungen des DWD"
-        }
-    }
+    var title: String { info.title }
+    var subtitle: String { info.subtitle }
+    var systemImage: String { info.icon }
+    /// Page of the website with the same content (for the links in the report).
+    var webPath: String? { info.web }
 
-    var systemImage: String {
+    @MainActor @ViewBuilder
+    func screen(home: HomeModel) -> some View {
         switch self {
-        case .warnungen: return "exclamationmark.triangle.fill"
+        case .warnungen: WarningsScreen(home: home)
+        case .widgets: WidgetPreviewScreen()
         }
     }
 }
 
 struct MoreScreen: View {
     let home: HomeModel
-    @State private var path: [MoreDestination] = LaunchArgs.screen.flatMap(MoreDestination.init(rawValue:)).map { [$0] } ?? []
+    @Binding var path: [MoreDestination]
     @State private var showSettings = false
 
     var body: some View {
@@ -62,9 +66,7 @@ struct MoreScreen: View {
             .screenBackground()
             .navigationTitle("Mehr")
             .navigationDestination(for: MoreDestination.self) { destination in
-                switch destination {
-                case .warnungen: WarningsScreen(home: home)
-                }
+                destination.screen(home: home)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()

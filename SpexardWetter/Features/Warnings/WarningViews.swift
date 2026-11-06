@@ -1,31 +1,5 @@
 import SwiftUI
 
-/// DWD warning levels: 1 yellow, 2 orange, 3 red, 4 violet; Vorabinformation without level.
-enum WarnLevel {
-    static func color(_ level: Int?, pre: Bool = false) -> Color {
-        if pre { return Color(red: 0.55, green: 0.60, blue: 0.70) }
-        switch level ?? 1 {
-        case ...1: return Color(red: 1.0, green: 0.86, blue: 0.20)
-        case 2: return Color(red: 1.0, green: 0.58, blue: 0.10)
-        case 3: return Color(red: 0.90, green: 0.18, blue: 0.16)
-        default: return Color(red: 0.62, green: 0.20, blue: 0.70)
-        }
-    }
-
-    /// Dark text on yellow and orange, white on red, violet and grey.
-    static func ink(_ level: Int?, pre: Bool = false) -> Color {
-        if pre { return .white }
-        return (level ?? 1) <= 2 ? Color(red: 0.12, green: 0.10, blue: 0.05) : .white
-    }
-
-    static func title(_ warning: DwdWarning, pre: Bool) -> String {
-        if pre { return "Vorabinformation" }
-        let level = warning.stufe.map { "Stufe \($0)" } ?? "Warnung"
-        if let text = warning.stufeText, !text.isEmpty { return "\(level) · \(text)" }
-        return level
-    }
-}
-
 /// Banner at the top of the home screen while the DWD has warnings or Vorabinformationen for the
 /// municipality. Shows the first one; nothing when there are none or the source is down.
 struct WarningBanner: View {

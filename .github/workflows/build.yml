@@ -76,6 +76,9 @@ jobs:
           shot warnungen -screen warnungen
           WAIT=14 shot radar -tab radar
           WAIT=12 shot radar-prognose -tab radar -radarFrame 30
+          shot bericht -tab bericht
+          shot bericht-woche -tab bericht -option woche
+          shot widgets -screen widgets
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots
