@@ -113,7 +113,7 @@ struct WarningsScreen: View {
                 } else {
                     StateMessage(kind: .loading).card()
                 }
-                StandFooter(date: alerts.date, fromCache: alerts.fromCache, sources: "Quelle: Deutscher Wetterdienst (DWD) via Bright Sky")
+                StandFooter(date: alerts.date, fromCache: alerts.fromCache)
             }
             .padding(16)
         }

@@ -13,11 +13,12 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Startseite: Regen in den nächsten 2 Stunden (`rain_nowcast`, Satz + 5-Minuten-Balken)
 - [x] Mehr → Warnungen (Liste aller Warnungen und Vorabinformationen)
 - [x] Letzte Antwort je Pfad im Cache, offline mit „Gespeicherter Stand“
+- [x] Radar-Tab: `/api/v1/radar/bilder` (RLE-Klassen) als MapKit-Overlay, Abspielen/Regler,
+      „Radar HH:MM“ / „Prognose HH:MM“, Legende in mm/h, 1-km-Kreis am Standort, Ringe 25/50/100 km,
+      Umkreis-Satz und Kennzahlen des gezeigten Bilds (`-tab radar`, `-radarFrame N`)
 
 ## Als Nächstes
 
-- [ ] Radar-Tab: `/api/v1/radar/bilder` (RLE-Klassen) als MapKit-Overlay, Abspielen/Regler,
-      „Radar HH:MM“ / „Prognose HH:MM“, Legende in mm/h, Kreis am Standort, Umkreis-Satz
 - [ ] Bericht-Tab: `/api/v1/wetterbericht?art=heute|wochenende|woche`
 - [ ] Widgets (klein, mittel, Sperrbildschirm)
 - [ ] Mehr: Gefahren-Matrix, Messwerte, Meteogramm

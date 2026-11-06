@@ -17,6 +17,7 @@ from pathlib import Path
 MOCKS: dict[str, str] = {
     "mock_alerts": "scenarios/warnung/weather_alerts__include_reports-false.json",
     "mock_nowcast": "rain_nowcast.json",
+    "mock_radar": "api/radar__bilder.json",
 }
 
 DROP_TOP = ("how_to_read", "sources")

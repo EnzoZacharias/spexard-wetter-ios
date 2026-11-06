@@ -66,7 +66,7 @@ jobs:
           shot() {
             local name=$1; shift
             xcrun simctl launch --terminate-running-process "$DEVICE" "$BUNDLE_ID" -mock "$@" >/dev/null
-            sleep 7
+            sleep "${WAIT:-7}"
             xcrun simctl io "$DEVICE" screenshot "screenshots/$name.png" >/dev/null
           }
           xcrun simctl ui "$DEVICE" appearance light
@@ -74,6 +74,8 @@ jobs:
           shot days -scrollDays
           shot mehr -tab mehr
           shot warnungen -screen warnungen
+          WAIT=14 shot radar -tab radar
+          WAIT=12 shot radar-prognose -tab radar -radarFrame 30
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots
