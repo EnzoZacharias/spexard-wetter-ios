@@ -73,6 +73,10 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Wolkenzeile (groß), Regen/Böen der Spalte = die 3 Stunden danach (Werte gelten für die Stunde davor);
       24-Stunden-Leiste mit Modus „Luft“ (Taupunkt, Bewölkung), Tagesdetail mit Taupunkt und Bewölkung
 
+- [x] Regen-Testszenario nur für Screenshots: `-mock -scenario regen` liest
+      `mock_*_szenario_regen.json` (ausgedachte Werte aus `scripts/make_rain_scenario.py`: Regenband im
+      Radar, nasser Nowcast, nasse Abendstunden); ohne `-mock` nie benutzt
+
 ## Als Nächstes
 
 

@@ -119,6 +119,14 @@ enum ResponseCache {
 struct APIClient {
     static var isMock: Bool { ProcessInfo.processInfo.arguments.contains("-mock") }
 
+    /// `-mock -scenario regen`: made-up test answers for the screenshots
+    /// (`mock_<name>_szenario_regen.json`), only in mock mode.
+    static var mockScenario: String? {
+        let args = ProcessInfo.processInfo.arguments
+        guard isMock, let i = args.firstIndex(of: "-scenario"), args.indices.contains(i + 1) else { return nil }
+        return args[i + 1]
+    }
+
     var baseURL: String = ServerSettings.current
 
     /// snake_case keys of the server -> camelCase properties ("radar_5min" -> "radar5min",
@@ -165,7 +173,10 @@ struct APIClient {
     /// The answer of `endpoint`; on failure the last stored answer (marked `fromCache`).
     func fetch<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self, timeout: TimeInterval = 20) async throws -> Fetched<T> {
         if Self.isMock {
-            guard let name = endpoint.mock, let url = Bundle.main.url(forResource: name, withExtension: "json") else {
+            let scenarioName = endpoint.mock.flatMap { name in Self.mockScenario.map { "\(name)_szenario_\($0)" } }
+            guard let name = endpoint.mock,
+                  let url = scenarioName.flatMap({ Bundle.main.url(forResource: $0, withExtension: "json") })
+                      ?? Bundle.main.url(forResource: name, withExtension: "json") else {
                 throw APIError.missingMock(endpoint.mock ?? endpoint.path)
             }
             let data = try Data(contentsOf: url)

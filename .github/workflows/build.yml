@@ -99,6 +99,13 @@ jobs:
           shot profil-schnitt -screen profil -option icon_d2
           shot modellguete -screen modellguete
           shot status -screen status
+          # made-up rainy test answers (mock_*_szenario_regen.json), only for these screenshots
+          shot regen-home -scenario regen
+          WAIT=14 shot regen-radar -tab radar -scenario regen
+          WAIT=12 shot regen-radar-prognose -tab radar -scenario regen -radarFrame 30
+          shot regen-standort -tab radar -radarPoint -scenario regen
+          shot regen-widgets -screen widgets -scenario regen
+          shot regen-tag -showDay 2026-11-04 -scenario regen
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots
