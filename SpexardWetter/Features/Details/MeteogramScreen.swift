@@ -23,7 +23,7 @@ enum MeteogramModel: String, CaseIterable, Identifiable {
 /// Hour by hour forecast of one model: stacked charts on one time axis.
 struct MeteogramScreen: View {
     @StateObject private var loader = Loader<MeteogramResponse>()
-    @State private var model: MeteogramModel = LaunchArgs.option.flatMap(MeteogramModel.init(rawValue:)) ?? .icon_d2
+    @AppStorage("meteogrammModell") private var model: MeteogramModel = LaunchArgs.option.flatMap(MeteogramModel.init(rawValue:)) ?? .icon_d2
 
     var body: some View {
         ScrollView {

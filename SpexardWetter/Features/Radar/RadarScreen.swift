@@ -263,6 +263,7 @@ struct RadarScreen: View {
         }
         .padding(14)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
         .background(
             GeometryReader { geo in
                 Color.clear

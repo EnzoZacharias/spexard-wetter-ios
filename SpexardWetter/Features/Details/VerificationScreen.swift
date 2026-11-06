@@ -4,7 +4,7 @@ import SwiftUI
 /// How well the models did at the location over the last 7, 30 or 90 days.
 struct VerificationScreen: View {
     @StateObject private var loader = Loader<VerificationResponse>()
-    @State private var days = Int(LaunchArgs.option ?? "") ?? 30
+    @AppStorage("modellgueteTage") private var days = Int(LaunchArgs.option ?? "") ?? 30
 
     private var endpoint: Endpoint {
         Endpoint(path: "/api/v1/verifikation/auswertung?tage=\(days)", mock: "mock_verifikation_\(days)")

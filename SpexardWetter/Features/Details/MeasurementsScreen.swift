@@ -4,7 +4,7 @@ import SwiftUI
 /// Measured values of the DWD stations around the location over 24, 48 or 72 hours.
 struct MeasurementsScreen: View {
     @StateObject private var loader = Loader<MeasurementsResponse>()
-    @State private var hours = Int(LaunchArgs.option ?? "") ?? 24
+    @AppStorage("messwerteStunden") private var hours = Int(LaunchArgs.option ?? "") ?? 24
 
     private var endpoint: Endpoint {
         Endpoint(path: "/api/v1/messwerte/verlauf?stunden=\(hours)", mock: "mock_messwerte_\(hours)")

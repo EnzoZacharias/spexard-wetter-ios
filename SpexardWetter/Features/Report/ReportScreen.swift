@@ -22,7 +22,7 @@ enum ReportKind: String, CaseIterable, Identifiable {
 /// Bericht tab: the server's written report for today, the weekend or the week.
 struct ReportScreen: View {
     @StateObject private var loader = Loader<ReportResponse>()
-    @State private var kind: ReportKind = LaunchArgs.option.flatMap(ReportKind.init(rawValue:)) ?? .heute
+    @AppStorage("berichtArt") private var kind: ReportKind = LaunchArgs.option.flatMap(ReportKind.init(rawValue:)) ?? .heute
 
     var body: some View {
         NavigationStack {

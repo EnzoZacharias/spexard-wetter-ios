@@ -92,6 +92,7 @@ struct HourlyStrip: View {
             }
         }
         .card()
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 }
 
@@ -216,6 +217,8 @@ struct DailyList: View {
             }
         }
         .card()
+        // dense rows with fixed columns: grow with the text size, but not beyond what still fits
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 }
 
