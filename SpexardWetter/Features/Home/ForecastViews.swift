@@ -89,10 +89,13 @@ struct DayRow: View {
     var body: some View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(item.label).font(.body.weight(.semibold))
+                Text(item.label)
+                    .font(.body.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 Text(item.dateLabel).font(.caption2).opacity(0.75)
             }
-            .frame(width: 88, alignment: .leading)
+            .frame(width: 92, alignment: .leading)
             Image(systemName: item.symbol)
                 .symbolRenderingMode(.multicolor)
                 .font(.title3)
