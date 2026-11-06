@@ -22,6 +22,11 @@ final class Loader<T: Decodable>: ObservableObject {
             self.endpoint = endpoint
             error = nil
         }
+        // show the stored answer at once (with its own "Stand") while the server is asked
+        if value == nil, let stored: Fetched<T> = APIClient.cached(endpoint) {
+            value = stored.value
+            date = stored.date
+        }
         loading = true
         defer { loading = false }
         do {

@@ -28,6 +28,12 @@ final class HomeModel {
     func load() async {
         loading = true
         defer { loading = false }
+        // first start of the app: the stored answers right away, the server's after
+        if now == nil, let stored: Fetched<WeatherNow> = APIClient.cached(.now) { now = stored.value }
+        if hours == nil, let stored: Fetched<HoursResponse> = APIClient.cached(.hours) { hours = stored.value }
+        if forecast == nil, let stored: Fetched<ForecastResponse> = APIClient.cached(.forecast16) { forecast = stored.value }
+        if alerts == nil, let stored: Fetched<AlertsResponse> = APIClient.cached(.alerts) { alerts = stored.value }
+        if nowcast == nil, let stored: Fetched<NowcastResponse> = APIClient.cached(.nowcast) { nowcast = stored.value }
         let api = APIClient()
         async let nowCall: Fetched<WeatherNow> = api.fetch(.now)
         async let hoursCall: Fetched<HoursResponse> = api.fetch(.hours)
@@ -78,7 +84,9 @@ final class HomeModel {
 
     /// The warning block when it has something for the banner.
     var bannerBlock: WarningBlock? {
-        guard let block = alerts?.warnungen, block.known, block.top != nil else { return nil }
+        guard let block = alerts?.warnungen, block.known, let top = block.top else { return nil }
+        // a stored answer may hold a warning that has ended meanwhile
+        if let end = Fmt.parse(top.ende), end < reference { return nil }
         return block
     }
 

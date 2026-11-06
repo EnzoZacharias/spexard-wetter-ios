@@ -163,7 +163,7 @@ struct APIClient {
     }
 
     /// The answer of `endpoint`; on failure the last stored answer (marked `fromCache`).
-    func fetch<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self, timeout: TimeInterval = 25) async throws -> Fetched<T> {
+    func fetch<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self, timeout: TimeInterval = 20) async throws -> Fetched<T> {
         if Self.isMock {
             guard let name = endpoint.mock, let url = Bundle.main.url(forResource: name, withExtension: "json") else {
                 throw APIError.missingMock(endpoint.mock ?? endpoint.path)
@@ -185,6 +185,14 @@ struct APIClient {
             }
             throw error
         }
+    }
+
+    /// The stored answer of `endpoint` (instantly, without asking the server), nil in mock mode
+    /// or when nothing is stored yet.
+    static func cached<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self) -> Fetched<T>? {
+        guard !isMock, let stored = ResponseCache.load(endpoint.path),
+              let value = try? decode(stored.data, as: T.self) else { return nil }
+        return Fetched(value: value, date: stored.date, fromCache: true)
     }
 
     static func isCancellation(_ error: Error) -> Bool {

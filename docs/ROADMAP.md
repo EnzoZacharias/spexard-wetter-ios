@@ -49,6 +49,10 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Startseite verlinkt weiter: aktuelle Werte → Messwerte, 24 Stunden → Meteogramm, Tage → Trend;
       Mehr-Liste nach Themen gegliedert
 
+- [x] Offline: gespeicherte Antworten erscheinen sofort beim Start (mit ihrem Stand), der Server wird
+      danach gefragt; abgelaufene Warnungen aus dem Speicher zeigen kein Banner; Widget-Galerie mit Platzhalter
+- [x] Bericht teilen (Text), Gefahren-Zeitleiste ohne Stundenfugen
+
 ## Als Nächstes
 
 
