@@ -20,12 +20,14 @@ struct MapsResponse: Decodable {
         /// Start of the run (local time and UTC).
         let init_: String?
         let initUtc: String?
+        /// "ICON-D2 Lauf 15 UTC".
+        let label: String?
         /// When the server rendered the run.
         let processed: String?
         let stale: Bool?
 
         enum CodingKeys: String, CodingKey {
-            case id, model, resolutionKm, initUtc, processed, stale
+            case id, model, resolutionKm, initUtc, label, processed, stale
             case init_ = "init"
         }
     }
@@ -68,6 +70,14 @@ struct MapsResponse: Decodable {
         @Lenient var max: Double?
         /// Value at the rounded location (nil: no value, e.g. no echo).
         @Lenient var standort: Double?
+        /// [lat, lon] (0.1°) of the largest value; nil when it has no single place.
+        @Lenient var maxBei: [Double]?
+        /// "im Oberharz", "bei Siegen", "verbreitet".
+        let maxOrt: String?
+        /// Smallest value with place (temperature and freezing level only).
+        @Lenient var min: Double?
+        @Lenient var minBei: [Double]?
+        let minOrt: String?
 
         var id: String { zeit }
     }
@@ -83,6 +93,8 @@ struct MapsResponse: Decodable {
         let note: String?
         /// What the time of a frame means ("Stunde davor", "seit Laufbeginn").
         let period: String?
+        /// One plain sentence about the whole run, only from the frame values.
+        let satz: String?
         let legend: Legend
         let frames: [Frame]
     }
@@ -175,13 +187,14 @@ enum MapWords {
         return "\(n(c.from))–\(n(to)) \(unit)"
     }
 
-    /// "Lauf Fr 15 UTC" from "2026110615".
+    /// "ICON-D2 Lauf 15 UTC" (the server's label, else from the run id).
     static func runLabel(_ run: MapsResponse.Run) -> String {
+        if let label = run.label, !label.isEmpty { return label }
         let hour = run.id.suffix(2)
         if let date = Fmt.parse(run.init_) {
-            return "Lauf \(Fmt.weekdayShort(date)) \(hour) UTC"
+            return "ICON-D2 Lauf \(Fmt.weekdayShort(date)) \(hour) UTC"
         }
-        return "Lauf \(hour) UTC"
+        return "ICON-D2 Lauf \(hour) UTC"
     }
 
     /// "Sa 06:00" of a frame.

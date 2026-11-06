@@ -81,7 +81,13 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Ebenen-Chips (Niederschlag 1 h / 3 h / seit Laufbeginn als eine Wahl), Zeitregler mit Abspielen,
       Lauf und Gültigkeitszeit, Legende mit den Stufen des Servers, Wert am Standort und höchster Wert im
       Ausschnitt, Tipp auf die Karte nennt die Farbstufe; Knopf im Radar-Tab. Beispieldaten aus einem echten
-      Lauf (18 UTC vom 6.11., +0 bis +12 h) mit `scripts/make_map_mocks.py` (`-screen karten -option boeen -mapFrame 1`)
+      Lauf (18 UTC vom 6.11., +0 bis +12 h) mit `scripts/make_map_mocks.py` (`-screen karten -option boeen -mapFrame 1`);
+      Satz je Ebene, Orte und Marker (▲/▼) des größten und kleinsten Werts aus dem Katalog
+- [x] Lernen: Texte aus `/api/v1/glossar` (mitgelieferte Kopie `Resources/glossar.json` für offline), kleiner
+      (i)-Knopf an den Profi-Werten (Startseite, Profil, Großwetterlage, Messwerte, Ensembles, Trend, Modellgüte,
+      Modellvergleich, Gefahren, Karten), Hinweise „Was heißt das jetzt“ aus `/api/v1/glossar/hinweise` direkt am
+      Wert und nur, wenn der Server einen Wert auffällig findet (Schwellen nur auf dem Server); Startseite
+      „Gerade auffällig“ mit Sprung zur passenden Seite; Mehr → Lexikon mit Suche (`-screen lexikon -entry cape`)
 
 ## Als Nächstes
 
