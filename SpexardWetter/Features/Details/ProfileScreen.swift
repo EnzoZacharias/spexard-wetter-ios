@@ -295,9 +295,10 @@ struct CrossSectionCard: View {
                     ForEach(cells) { c in
                         RectangleMark(
                             xStart: .value("Beginn", c.start),
-                            xEnd: .value("Ende", c.start.addingTimeInterval(3600)),
-                            yStart: .value("unten", max(0, c.z - c.half)),
-                            yEnd: .value("oben", c.z + c.half)
+                            // a little overlap hides the hairline seams between the cells
+                            xEnd: .value("Ende", c.start.addingTimeInterval(3700)),
+                            yStart: .value("unten", max(0, c.z - c.half - 2)),
+                            yEnd: .value("oben", c.z + c.half + 2)
                         )
                         .foregroundStyle(Self.color(c.temp))
                     }
@@ -328,9 +329,9 @@ struct CrossSectionCard: View {
                 .frame(height: 300)
                 .accessibilityLabel("Höhenschnitt der Temperatur")
                 HStack(spacing: 12) {
-                    Label("0-°C-Grenze", systemImage: "line.diagonal")
-                    Label("Grenzschicht", systemImage: "line.diagonal")
-                    Label("Wolkenbasis", systemImage: "line.diagonal")
+                    legendLine("0-°C-Grenze", dash: [])
+                    legendLine("Grenzschicht", dash: [5, 3])
+                    legendLine("Wolkenbasis", dash: [2, 2])
                 }
                 .font(.caption2)
                 if let source = data.grenzschichtQuelle {
@@ -341,6 +342,18 @@ struct CrossSectionCard: View {
             }
         }
         .card()
+    }
+
+    private func legendLine(_ text: String, dash: [CGFloat]) -> some View {
+        HStack(spacing: 4) {
+            Path { p in
+                p.move(to: CGPoint(x: 0, y: 4))
+                p.addLine(to: CGPoint(x: 18, y: 4))
+            }
+            .stroke(.white, style: StrokeStyle(lineWidth: 2, dash: dash))
+            .frame(width: 18, height: 8)
+            Text(text)
+        }
     }
 
     @ChartContentBuilder

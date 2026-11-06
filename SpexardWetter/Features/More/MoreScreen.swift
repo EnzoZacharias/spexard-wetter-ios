@@ -38,6 +38,14 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     /// Page of the website with the same content (for the links in the report).
     var webPath: String? { info.web }
 
+    /// The list of the "Mehr" tab in topics.
+    static let groups: [MoreGroup] = [
+        MoreGroup(title: "Jetzt und heute", items: [.warnungen, .messwerte]),
+        MoreGroup(title: "Vorhersage", items: [.meteogramm, .modelle, .ensembles, .trend]),
+        MoreGroup(title: "Hintergrund", items: [.grosswetterlage, .profil, .modellguete]),
+        MoreGroup(title: "App und Server", items: [.widgets, .status]),
+    ]
+
     @MainActor @ViewBuilder
     func screen(home: HomeModel) -> some View {
         switch self {
@@ -56,6 +64,13 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     }
 }
 
+struct MoreGroup: Identifiable {
+    let title: String
+    let items: [MoreDestination]
+
+    var id: String { title }
+}
+
 struct MoreScreen: View {
     let home: HomeModel
     @Binding var path: [MoreDestination]
@@ -65,18 +80,28 @@ struct MoreScreen: View {
         NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    VStack(spacing: 0) {
-                        ForEach(MoreDestination.allCases) { destination in
-                            NavigationLink(value: destination) {
-                                MoreRow(title: destination.title, subtitle: destination.subtitle, systemImage: destination.systemImage)
+                    ForEach(MoreDestination.groups) { group in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(group.title)
+                                .font(.footnote.weight(.semibold))
+                                .textCase(.uppercase)
+                                .opacity(0.75)
+                                .padding(.leading, 4)
+                                .accessibilityAddTraits(.isHeader)
+                            VStack(spacing: 0) {
+                                ForEach(group.items) { destination in
+                                    NavigationLink(value: destination) {
+                                        MoreRow(title: destination.title, subtitle: destination.subtitle, systemImage: destination.systemImage)
+                                    }
+                                    .buttonStyle(.plain)
+                                    if destination != group.items.last {
+                                        Divider().overlay(.white.opacity(0.2)).padding(.leading, 52)
+                                    }
+                                }
                             }
-                            .buttonStyle(.plain)
-                            if destination != MoreDestination.allCases.last {
-                                Divider().overlay(.white.opacity(0.2)).padding(.leading, 52)
-                            }
+                            .card()
                         }
                     }
-                    .card()
 
                     Button {
                         showSettings = true

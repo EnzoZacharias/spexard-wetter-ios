@@ -2,15 +2,38 @@ import SwiftUI
 
 // MARK: - next 24 hours
 
+/// Small "Meteogramm ›" style link in a card title.
+struct MoreLink: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 2) {
+                Text(title)
+                Image(systemName: "chevron.right")
+            }
+            .font(.footnote.weight(.semibold))
+            .opacity(0.85)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct HourlyStrip: View {
     let items: [HourItem]
+    var more: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Nächste 24 Stunden", systemImage: "clock")
-                .font(.footnote.weight(.semibold))
-                .textCase(.uppercase)
-                .opacity(0.8)
+            HStack {
+                Label("Nächste 24 Stunden", systemImage: "clock")
+                    .font(.footnote.weight(.semibold))
+                    .textCase(.uppercase)
+                    .opacity(0.8)
+                Spacer()
+                if let more { MoreLink(title: "Meteogramm", action: more) }
+            }
             if items.isEmpty {
                 Text("Keine Stundenwerte").font(.footnote).opacity(0.8)
             } else {
@@ -72,13 +95,18 @@ struct DailyList: View {
     let items: [DayItem]
     let range: ClosedRange<Double>
     var onSelect: ((String) -> Void)?
+    var more: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("\(items.count) Tage", systemImage: "calendar")
-                .font(.footnote.weight(.semibold))
-                .textCase(.uppercase)
-                .opacity(0.8)
+            HStack {
+                Label("\(items.count) Tage", systemImage: "calendar")
+                    .font(.footnote.weight(.semibold))
+                    .textCase(.uppercase)
+                    .opacity(0.8)
+                Spacer()
+                if let more { MoreLink(title: "Trend", action: more) }
+            }
             if items.isEmpty {
                 Text("Keine Tageswerte").font(.footnote).opacity(0.8)
             }

@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var showWarnings = false
     @State private var selectedDay: DaySelection?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openRoute) private var openRoute
 
     private static let scrollToDays = ProcessInfo.processInfo.arguments.contains("-scrollDays")
 
@@ -20,6 +21,10 @@ struct HomeView: View {
                                 .padding(.top, 4)
                         }
                         CurrentHeader(model: model)
+                            .contentShape(Rectangle())
+                            .onTapGesture { openRoute(.more(.messwerte)) }
+                            .accessibilityAddTraits(.isButton)
+                            .accessibilityHint("Öffnet die Messwerte der Stationen")
                         if let since = model.offlineSince {
                             OfflineBanner(date: since)
                         }
@@ -27,12 +32,17 @@ struct HomeView: View {
                             ErrorCard(text: error) { showSettings = true }
                         }
                         RainNowcastCard(nowcast: model.nowcast, error: model.nowcastError, surroundings: model.radarSummary?.umkreis?.text) { openTab(.radar) }
-                        HourlyStrip(items: model.hourItems)
+                        HourlyStrip(items: model.hourItems) { openRoute(.more(.meteogramm)) }
                         if let report = model.report {
                             ReportTeaser(report: report) { openTab(.bericht) }
                         }
                         NowDetailsCard(now: model.now, sun: model.todaySun)
-                        DailyList(items: model.days, range: model.daysRange) { selectedDay = DaySelection(id: $0) }
+                        DailyList(
+                            items: model.days,
+                            range: model.daysRange,
+                            onSelect: { selectedDay = DaySelection(id: $0) },
+                            more: { openRoute(.more(.trend)) }
+                        )
                             .id("days")
                         Footer(lastUpdate: model.lastUpdate)
                     }
