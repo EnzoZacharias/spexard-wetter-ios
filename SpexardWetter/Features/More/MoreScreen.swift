@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Detail screens of the "Mehr" tab (in list order).
 enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
+    case karten
     case warnungen
     case messwerte
     case meteogramm
@@ -18,6 +19,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
 
     private var info: (title: String, subtitle: String, icon: String, web: String?) {
         switch self {
+        case .karten: return ("Karten", "ICON-D2 für NRW: Regen, Schnee, Böen, CAPE …", "map.fill", "/karten")
         case .warnungen: return ("Warnungen & Gefahren", "Amtliche Warnungen des DWD", "exclamationmark.triangle.fill", "/gefahren")
         case .messwerte: return ("Messwerte", "Stationen der Umgebung, 24 bis 72 Stunden", "chart.xyaxis.line", "/messwerte")
         case .meteogramm: return ("Meteogramm", "Stunde für Stunde je Modell", "chart.bar.xaxis", "/meteogramm")
@@ -40,6 +42,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
 
     /// The list of the "Mehr" tab in topics.
     static let groups: [MoreGroup] = [
+        MoreGroup(title: "Karten", items: [.karten]),
         MoreGroup(title: "Jetzt und heute", items: [.warnungen, .messwerte]),
         MoreGroup(title: "Vorhersage", items: [.meteogramm, .modelle, .ensembles, .trend]),
         MoreGroup(title: "Hintergrund", items: [.grosswetterlage, .profil, .modellguete]),
@@ -49,6 +52,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     @MainActor @ViewBuilder
     func screen(home: HomeModel) -> some View {
         switch self {
+        case .karten: MapsScreen()
         case .warnungen: WarningsScreen(home: home)
         case .messwerte: MeasurementsScreen()
         case .meteogramm: MeteogramScreen()

@@ -20,6 +20,7 @@ struct RadarScreen: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isNight) private var night
+    @Environment(\.openRoute) private var openRoute
 
     var body: some View {
         NavigationStack {
@@ -123,6 +124,13 @@ struct RadarScreen: View {
                 }
             }
             Spacer(minLength: 0)
+            Button {
+                openRoute(.more(.karten))
+            } label: {
+                Image(systemName: "square.stack.3d.up")
+                    .frame(width: 32, height: 32)
+            }
+            .accessibilityLabel("Modellkarten ICON-D2")
             Button {
                 showPoint = true
             } label: {

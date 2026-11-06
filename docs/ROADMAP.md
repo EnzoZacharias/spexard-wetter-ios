@@ -77,6 +77,12 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       `mock_*_szenario_regen.json` (ausgedachte Werte aus `scripts/make_rain_scenario.py`: Regenband im
       Radar, nasser Nowcast, nasse Abendstunden); ohne `-mock` nie benutzt
 
+- [x] Mehr → Karten (`/api/v1/karten` + `/karten/bild`): eigene ICON-D2-Karten für NRW als MapKit-Bild,
+      Ebenen-Chips (Niederschlag 1 h / 3 h / seit Laufbeginn als eine Wahl), Zeitregler mit Abspielen,
+      Lauf und Gültigkeitszeit, Legende mit den Stufen des Servers, Wert am Standort und höchster Wert im
+      Ausschnitt, Tipp auf die Karte nennt die Farbstufe; Knopf im Radar-Tab. Beispieldaten aus einem echten
+      Lauf (18 UTC vom 6.11., +0 bis +12 h) mit `scripts/make_map_mocks.py` (`-screen karten -option boeen -mapFrame 1`)
+
 ## Als Nächstes
 
 - [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,

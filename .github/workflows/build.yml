@@ -83,6 +83,9 @@ jobs:
           WAIT=14 shot radar -tab radar
           WAIT=12 shot radar-prognose -tab radar -radarFrame 30
           shot radar-standort -tab radar -radarPoint
+          WAIT=12 shot karten -screen karten -option temperatur
+          WAIT=12 shot karten-boeen -screen karten -option boeen -mapFrame 1
+          WAIT=12 shot karten-regen -screen karten -option niederschlag_3h -mapFrame 3
           shot bericht -tab bericht
           shot bericht-woche -tab bericht -option woche
           shot widgets -screen widgets
