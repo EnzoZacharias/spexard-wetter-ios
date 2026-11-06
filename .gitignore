@@ -5,3 +5,4 @@ build/
 DerivedData/
 *.ipa
 screenshots/
+__pycache__/
