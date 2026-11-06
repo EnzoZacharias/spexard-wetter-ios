@@ -5,33 +5,78 @@ extension Endpoint {
     static let sounding = Endpoint(path: "/api/v1/profil/sonde", mock: "mock_profil_sonde")
 }
 
-/// The latest radiosonde ascent: temperature and dew point over height, indices, inversions.
+enum ProfileView: String, CaseIterable, Identifiable {
+    case sonde, icon_d2, ecmwf
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .sonde: return "Sonde"
+        case .icon_d2: return "ICON-D2"
+        case .ecmwf: return "ECMWF"
+        }
+    }
+}
+
+/// The latest radiosonde ascent and the time-height cross-sections of ICON-D2 and ECMWF.
 struct ProfileScreen: View {
-    @StateObject private var loader = Loader<SoundingResponse>()
+    @StateObject private var sounding = Loader<SoundingResponse>()
+    @StateObject private var section = Loader<CrossSectionResponse>()
+    @State private var view: ProfileView = LaunchArgs.option.flatMap(ProfileView.init(rawValue:)) ?? .sonde
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                if loader.fromCache { OfflineBanner(date: loader.date) }
-                if let data = loader.value {
-                    SoundingContent(data: data)
-                } else if let error = loader.error {
-                    StateMessage(kind: .error, text: error) { await loader.reload() }.card()
-                } else {
-                    StateMessage(kind: .loading).card()
+                Picker("Ansicht", selection: $view) {
+                    ForEach(ProfileView.allCases) { v in
+                        Text(v.label).tag(v)
+                    }
                 }
-                StandFooter(date: loader.date, fromCache: loader.fromCache, sources: "Quellen: DWD (TEMP), University of Wyoming, Open-Meteo.com (CC BY 4.0)")
+                .pickerStyle(.segmented)
+
+                if view == .sonde {
+                    if sounding.fromCache { OfflineBanner(date: sounding.date) }
+                    if let data = sounding.value {
+                        SoundingContent(data: data)
+                    } else if let error = sounding.error {
+                        StateMessage(kind: .error, text: error) { await sounding.reload() }.card()
+                    } else {
+                        StateMessage(kind: .loading).card()
+                    }
+                    StandFooter(date: sounding.date, fromCache: sounding.fromCache, sources: "Quellen: DWD (TEMP), University of Wyoming, Open-Meteo.com (CC BY 4.0)")
+                } else {
+                    if section.fromCache { OfflineBanner(date: section.date) }
+                    if let data = section.value {
+                        CrossSectionCard(data: data)
+                            .opacity(section.loading ? 0.6 : 1)
+                    } else if let error = section.error {
+                        StateMessage(kind: .error, text: error) { await section.reload() }.card()
+                    } else {
+                        StateMessage(kind: .loading).card()
+                    }
+                    StandFooter(date: section.date, fromCache: section.fromCache, sources: "Wetterdaten: Open-Meteo.com (CC BY 4.0)")
+                }
             }
             .padding(16)
         }
         .refreshable {
             Haptics.armRefresh()
-            await loader.reload()
+            await load(force: true)
         }
-        .task { await loader.loadIfNeeded(.sounding, maxAge: 1800) }
+        .task(id: view) { await load(force: false) }
         .screenBackground()
         .navigationTitle("Profil")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func load(force: Bool) async {
+        if view == .sonde {
+            if force { await sounding.load(.sounding) } else { await sounding.loadIfNeeded(.sounding, maxAge: 1800) }
+        } else {
+            let e = Endpoint(path: "/api/v1/profil/schnitt?modell=\(view.rawValue)", mock: "mock_profil_schnitt_\(view.rawValue)")
+            if force { await section.load(e) } else { await section.loadIfNeeded(e, maxAge: 1800) }
+        }
     }
 }
 
@@ -186,5 +231,125 @@ struct SoundingContent: View {
             }
         }
         .card()
+    }
+}
+
+/// Temperature over time and height (colour per 50-m level and hour) with the 0-°C line, the
+/// boundary layer and the cloud base of a rising air parcel (LCL), all from the server.
+struct CrossSectionCard: View {
+    let data: CrossSectionResponse
+
+    private struct Cell: Identifiable {
+        let id: Int
+        let start: Date
+        let z: Double
+        let half: Double
+        let temp: Double
+    }
+
+    private var times: [Date?] { ChartTime.dates(data.time) }
+
+    private var heights: [Double?] {
+        let n = data.tC?.count ?? 0
+        return data.zM?.expanded(n) ?? []
+    }
+
+    private var cells: [Cell] {
+        let rows = data.tC ?? []
+        let z = heights
+        var out: [Cell] = []
+        for (r, row) in rows.enumerated() {
+            guard z.indices.contains(r), let height = z[r] else { continue }
+            let below = r > 0 ? (z[r - 1] ?? height) : height
+            let half = max((height - below) / 2, 25)
+            let values = row.expanded(times.count)
+            for (i, date) in times.enumerated() {
+                guard let date, let t = values[i] else { continue }
+                out.append(Cell(id: r * 1000 + i, start: date, z: height, half: half, temp: t))
+            }
+        }
+        return out
+    }
+
+    /// Blue below 0 °C, white at 0 °C, orange above (fixed scale −15 … +15 °C).
+    static func color(_ t: Double) -> Color {
+        let x = max(-1, min(1, t / 15))
+        if x < 0 {
+            let k = -x
+            return Color(red: 1 - 0.75 * k, green: 1 - 0.45 * k, blue: 1)
+        }
+        return Color(red: 1, green: 1 - 0.5 * x, blue: 1 - 0.8 * x)
+    }
+
+    var body: some View {
+        let dates = times.compactMap { $0 }
+        let top = heights.compactMap { $0 }.max() ?? 3000
+        VStack(alignment: .leading, spacing: 8) {
+            Text(data.label ?? data.modell ?? "Modell").font(.headline)
+            Text("Temperatur über der Zeit und der Höhe über Grund. Farbe: blau unter 0 °C, weiß um 0 °C, orange darüber.")
+                .font(.caption)
+                .opacity(0.8)
+            if let first = dates.first, let last = dates.last, last > first {
+                let domain = first...last.addingTimeInterval(3600)
+                Chart {
+                    ForEach(cells) { c in
+                        RectangleMark(
+                            xStart: .value("Beginn", c.start),
+                            xEnd: .value("Ende", c.start.addingTimeInterval(3600)),
+                            yStart: .value("unten", max(0, c.z - c.half)),
+                            yEnd: .value("oben", c.z + c.half)
+                        )
+                        .foregroundStyle(Self.color(c.temp))
+                    }
+                    line(data.nullgradM, label: "0-°C-Grenze", color: .white, dash: [])
+                    line(data.grenzschichtM, label: "Grenzschicht", color: .black, dash: [5, 3])
+                    line(data.lclM, label: "Wolkenbasis (LCL)", color: Color(red: 0.3, green: 0.3, blue: 0.3), dash: [2, 2])
+                }
+                .chartXScale(domain: domain)
+                .chartYScale(domain: 0...top)
+                .chartXAxis {
+                    AxisMarks(values: ChartTime.ticks(from: domain.lowerBound, to: domain.upperBound)) { value in
+                        AxisValueLabel {
+                            if let date = value.as(Date.self) {
+                                Text(ChartTime.label(date, daily: false)).foregroundStyle(.white.opacity(0.75))
+                            }
+                        }
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks(position: .leading, values: .automatic(desiredCount: 6)) { value in
+                        AxisValueLabel {
+                            if let v = value.as(Double.self) {
+                                Text(Fmt.number(v, decimals: 0) + " m").foregroundStyle(.white.opacity(0.75))
+                            }
+                        }
+                    }
+                }
+                .frame(height: 300)
+                .accessibilityLabel("Höhenschnitt der Temperatur")
+                HStack(spacing: 12) {
+                    Label("0-°C-Grenze", systemImage: "line.diagonal")
+                    Label("Grenzschicht", systemImage: "line.diagonal")
+                    Label("Wolkenbasis", systemImage: "line.diagonal")
+                }
+                .font(.caption2)
+                if let source = data.grenzschichtQuelle {
+                    Text("Grenzschicht: \(source)").font(.caption2).opacity(0.7)
+                }
+            } else {
+                StateMessage(kind: .empty, text: "Kein Höhenschnitt vom Modell")
+            }
+        }
+        .card()
+    }
+
+    @ChartContentBuilder
+    private func line(_ series: Series<Double>?, label: String, color: Color, dash: [CGFloat]) -> some ChartContent {
+        let points = ChartSeries(label, color: color, times: times, values: series?.expanded(times.count) ?? []).points
+        ForEach(points) { p in
+            LineMark(x: .value("Zeit", p.date.addingTimeInterval(1800)), y: .value("Höhe", p.value), series: .value("Linie", label))
+                .foregroundStyle(color)
+                .lineStyle(StrokeStyle(lineWidth: 2, dash: dash))
+        }
     }
 }

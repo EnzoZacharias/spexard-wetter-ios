@@ -72,6 +72,7 @@ jobs:
           xcrun simctl ui "$DEVICE" appearance light
           shot home
           shot days -scrollDays
+          shot tag -showDay 2026-11-05
           shot mehr -tab mehr
           shot warnungen -screen warnungen
           WAIT=14 shot radar -tab radar
@@ -89,6 +90,7 @@ jobs:
           shot trend -screen trend
           shot grosswetterlage -screen grosswetterlage
           shot profil -screen profil
+          shot profil-schnitt -screen profil -option icon_d2
           shot modellguete -screen modellguete
           shot status -screen status
           xcrun simctl ui "$DEVICE" appearance dark

@@ -63,6 +63,7 @@ struct HourCell: View {
 struct DailyList: View {
     let items: [DayItem]
     let range: ClosedRange<Double>
+    var onSelect: ((String) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -75,7 +76,14 @@ struct DailyList: View {
             }
             ForEach(items) { item in
                 Divider().overlay(.white.opacity(0.25))
-                DayRow(item: item, range: range)
+                Button {
+                    onSelect?(item.id)
+                } label: {
+                    DayRow(item: item, range: range)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Zeigt den Tag im Detail")
             }
         }
         .card()

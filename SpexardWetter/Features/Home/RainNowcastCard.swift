@@ -6,6 +6,7 @@ import SwiftUI
 struct RainNowcastCard: View {
     let nowcast: NowcastResponse?
     let error: String?
+    var surroundings: String?
     var openRadar: (() -> Void)?
 
     var body: some View {
@@ -58,6 +59,15 @@ struct RainNowcastCard: View {
             Fact(label: "Erwartete Menge", value: Fmt.precip(s?.expectedMm))
             Fact(label: "Stärkste Phase", value: peakText(s))
             Fact(label: "Umkreis 3 km", value: nearText(s))
+        }
+        if let surroundings, !surroundings.isEmpty {
+            Label {
+                Text(surroundings).font(.footnote).lineLimit(3)
+            } icon: {
+                Image(systemName: "scope")
+            }
+            .opacity(0.9)
+            .accessibilityLabel("Radar im Umkreis: \(surroundings)")
         }
     }
 

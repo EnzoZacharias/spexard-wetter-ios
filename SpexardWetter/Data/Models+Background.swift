@@ -211,3 +211,31 @@ struct SoundingResponse: Decodable {
     let vsIconD2: Comparison?
     let sourceErrors: [SourceProblem]?
 }
+
+// MARK: - /api/v1/profil/schnitt?modell=icon_d2|ecmwf
+
+/// Time-height cross-section of one model up to 3 km: temperature per height level and hour.
+struct CrossSectionResponse: Decodable {
+    let generatedAt: String?
+    let modell: String?
+    let label: String?
+    let time: [String]
+    /// Heights above ground (m) of the rows of `tC`.
+    let zM: Series<Double>?
+    /// One series over time per height.
+    let tC: [Series<Double>]?
+    let nullgradM: Series<Double>?
+    let feuchtkugelNullM: Series<Double>?
+    let grenzschichtM: Series<Double>?
+    let grenzschichtQuelle: String?
+    let lclM: Series<Double>?
+    let sourceErrors: [SourceProblem]?
+}
+
+// MARK: - /api/v1/radar/umkreis
+
+/// Only the summary of the newest radar frame (the home screen's line about the surroundings).
+struct RadarSummaryResponse: Decodable {
+    let analysis: String?
+    let umkreis: RadarResponse.Umkreis?
+}

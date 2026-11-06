@@ -65,6 +65,7 @@ extension Endpoint {
     static let forecast16 = Endpoint(path: "/api/v1/tools/weather_forecast?days=16", mock: "mock_forecast")
     static let alerts = Endpoint(path: "/api/v1/tools/weather_alerts?include_reports=false", mock: "mock_alerts")
     static let nowcast = Endpoint(path: "/api/v1/tools/rain_nowcast", mock: "mock_nowcast")
+    static let radarSummary = Endpoint(path: "/api/v1/radar/umkreis", mock: "mock_radar_umkreis")
 }
 
 /// A decoded answer plus when the server gave it. `fromCache` = the request failed and the last

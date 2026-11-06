@@ -42,26 +42,37 @@ MOCKS: dict[str, str] = {
     "mock_verifikation_30": "api/verifikation__auswertung__tage-30.json",
     "mock_verifikation_90": "api/verifikation__auswertung__tage-90.json",
     "mock_status": "api/status__uebersicht.json",
+    "mock_radar_umkreis": "api/radar__umkreis.json",
+    "mock_profil_schnitt_icon_d2": "api/profil__schnitt__modell-icon_d2.json",
+    "mock_profil_schnitt_ecmwf": "api/profil__schnitt__modell-ecmwf.json",
 }
 
-# keys the app does not read (keeps the mock files small)
-DROP_ANYWHERE = ("hintergrund", "pfad", "zeitreihe", "inversion")
+# keys the app does not read, per mock (keeps the files small)
+EXTRA_DROP: dict[str, tuple[str, ...]] = {
+    "mock_profil_sonde": ("hintergrund", "pfad"),
+    "mock_verifikation_7": ("zeitreihe", "inversion"),
+    "mock_verifikation_30": ("zeitreihe", "inversion"),
+    "mock_verifikation_90": ("zeitreihe", "inversion"),
+    "mock_radar_umkreis": ("frames",),
+    "mock_profil_schnitt_icon_d2": ("isothermen", "wind", "flaechen", "inversionen", "routing"),
+    "mock_profil_schnitt_ecmwf": ("isothermen", "wind", "flaechen", "inversionen", "routing"),
+}
 
 DROP_TOP = ("how_to_read", "sources")
 
 
-def clean(value: object) -> object:
+def clean(value: object, drop: tuple[str, ...] = ()) -> object:
     if isinstance(value, dict):
         out = {}
         for key, item in value.items():
-            if key in DROP_TOP or key in DROP_ANYWHERE:
+            if key in DROP_TOP or key in drop:
                 continue
             if key == "location" and isinstance(item, dict):
                 item = {k: v for k, v in item.items() if k not in ("lat", "lon")}
-            out[key] = clean(item)
+            out[key] = clean(item, drop)
         return out
     if isinstance(value, list):
-        return [clean(v) for v in value]
+        return [clean(v, drop) for v in value]
     return value
 
 
@@ -73,7 +84,7 @@ def main() -> int:
         if only and name not in only:
             continue
         data = json.loads((fixtures / rel).read_text(encoding="utf-8"))
-        text = json.dumps(clean(data), ensure_ascii=False, separators=(",", ":"))
+        text = json.dumps(clean(data, EXTRA_DROP.get(name, ())), ensure_ascii=False, separators=(",", ":"))
         (target / f"{name}.json").write_text(text + "\n", encoding="utf-8", newline="\n")
         print(f"{name}.json <- {rel} ({len(text)} chars)")
     return 0

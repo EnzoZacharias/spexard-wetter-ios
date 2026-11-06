@@ -5,6 +5,7 @@ struct HomeView: View {
     var openTab: (AppTab) -> Void = { _ in }
     @State private var showSettings = false
     @State private var showWarnings = false
+    @State private var selectedDay: DaySelection?
     @Environment(\.scenePhase) private var scenePhase
 
     private static let scrollToDays = ProcessInfo.processInfo.arguments.contains("-scrollDays")
@@ -25,9 +26,10 @@ struct HomeView: View {
                         if let error = model.errorText {
                             ErrorCard(text: error) { showSettings = true }
                         }
-                        RainNowcastCard(nowcast: model.nowcast, error: model.nowcastError) { openTab(.radar) }
+                        RainNowcastCard(nowcast: model.nowcast, error: model.nowcastError, surroundings: model.radarSummary?.umkreis?.text) { openTab(.radar) }
                         HourlyStrip(items: model.hourItems)
-                        DailyList(items: model.days, range: model.daysRange)
+                        NowDetailsCard(now: model.now, sun: model.todaySun)
+                        DailyList(items: model.days, range: model.daysRange) { selectedDay = DaySelection(id: $0) }
                             .id("days")
                         Footer(lastUpdate: model.lastUpdate)
                     }
@@ -45,6 +47,9 @@ struct HomeView: View {
                         showSettings = true
                     }
                     if model.lastUpdate == nil { await model.load() }
+                    if let day = LaunchArgs.value("-showDay") {
+                        selectedDay = DaySelection(id: day)
+                    }
                     if Self.scrollToDays {
                         try? await Task.sleep(nanoseconds: 300_000_000)
                         proxy.scrollTo("days", anchor: .top)
@@ -66,6 +71,9 @@ struct HomeView: View {
             .toolbarBackground(.hidden, for: .navigationBar)
             .sheet(isPresented: $showSettings, onDismiss: { Task { await model.load() } }) {
                 SettingsView()
+            }
+            .sheet(item: $selectedDay) { selection in
+                DayDetailSheet(dayId: selection.id, model: model)
             }
             .sheet(isPresented: $showWarnings) {
                 WarningsSheet(block: model.alerts?.warnungen, reference: model.reference)

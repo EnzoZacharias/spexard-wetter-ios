@@ -9,6 +9,7 @@ final class HomeModel {
     var forecast: ForecastResponse?
     var alerts: AlertsResponse?
     var nowcast: NowcastResponse?
+    var radarSummary: RadarSummaryResponse?
     var nowcastError: String?
     var errorText: String?
     var loading = false
@@ -32,6 +33,7 @@ final class HomeModel {
         async let forecastCall: Fetched<ForecastResponse> = api.fetch(.forecast16)
         async let alertsCall: Fetched<AlertsResponse> = api.fetch(.alerts)
         async let nowcastCall: Fetched<NowcastResponse> = api.fetch(.nowcast)
+        async let summaryCall: Fetched<RadarSummaryResponse> = api.fetch(.radarSummary)
         var problems: [String] = []
         var cached: [Date] = []
         var fresh = 0
@@ -61,6 +63,7 @@ final class HomeModel {
         } catch {
             if !APIClient.isCancellation(error) { nowcastError = error.localizedDescription }
         }
+        radarSummary = (try? await summaryCall)?.value ?? radarSummary
         errorText = problems.isEmpty ? nil : Array(Set(problems)).sorted().joined(separator: "\n")
         offlineSince = cached.min()
         if fresh > 0 {
@@ -87,6 +90,11 @@ final class HomeModel {
     var isNight: Bool { isNight(at: reference) }
 
     func isNight(at date: Date) -> Bool { WeatherDerived.isNight(at: date, sun: hours?.sun) }
+
+    var todaySun: HoursResponse.Sun? {
+        let key = WeatherDerived.dayKey(reference)
+        return hours?.sun?.first { $0.date == key }
+    }
 
     var todayRange: (min: Double?, max: Double?) { WeatherDerived.todayRange(days, reference: reference) }
 

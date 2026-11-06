@@ -112,8 +112,24 @@ struct WeatherNow: Decodable {
     }
 
     struct Pair: Decodable {
-        let model: Double?
-        let measured: Double?
+        @Lenient var model: Double?
+        @Lenient var measured: Double?
+        let station: String?
+        /// Gusts only: strongest measured gust of the last hour.
+        @Lenient var measuredMax60min: Double?
+
+        /// Measured value when there is one, else the model value.
+        var best: (value: Double, measured: Bool)? {
+            if let measured { return (measured, true) }
+            if let model { return (model, false) }
+            return nil
+        }
+    }
+
+    struct Precipitation: Decodable {
+        @Lenient var model15min: Double?
+        @Lenient var measured10min: Double?
+        @Lenient var measured60min: Double?
         let station: String?
     }
 
@@ -137,6 +153,11 @@ struct WeatherNow: Decodable {
         let windSpeedKmh: Pair?
         let windDirectionDeg: Pair?
         let windGustsKmh: Pair?
+        let dewPointC: Pair?
+        let pressureMslHpa: Pair?
+        let cloudCoverPct: Pair?
+        let visibilityM: Pair?
+        let precipitationMm: Precipitation?
         let weather: Sky?
     }
 
