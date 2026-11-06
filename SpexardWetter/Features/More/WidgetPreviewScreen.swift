@@ -9,6 +9,12 @@ struct WidgetPreviewScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                section("Verlauf & Live · mittel") {
+                    liveWidget(.systemMedium, height: 170)
+                }
+                section("Verlauf & Live · groß") {
+                    liveWidget(.systemLarge, height: 382)
+                }
                 Text("Widget hinzufügen: Home-Bildschirm oder Sperrbildschirm lange drücken, „Bearbeiten“ und dann „Widget hinzufügen“ antippen, nach „Spexard Wetter“ suchen. Die Widgets holen ihre Daten alle 20 Minuten selbst vom Wetterserver.")
                     .font(.footnote)
                     .opacity(0.9)
@@ -69,6 +75,15 @@ struct WidgetPreviewScreen: View {
         WidgetContent(family: family, snapshot: snapshot)
             .padding(16)
             .frame(width: width, height: height)
+            .background(BackgroundGradient(night: snapshot?.night ?? false))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))
+    }
+
+    private func liveWidget(_ family: WidgetFamily, height: CGFloat) -> some View {
+        LiveStripWidget(family: family, snapshot: snapshot, placeholder: !loaded)
+            .padding(16)
+            .frame(width: 364, height: height)
             .background(BackgroundGradient(night: snapshot?.night ?? false))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))

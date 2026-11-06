@@ -61,7 +61,16 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Radar gegen ICON-D2 je 15 Minuten (`-tab radar -radarPoint`)
 - [x] CI: neuere Pushes ersetzen laufende Builds (concurrency)
 
+- [x] Widget „Verlauf & Live“ (mittel, groß): Messwerte jetzt (Temperatur Sensor > Station > Modell mit
+      Quelle und Zeit, Taupunkt, Feuchte, Wind mit Richtung, Böen, Luftdruck, Regen der letzten Stunde,
+      Stationen) und 3-Stunden-Spalten aus `/vorhersage/stunden`: Symbol mit Nachtvariante,
+      Temperaturkurve, Regen, Wind- und Böenzeile in Beaufort-Farben, Richtungspfeile, dunkle Nachtspalten,
+      Wochentag beim Tageswechsel; Tipp öffnet das Meteogramm
+
 ## Als Nächstes
+
+- [ ] Taupunkt als zweite Linie im Verlauf: `/vorhersage/stunden` liefert keinen Taupunkt (nur das
+      Meteogramm je Modell) – dafür bräuchte der Endpunkt eine Taupunkt-Reihe
 
 
 ## Hinweise

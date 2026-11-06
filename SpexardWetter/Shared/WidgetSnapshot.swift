@@ -18,6 +18,10 @@ struct WidgetSnapshot {
     let hours: [HourItem]
     /// The next days (large widget).
     let days: [DayItem]
+    /// Current station values ("Verlauf & Live").
+    let live: LiveValues
+    /// 3-hour columns from now on ("Verlauf & Live").
+    let strip: [StripColumn]
     let rainHeadline: String?
     /// Radar nowcast at the location in 5-minute steps (measured, then forecast).
     let rainSteps: [NowcastResponse.Step]
@@ -68,6 +72,8 @@ struct WidgetSnapshot {
             max: range.max,
             hours: WeatherDerived.hourItems(hours?.value, reference: reference, limit: 6),
             days: Array(days.prefix(6)),
+            live: LiveValues.from(now.value),
+            strip: WeatherDerived.strip(hours?.value, reference: reference, step: 3, count: 14),
             rainHeadline: nowcast?.value.headline,
             rainSteps: nowcast?.value.steps ?? [],
             rainText: nowcast?.value.summary?.text,

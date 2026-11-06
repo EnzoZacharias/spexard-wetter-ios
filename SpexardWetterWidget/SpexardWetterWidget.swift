@@ -87,10 +87,36 @@ struct SpexardRainWidget: Widget {
     }
 }
 
+struct LiveStripWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: WeatherEntry
+
+    var body: some View {
+        LiveStripWidget(family: family, snapshot: entry.snapshot, placeholder: entry.placeholder)
+            .containerBackground(for: .widget) {
+                BackgroundGradient(night: entry.snapshot?.night ?? false)
+            }
+            .widgetURL(URL(string: "spexardwetter://meteogramm"))
+    }
+}
+
+/// Live values of the stations plus the next 27 to 39 hours in 3-hour columns.
+struct SpexardLiveStripWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "SpexardVerlauf", provider: WeatherProvider()) { entry in
+            LiveStripWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Verlauf & Live")
+        .description("Messwerte jetzt (Temperatur, Taupunkt, Feuchte, Wind, Druck) und die nächsten Stunden mit Temperaturkurve, Regen, Wind und Böen.")
+        .supportedFamilies([.systemMedium, .systemLarge])
+    }
+}
+
 @main
 struct SpexardWidgetBundle: WidgetBundle {
     var body: some Widget {
         SpexardWeatherWidget()
+        SpexardLiveStripWidget()
         SpexardRainWidget()
     }
 }

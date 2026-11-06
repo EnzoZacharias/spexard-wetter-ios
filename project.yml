@@ -68,6 +68,7 @@ targets:
       - path: SpexardWetter/Data/Models+Alerts.swift
       - path: SpexardWetter/Data/Symbols.swift
       - path: SpexardWetter/Data/WeatherDerived.swift
+      - path: SpexardWetter/Data/LiveStrip.swift
       - path: SpexardWetter/Shared
       - path: SpexardWetter/UI/Theme.swift
     settings:
