@@ -37,6 +37,15 @@ struct HourItem: Identifiable {
     let temp: Double?
     let rainProb: Double?
     let precip: Double?
+    var wind: Double? = nil
+    var windDir: Double? = nil
+    var gust: Double? = nil
+}
+
+/// Sunrise or sunset inside the hourly strip.
+struct SunEvent: Identifiable {
+    let id: Date
+    let rise: Bool
 }
 
 struct DayItem: Identifiable {
@@ -102,11 +111,25 @@ enum WeatherDerived {
                 symbol: WeatherSymbol.name(code: h.symbol[i], night: night),
                 temp: h.tC[i],
                 rainProb: h.rainProbPct[i],
-                precip: h.precipMm[i]
+                precip: h.precipMm[i],
+                wind: h.windKmh[i],
+                windDir: h.windDirDeg[i],
+                gust: h.gustMaxKmh[i]
             ))
             if items.count == limit { break }
         }
         return items
+    }
+
+    /// Sunrises and sunsets between `start` and `end` (sun times of the hourly answer).
+    static func sunEvents(_ hours: HoursResponse?, from start: Date, to end: Date) -> [SunEvent] {
+        var out: [SunEvent] = []
+        for day in hours?.sun ?? [] {
+            guard let d = Fmt.parse(day.date) else { continue }
+            if let rise = clock(day.sunrise, on: d), rise > start, rise < end { out.append(SunEvent(id: rise, rise: true)) }
+            if let set = clock(day.sunset, on: d), set > start, set < end { out.append(SunEvent(id: set, rise: false)) }
+        }
+        return out.sorted { $0.id < $1.id }
     }
 
     /// Days of `weather_forecast`: ECMWF-ENS median where available, else the median of the models.

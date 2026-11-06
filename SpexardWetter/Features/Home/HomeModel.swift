@@ -113,6 +113,12 @@ final class HomeModel {
 
     var hourItems: [HourItem] { WeatherDerived.hourItems(hours, reference: reference) }
 
+    var sunEvents: [SunEvent] {
+        let items = hourItems
+        guard let first = items.first?.id, let last = items.last?.id else { return [] }
+        return WeatherDerived.sunEvents(hours, from: first, to: last)
+    }
+
     var days: [DayItem] { WeatherDerived.days(forecast, reference: reference) }
 
     /// Range of all daily values (for the temperature bars).

@@ -32,7 +32,7 @@ struct HomeView: View {
                             ErrorCard(text: error) { showSettings = true }
                         }
                         RainNowcastCard(nowcast: model.nowcast, error: model.nowcastError, surroundings: model.radarSummary?.umkreis?.text) { openTab(.radar) }
-                        HourlyStrip(items: model.hourItems) { openRoute(.more(.meteogramm)) }
+                        HourlyStrip(items: model.hourItems, sunEvents: model.sunEvents) { openRoute(.more(.meteogramm)) }
                         if let report = model.report {
                             ReportTeaser(report: report) { openTab(.bericht) }
                         }

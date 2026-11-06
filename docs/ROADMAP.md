@@ -52,6 +52,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Offline: gespeicherte Antworten erscheinen sofort beim Start (mit ihrem Stand), der Server wird
       danach gefragt; abgelaufene Warnungen aus dem Speicher zeigen kein Banner; Widget-Galerie mit Platzhalter
 - [x] Bericht teilen (Text), Gefahren-Zeitleiste ohne Stundenfugen
+- [x] 24-Stunden-Leiste: Umschalter Regen (Risiko + Menge) / Wind (Richtungspfeil, Stärke, Böen),
+      Sonnenauf- und -untergang zwischen den Stunden
 
 ## Als Nächstes
 

@@ -20,9 +20,42 @@ struct MoreLink: View {
     }
 }
 
+enum HourlyMode: String, CaseIterable, Identifiable {
+    case regen, wind
+
+    var id: String { rawValue }
+    var label: String { self == .regen ? "Regen" : "Wind" }
+}
+
 struct HourlyStrip: View {
     let items: [HourItem]
+    var sunEvents: [SunEvent] = []
     var more: (() -> Void)?
+    @State private var mode: HourlyMode = .regen
+
+    private enum Entry: Identifiable {
+        case hour(HourItem)
+        case sun(SunEvent)
+
+        var date: Date {
+            switch self {
+            case .hour(let h): return h.id
+            case .sun(let s): return s.id
+            }
+        }
+
+        var id: String {
+            switch self {
+            case .hour(let h): return "h\(h.id.timeIntervalSince1970)"
+            case .sun(let s): return "s\(s.id.timeIntervalSince1970)"
+            }
+        }
+    }
+
+    /// Hours with sunrise and sunset placed between them.
+    private var entries: [Entry] {
+        (items.map { Entry.hour($0) } + sunEvents.map { Entry.sun($0) }).sorted { $0.date < $1.date }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -37,10 +70,20 @@ struct HourlyStrip: View {
             if items.isEmpty {
                 Text("Keine Stundenwerte").font(.footnote).opacity(0.8)
             } else {
+                Picker("Zusatzwert", selection: $mode) {
+                    ForEach(HourlyMode.allCases) { m in
+                        Text(m.label).tag(m)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 180)
                 ScrollView(.horizontal) {
-                    HStack(spacing: 18) {
-                        ForEach(items) { item in
-                            HourCell(item: item)
+                    HStack(alignment: .top, spacing: 18) {
+                        ForEach(entries) { entry in
+                            switch entry {
+                            case .hour(let item): HourCell(item: item, mode: mode)
+                            case .sun(let event): SunCell(event: event)
+                            }
                         }
                     }
                     .padding(.vertical, 2)
@@ -52,8 +95,29 @@ struct HourlyStrip: View {
     }
 }
 
+/// Sunrise or sunset between the hours.
+struct SunCell: View {
+    let event: SunEvent
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(Fmt.time(event.id)).font(.footnote)
+            Image(systemName: event.rise ? "sunrise.fill" : "sunset.fill")
+                .symbolRenderingMode(.multicolor)
+                .font(.title2)
+                .frame(height: 30)
+            Text(event.rise ? "Aufgang" : "Untergang")
+                .font(.caption.weight(.semibold))
+        }
+        .frame(minWidth: 56)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Sonnen\(event.rise ? "aufgang" : "untergang") \(Fmt.time(event.id)) Uhr")
+    }
+}
+
 struct HourCell: View {
     let item: HourItem
+    var mode: HourlyMode = .regen
 
     var body: some View {
         VStack(spacing: 8) {
@@ -65,20 +129,49 @@ struct HourCell: View {
                 .frame(height: 30)
             Text(Fmt.temp(item.temp))
                 .font(.title3.weight(.semibold))
-            Text(rainText)
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Color(red: 0.62, green: 0.86, blue: 1.0))
-                .frame(height: 14)
+            if mode == .wind {
+                VStack(spacing: 2) {
+                    if let dir = item.windDir {
+                        // the arrow points where the wind blows to (from the direction + 180°)
+                        Image(systemName: "location.north.fill")
+                            .font(.caption2)
+                            .rotationEffect(.degrees(dir + 180))
+                    }
+                    Text(item.wind.map { Fmt.number($0, decimals: 0) } ?? "–")
+                        .font(.caption2.weight(.semibold))
+                    Text(item.gust.map { "Böen " + Fmt.number($0, decimals: 0) } ?? " ")
+                        .font(.system(size: 9))
+                        .opacity(0.75)
+                }
+                .foregroundStyle(Palette.wind)
+                .frame(height: 40)
+            } else {
+                VStack(spacing: 2) {
+                    Text(rainText)
+                        .font(.caption2.weight(.semibold))
+                    Text(mmText)
+                        .font(.system(size: 9))
+                        .opacity(0.8)
+                }
+                .foregroundStyle(Palette.rain)
+                .frame(height: 40)
+            }
         }
         .frame(minWidth: 44)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityText)
     }
 
+    private var mmText: String {
+        guard let mm = item.precip, mm >= 0.1 else { return " " }
+        return Fmt.precip(mm)
+    }
+
     private var accessibilityText: String {
         var text = "\(item.label): \(Fmt.temp(item.temp))"
         if let p = item.rainProb, p >= 10 { text += ", Regenrisiko \(Fmt.percent(p))" }
         if let mm = item.precip, mm > 0 { text += ", \(Fmt.precip(mm))" }
+        if let w = item.wind { text += ", Wind \(Fmt.wind(w))\(item.windDir.map { " aus " + Fmt.compass($0) } ?? "")" }
         return text
     }
 
