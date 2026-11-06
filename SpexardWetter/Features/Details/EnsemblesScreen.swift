@@ -214,7 +214,8 @@ struct RainChanceCard: View {
                     domain: first...last,
                     zeroBased: true,
                     minSpan: 1,
-                    decimals: 1
+                    decimals: 1,
+                    zeroText: "kein Niederschlag im Zeitraum"
                 )
             } else {
                 StateMessage(kind: .empty, text: "Keine Stundenwerte").card()

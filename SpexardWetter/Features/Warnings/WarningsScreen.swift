@@ -115,33 +115,10 @@ struct HazardMatrixView: View {
                     .opacity(0.8)
             }
             if let domain, !rows.isEmpty {
-                Chart(cells) { cell in
-                    RectangleMark(
-                        xStart: .value("Beginn", cell.start),
-                        xEnd: .value("Ende", cell.end),
-                        y: .value("Gefahr", cell.row),
-                        height: .ratio(0.8)
-                    )
-                    .foregroundStyle(Self.color(cell.level))
-                }
-                .chartXScale(domain: domain)
-                .chartXAxis {
-                    AxisMarks(values: ChartTime.ticks(from: domain.lowerBound, to: domain.upperBound)) { value in
-                        AxisGridLine().foregroundStyle(.white.opacity(0.15))
-                        AxisValueLabel {
-                            if let date = value.as(Date.self) {
-                                Text(ChartTime.label(date, daily: false)).foregroundStyle(.white.opacity(0.75))
-                            }
-                        }
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(position: .leading) { _ in
-                        AxisValueLabel().foregroundStyle(.white)
-                    }
-                }
-                .frame(height: CGFloat(rows.count) * 28 + 24)
-                .accessibilityLabel("Zeitleiste der Gefahren vor Ort")
+                HazardTimeline(rows: rows, times: times, domain: domain)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Zeitleiste der Gefahren vor Ort")
+                    .accessibilityValue(rows.filter { ($0.maxStufe ?? 0) > 0 }.map { "\($0.name) \($0.maxStufeText ?? "")" }.joined(separator: ", "))
 
                 HStack(spacing: 10) {
                     ForEach(1..<4) { level in
@@ -213,5 +190,58 @@ struct HazardRowSummary: View {
         }
         if let hint = row.hinweis { parts.append(hint) }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+/// One lane per hazard with the hourly level, hour ticks below (drawn with Canvas so the lanes
+/// line up exactly with their names).
+struct HazardTimeline: View {
+    let rows: [HazardMatrixResponse.Row]
+    let times: [Date?]
+    let domain: ClosedRange<Date>
+
+    private static let labelWidth: CGFloat = 86
+
+    var body: some View {
+        let span = max(domain.upperBound.timeIntervalSince(domain.lowerBound), 3600)
+        VStack(alignment: .leading, spacing: 5) {
+            ForEach(rows) { row in
+                let levels = row.stufen?.expanded(times.count) ?? []
+                HStack(spacing: 8) {
+                    Text(row.name)
+                        .font(.caption.weight(.medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(width: Self.labelWidth, alignment: .leading)
+                    Canvas { context, size in
+                        context.fill(Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 3), with: .color(.white.opacity(0.07)))
+                        for (i, date) in times.enumerated() {
+                            guard let date, levels.indices.contains(i), let level = levels[i], level > 0 else { continue }
+                            let x = CGFloat(date.timeIntervalSince(domain.lowerBound) / span) * size.width
+                            let w = CGFloat(3600 / span) * size.width
+                            context.fill(Path(CGRect(x: x, y: 0, width: w + 0.5, height: size.height)), with: .color(HazardMatrixView.color(level)))
+                        }
+                        for tick in ChartTime.ticks(from: domain.lowerBound, to: domain.upperBound) {
+                            let x = CGFloat(tick.timeIntervalSince(domain.lowerBound) / span) * size.width
+                            context.fill(Path(CGRect(x: x, y: 0, width: 0.5, height: size.height)), with: .color(.white.opacity(0.18)))
+                        }
+                    }
+                    .frame(height: 18)
+                }
+            }
+            HStack(spacing: 8) {
+                Color.clear.frame(width: Self.labelWidth, height: 1)
+                GeometryReader { geo in
+                    ForEach(ChartTime.ticks(from: domain.lowerBound, to: domain.upperBound), id: \.self) { tick in
+                        Text(ChartTime.label(tick, daily: false))
+                            .font(.caption2)
+                            .opacity(0.75)
+                            .fixedSize()
+                            .position(x: CGFloat(tick.timeIntervalSince(domain.lowerBound) / span) * geo.size.width, y: 7)
+                    }
+                }
+                .frame(height: 14)
+            }
+        }
     }
 }

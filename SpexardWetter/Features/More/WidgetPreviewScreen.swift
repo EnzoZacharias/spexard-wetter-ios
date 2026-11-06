@@ -43,6 +43,7 @@ struct WidgetPreviewScreen: View {
         .task { if !loaded { await reload() } }
         .screenBackground()
         .navigationTitle("Widgets")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func reload() async {

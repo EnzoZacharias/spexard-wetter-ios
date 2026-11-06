@@ -109,7 +109,8 @@ struct MeteogramContent: View {
                     zeroBased: true,
                     minSpan: 1,
                     decimals: 1,
-                    barWidth: 3600
+                    barWidth: 3600,
+                    zeroText: "kein Niederschlag im Zeitraum"
                 )
                 TimeChart(
                     title: "Wind und Böen",

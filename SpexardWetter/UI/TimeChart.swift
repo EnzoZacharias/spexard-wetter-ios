@@ -37,7 +37,8 @@ enum ChartTime {
     /// Times of the server ("2026-11-04T17:00+01:00") as dates (nil where unreadable).
     static func dates(_ times: [String]) -> [Date?] { times.map { Fmt.parse($0) } }
 
-    /// Axis ticks aligned to full Berlin hours: every 3/6/12 hours or every day, by span.
+    /// Axis ticks aligned to full Berlin hours: every 3/6/12 hours, every day or every second day,
+    /// by span (so the labels never collide on a phone).
     static func ticks(from start: Date, to end: Date) -> [Date] {
         let hours = end.timeIntervalSince(start) / 3600
         let step: Int
@@ -48,6 +49,7 @@ enum ChartTime {
         case ..<80: step = 12
         default: step = 24
         }
+        let everyOtherDay = hours > 200
         let cal = Fmt.calendar
         guard var t = cal.dateInterval(of: .hour, for: start)?.start else { return [] }
         if t < start { t = t.addingTimeInterval(3600) }
@@ -55,17 +57,24 @@ enum ChartTime {
         var guardCount = 0
         while t <= end && guardCount < 2000 {
             let h = cal.component(.hour, from: t)
-            if h % step == 0 { out.append(t) }
+            if h % step == 0 {
+                if everyOtherDay {
+                    let day = cal.ordinality(of: .day, in: .era, for: t) ?? 0
+                    if day % 2 == 0 { out.append(t) }
+                } else {
+                    out.append(t)
+                }
+            }
             t = t.addingTimeInterval(3600)
             guardCount += 1
         }
         return out
     }
 
-    /// "18" for hours, the short weekday at midnight ("Do"), or "Do 6." for daily ticks.
+    /// "18" for hours, the short weekday at midnight ("Do"), or "Do 6" for daily ticks.
     static func label(_ date: Date, daily: Bool) -> String {
         let cal = Fmt.calendar
-        if daily { return "\(Fmt.weekdayShort(date)) \(cal.component(.day, from: date))." }
+        if daily { return "\(Fmt.weekdayShort(date)) \(cal.component(.day, from: date))" }
         if cal.component(.hour, from: date) == 0 { return Fmt.weekdayShort(date) }
         return Fmt.hour(date)
     }
@@ -108,6 +117,8 @@ struct TimeChart: View {
     var height: CGFloat = 140
     var now: Date?
     var barWidth: TimeInterval = 3600
+    /// Shown over the chart when every value is 0 (e.g. "kein Niederschlag").
+    var zeroText: String?
 
     private var values: [Double] { series.flatMap { $0.points.map(\.value) } }
 
@@ -158,7 +169,17 @@ struct TimeChart: View {
                 StateMessage(kind: .empty, text: "Keine Werte im Zeitraum")
                     .frame(height: height)
             } else {
-                chart.frame(height: height)
+                chart
+                    .frame(height: height)
+                    .overlay {
+                        if let zeroText, values.allSatisfy({ $0 == 0 }) {
+                            Text(zeroText)
+                                .font(.footnote.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(.black.opacity(0.25)))
+                        }
+                    }
             }
         }
         .card()

@@ -89,10 +89,10 @@ struct SoundingContent: View {
         let value: Double
     }
 
-    /// Height above sea level (m) of every level with a value.
+    /// Height above the station (m) of every level with a value (the inversions use the same base).
     private func profile(_ value: (SoundingResponse.Level) -> Double?) -> [ProfilePoint] {
         (data.ebenen ?? []).enumerated().compactMap { i, level in
-            guard let z = level.zMslM ?? level.zM, let v = value(level) else { return nil }
+            guard let z = level.zM ?? level.zMslM, let v = value(level) else { return nil }
             return ProfilePoint(id: i, height: z, value: v)
         }
         .sorted { $0.height < $1.height }
@@ -168,7 +168,7 @@ struct SoundingContent: View {
                     }
                     .frame(height: 340)
                     .accessibilityLabel("Temperaturprofil der Radiosonde")
-                    Text("Gelbe Bänder: Inversionen (es wird mit der Höhe wärmer). Höhe über dem Meer.")
+                    Text("Gelbe Bänder: Inversionen (es wird mit der Höhe wärmer). Höhe über der Station.")
                         .font(.caption2)
                         .opacity(0.75)
                 }
@@ -210,9 +210,9 @@ struct SoundingContent: View {
         VStack(alignment: .leading, spacing: 10) {
             CardTitle("Kennwerte", systemImage: "list.bullet.rectangle")
             HStack(alignment: .top, spacing: 8) {
-                Fact(label: "Nullgradgrenze", value: Fmt.value(data.nullgradMslM, 0, "m"))
-                Fact(label: "Feuchtkugel-Null", value: Fmt.value(data.feuchtkugelNullMslM, 0, "m"))
-                Fact(label: "Niederschlagswasser", value: Fmt.value(data.indizes?.niederschlagswasserMm, 1, "mm"))
+                Fact(label: "Nullgradgrenze", value: Fmt.value(data.nullgradMslM, 0, "m NN"))
+                Fact(label: "Feuchtkugel-Null", value: Fmt.value(data.feuchtkugelNullMslM, 0, "m NN"))
+                Fact(label: "Wasserdampfsäule", value: Fmt.value(data.indizes?.niederschlagswasserMm, 1, "mm"))
             }
             HStack(alignment: .top, spacing: 8) {
                 Fact(label: "Lifted Index", value: Fmt.value(data.indizes?.liftedIndexK, 1, "K"))

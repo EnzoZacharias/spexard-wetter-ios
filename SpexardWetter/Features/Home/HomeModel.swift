@@ -10,6 +10,7 @@ final class HomeModel {
     var alerts: AlertsResponse?
     var nowcast: NowcastResponse?
     var radarSummary: RadarSummaryResponse?
+    var report: ReportResponse?
     var nowcastError: String?
     var errorText: String?
     var loading = false
@@ -34,6 +35,7 @@ final class HomeModel {
         async let alertsCall: Fetched<AlertsResponse> = api.fetch(.alerts)
         async let nowcastCall: Fetched<NowcastResponse> = api.fetch(.nowcast)
         async let summaryCall: Fetched<RadarSummaryResponse> = api.fetch(.radarSummary)
+        async let reportCall: Fetched<ReportResponse> = api.fetch(ReportKind.heute.endpoint)
         var problems: [String] = []
         var cached: [Date] = []
         var fresh = 0
@@ -64,6 +66,7 @@ final class HomeModel {
             if !APIClient.isCancellation(error) { nowcastError = error.localizedDescription }
         }
         radarSummary = (try? await summaryCall)?.value ?? radarSummary
+        report = (try? await reportCall)?.value ?? report
         errorText = problems.isEmpty ? nil : Array(Set(problems)).sorted().joined(separator: "\n")
         offlineSince = cached.min()
         if fresh > 0 {

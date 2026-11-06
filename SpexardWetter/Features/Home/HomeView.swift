@@ -28,6 +28,9 @@ struct HomeView: View {
                         }
                         RainNowcastCard(nowcast: model.nowcast, error: model.nowcastError, surroundings: model.radarSummary?.umkreis?.text) { openTab(.radar) }
                         HourlyStrip(items: model.hourItems)
+                        if let report = model.report {
+                            ReportTeaser(report: report) { openTab(.bericht) }
+                        }
                         NowDetailsCard(now: model.now, sun: model.todaySun)
                         DailyList(items: model.days, range: model.daysRange) { selectedDay = DaySelection(id: $0) }
                             .id("days")

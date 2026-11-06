@@ -96,7 +96,9 @@ enum WeatherDerived {
             let night = isNight(at: date, sun: hours?.sun)
             items.append(HourItem(
                 id: date,
-                label: items.isEmpty ? "Jetzt" : Fmt.hour(date) + " Uhr",
+                // the current hour by its clock time: its values are the forecast for this hour,
+                // the measured "now" is the big number above
+                label: Fmt.hour(date) + " Uhr",
                 symbol: WeatherSymbol.name(code: h.symbol[i], night: night),
                 temp: h.tC[i],
                 rainProb: h.rainProbPct[i],

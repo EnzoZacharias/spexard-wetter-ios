@@ -118,7 +118,8 @@ struct MeasurementsContent: View {
                 nights: nights,
                 zeroBased: true,
                 minSpan: 1,
-                decimals: 1
+                decimals: 1,
+                zeroText: "kein Niederschlag im Zeitraum"
             )
         }
         if let pressure = data.series("pressure_msl_hpa") {

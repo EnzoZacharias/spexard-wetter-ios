@@ -163,7 +163,8 @@ struct ModelsScreen: View {
                 domain: domain,
                 zeroBased: true,
                 minSpan: 1,
-                decimals: 1
+                decimals: 1,
+                zeroText: "kein Niederschlag im Zeitraum"
             )
         default:
             EmptyView()

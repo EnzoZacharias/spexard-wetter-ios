@@ -95,6 +95,17 @@ enum ResponseCache {
         try? data.write(to: url, options: .atomic)
     }
 
+    /// Size of all stored answers in bytes.
+    static var size: Int {
+        guard let folder, let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.fileSizeKey]) else { return 0 }
+        return files.reduce(0) { $0 + ((try? $1.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0) }
+    }
+
+    static func clear() {
+        guard let folder else { return }
+        try? FileManager.default.removeItem(at: folder)
+    }
+
     static func load(_ path: String) -> (data: Data, date: Date)? {
         guard let url = file(path), let data = try? Data(contentsOf: url) else { return nil }
         let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)

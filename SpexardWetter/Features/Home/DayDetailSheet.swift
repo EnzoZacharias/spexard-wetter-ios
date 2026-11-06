@@ -139,7 +139,8 @@ struct DayDetailSheet: View {
                     domain: start...end,
                     zeroBased: true,
                     minSpan: 1,
-                    decimals: 1
+                    decimals: 1,
+                    zeroText: "kein Niederschlag im Zeitraum"
                 )
             }
         }

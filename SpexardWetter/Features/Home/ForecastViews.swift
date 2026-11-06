@@ -35,7 +35,7 @@ struct HourCell: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(item.label)
-                .font(.footnote.weight(item.label == "Jetzt" ? .bold : .regular))
+                .font(.footnote)
             Image(systemName: item.symbol)
                 .symbolRenderingMode(.multicolor)
                 .font(.title2)
@@ -48,7 +48,15 @@ struct HourCell: View {
                 .frame(height: 14)
         }
         .frame(minWidth: 44)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        var text = "\(item.label): \(Fmt.temp(item.temp))"
+        if let p = item.rainProb, p >= 10 { text += ", Regenrisiko \(Fmt.percent(p))" }
+        if let mm = item.precip, mm > 0 { text += ", \(Fmt.precip(mm))" }
+        return text
     }
 
     /// Rain chance from 10 %, otherwise nothing (keeps the strip calm).

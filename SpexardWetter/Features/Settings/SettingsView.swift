@@ -5,6 +5,13 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var testResult: String?
     @State private var testing = false
+    @State private var cacheBytes = ResponseCache.size
+
+    private var cacheText: String {
+        cacheBytes < 1_000_000
+            ? Fmt.number(Double(cacheBytes) / 1000, decimals: 0) + " kB"
+            : Fmt.number(Double(cacheBytes) / 1_000_000, decimals: 1) + " MB"
+    }
 
     var body: some View {
         NavigationStack {
@@ -30,6 +37,19 @@ struct SettingsView: View {
                     Text("Wetterserver")
                 } footer: {
                     Text(footerText)
+                }
+
+                Section {
+                    LabeledContent("Gespeichert", value: cacheText)
+                    Button("Gespeicherte Antworten löschen", role: .destructive) {
+                        ResponseCache.clear()
+                        cacheBytes = ResponseCache.size
+                    }
+                    .disabled(cacheBytes == 0)
+                } header: {
+                    Text("Offline")
+                } footer: {
+                    Text("Die App merkt sich die letzte Antwort jeder Seite und zeigt sie ohne Verbindung mit ihrem Stand an.")
                 }
 
                 Section("Über die App") {
