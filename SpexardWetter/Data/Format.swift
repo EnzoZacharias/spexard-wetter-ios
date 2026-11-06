@@ -30,7 +30,6 @@ enum Fmt {
     private static let dayFormatter = german("d.M.")
     private static let weekdayFormatter = german("EEEE")
     private static let weekdayShortFormatter = german("EE")
-    private static let weekdayDateFormatter = german("EEEEEE d.M.")
     private static let longDateFormatter = german("EEEE, d. MMMM")
 
     /// "2026-11-04T17:00+01:00" (with or without seconds) or "2026-11-04".
@@ -66,7 +65,7 @@ enum Fmt {
         if let yesterday = cal.date(byAdding: .day, value: -1, to: reference), cal.isDate(date, inSameDayAs: yesterday) {
             return "gestern " + clock
         }
-        return weekdayDateFormatter.string(from: date) + " " + clock
+        return weekdayShort(date) + " " + dayMonth(date) + " " + clock
     }
 
     /// Age of a stand: "vor 5 Min.", "vor 2 Std.", else the date.
