@@ -8,6 +8,10 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case modelle
     case ensembles
     case trend
+    case grosswetterlage
+    case profil
+    case modellguete
+    case status
     case widgets
 
     var id: String { rawValue }
@@ -20,6 +24,10 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .modelle: return ("Modellvergleich", "ICON, ECMWF, GFS und UKMO nebeneinander", "square.stack.3d.up.fill", "/modelle")
         case .ensembles: return ("Ensembles", "Temperaturfahnen, Regenrisiko, Sicherheit je Tag", "point.3.filled.connected.trianglepath.dotted", "/ensembles")
         case .trend: return ("Trend", "Tag 8 bis 16 und die Wochen danach", "chart.line.uptrend.xyaxis", "/trend")
+        case .grosswetterlage: return ("Großwetterlage", "Wetterlage, Regime, Polarwirbel, AO und NAO", "globe.europe.africa.fill", "/grosswetterlage")
+        case .profil: return ("Profil", "Radiosonde: Temperatur über der Höhe", "arrow.up.and.down.text.horizontal", "/profil")
+        case .modellguete: return ("Modellgüte", "Welches Modell lag zuletzt richtig?", "checkmark.seal.fill", "/verifikation")
+        case .status: return ("Status", "Zustand des Wetterservers und der Quellen", "server.rack", "/status")
         case .widgets: return ("Widgets", "Vorschau für Home- und Sperrbildschirm", "rectangle.3.group.fill", nil)
         }
     }
@@ -39,6 +47,10 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .modelle: ModelsScreen()
         case .ensembles: EnsemblesScreen()
         case .trend: TrendScreen()
+        case .grosswetterlage: LargeScaleScreen()
+        case .profil: ProfileScreen()
+        case .modellguete: VerificationScreen()
+        case .status: StatusScreen()
         case .widgets: WidgetPreviewScreen()
         }
     }

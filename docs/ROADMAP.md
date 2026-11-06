@@ -28,11 +28,15 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Mehr → Modellvergleich (`/modelle/stunden`): Kurven je Modell (abschaltbar), Spanne, Tageswerte
 - [x] Mehr → Ensembles: Temperaturfahnen ECMWF/GEFS, Regenrisiko ICON-D2-EPS, Sicherheit je Tag
 - [x] Mehr → Trend (`weather_trend`): Tag 8–16, Blöcke, Wochen 2–6
+- [x] Mehr → Großwetterlage (`large_scale` + `/grosswetterlage/katalog`): GWL, Ensemble-Lagen, Regime,
+      Polarwirbel mit Vorhersage, AO/NAO
+- [x] Mehr → Profil (`/profil/sonde`): Temperatur/Taupunkt über der Höhe, Inversionen, Kennwerte, Vergleich ICON-D2
+- [x] Mehr → Modellgüte (`/verifikation/auswertung?tage=7|30|90`): Aussagen, Fehler je Modell und Größe
+- [x] Mehr → Status (`/status/uebersicht`): Ampel, Kontingent, Quellen, geplante Abrufe
 
 ## Als Nächstes
 
-- [ ] Mehr: Großwetterlage (`large_scale`, `/grosswetterlage/katalog`), Profil (`/profil/sonde`,
-      `/profil/schnitt`), Modellgüte (`/verifikation/auswertung`), Status (`/status/uebersicht`)
+- [ ] Profil: Höhenschnitt `/profil/schnitt?modell=icon_d2|ecmwf` (Zeit-Höhen-Diagramm) fehlt noch
 - [ ] Feinschliff: Pull to refresh überall, Haptik, leere Zustände
 
 ## Hinweise

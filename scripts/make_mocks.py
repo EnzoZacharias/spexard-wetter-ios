@@ -35,7 +35,17 @@ MOCKS: dict[str, str] = {
     "mock_ensembles_regen": "api/ensembles__regen.json",
     "mock_ensembles_tage": "api/ensembles__tage.json",
     "mock_trend": "weather_trend.json",
+    "mock_large_scale": "large_scale.json",
+    "mock_grosswetterlage_katalog": "api/grosswetterlage__katalog.json",
+    "mock_profil_sonde": "api/profil__sonde.json",
+    "mock_verifikation_7": "api/verifikation__auswertung__tage-7.json",
+    "mock_verifikation_30": "api/verifikation__auswertung__tage-30.json",
+    "mock_verifikation_90": "api/verifikation__auswertung__tage-90.json",
+    "mock_status": "api/status__uebersicht.json",
 }
+
+# keys the app does not read (keeps the mock files small)
+DROP_ANYWHERE = ("hintergrund", "pfad", "zeitreihe", "inversion")
 
 DROP_TOP = ("how_to_read", "sources")
 
@@ -44,7 +54,7 @@ def clean(value: object) -> object:
     if isinstance(value, dict):
         out = {}
         for key, item in value.items():
-            if key in DROP_TOP:
+            if key in DROP_TOP or key in DROP_ANYWHERE:
                 continue
             if key == "location" and isinstance(item, dict):
                 item = {k: v for k, v in item.items() if k not in ("lat", "lon")}

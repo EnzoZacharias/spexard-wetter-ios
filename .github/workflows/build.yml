@@ -87,6 +87,10 @@ jobs:
           shot ensembles -screen ensembles
           shot ensembles-tage -screen ensembles -option tage
           shot trend -screen trend
+          shot grosswetterlage -screen grosswetterlage
+          shot profil -screen profil
+          shot modellguete -screen modellguete
+          shot status -screen status
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots
