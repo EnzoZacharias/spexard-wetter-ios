@@ -140,13 +140,13 @@ struct LiveStripWidget: View {
             }
             ForecastStrip(columns: Array(s.strip.prefix(13)), compact: false)
             HStack(spacing: 8) {
-                Text("Zeilen: Regen mm in 3 h · Regenrisiko % · Wind · Böen km/h · Pfeil: wohin der Wind weht")
+                Text("Kurve: Temperatur, gestrichelt: Taupunkt · Zeilen: Regen mm in 3 h · Regenrisiko % · Wolken % · Wind · Böen km/h · Pfeil: wohin der Wind weht")
                 Spacer(minLength: 0)
                 Text(Fmt.time(live.temp.time ?? s.stand))
             }
             .font(.system(size: 8))
             .opacity(0.6)
-            .lineLimit(1)
+            .lineLimit(2)
             .minimumScaleFactor(0.7)
         }
         .foregroundStyle(.white)
@@ -222,9 +222,10 @@ struct ForecastStrip: View {
 
     var body: some View {
         let temps = columns.compactMap(\.temp)
-        let lo = (temps.min() ?? 0) - 1.5
+        let dews = columns.compactMap(\.dewPoint)
+        let lo = ((temps + dews).min() ?? 0) - 1.5
         let hi = (temps.max() ?? 1) + (compact ? 3.5 : 3)
-        VStack(spacing: compact ? 1 : 5) {
+        VStack(spacing: compact ? 1 : 4) {
             row { c in
                 Text(c.day ?? c.hour)
                     .font(.system(size: compact ? 9 : 11, weight: c.day == nil ? .medium : .heavy))
@@ -238,7 +239,7 @@ struct ForecastStrip: View {
                     .frame(height: compact ? 13 : 24)
             }
             curve(lo: lo, hi: hi)
-                .frame(height: compact ? 27 : 70)
+                .frame(height: compact ? 27 : 60)
             // precipitation always shown: "0" for a dry step (dimmed), "–" without a value
             row { c in
                 Text(Self.precipText(c.precip))
@@ -257,6 +258,7 @@ struct ForecastStrip: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                 }
+                row { c in CloudCell(percent: c.cloud) }
             }
             row { c in WindCell(kmh: c.wind, height: compact ? 12 : 19) }
             row { c in WindCell(kmh: c.gust, height: compact ? 12 : 19) }
@@ -305,15 +307,28 @@ struct ForecastStrip: View {
         let temp: Double
     }
 
+    private struct DewPoint: Identifiable {
+        let id: Int
+        let value: Double
+    }
+
     private func curve(lo: Double, hi: Double) -> some View {
         let points = columns.enumerated().compactMap { i, c in c.temp.map { Point(id: i, temp: $0) } }
+        let dews = columns.enumerated().compactMap { i, c in c.dewPoint.map { DewPoint(id: i, value: $0) } }
         let n = Swift.max(columns.count, 1)
         return Chart {
+            // dew point as a thin line where the server has it (short-range models only)
+            ForEach(dews) { d in
+                LineMark(x: .value("Spalte", Double(d.id)), y: .value("Taupunkt", d.value), series: .value("Reihe", "Taupunkt"))
+                    .foregroundStyle(Palette.cold.opacity(0.9))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 2]))
+                    .interpolationMethod(.monotone)
+            }
             ForEach(points) { p in
                 AreaMark(x: .value("Spalte", Double(p.id)), yStart: .value("Basis", lo), yEnd: .value("Temperatur", p.temp))
                     .foregroundStyle(LinearGradient(colors: [Palette.warm.opacity(0.55), Palette.warm.opacity(0.08)], startPoint: .top, endPoint: .bottom))
                     .interpolationMethod(.monotone)
-                LineMark(x: .value("Spalte", Double(p.id)), y: .value("Temperatur", p.temp))
+                LineMark(x: .value("Spalte", Double(p.id)), y: .value("Temperatur", p.temp), series: .value("Reihe", "Temperatur"))
                     .foregroundStyle(Palette.warm)
                     .lineStyle(StrokeStyle(lineWidth: 1.5))
                     .interpolationMethod(.monotone)
@@ -346,6 +361,22 @@ struct WindCell: View {
             .minimumScaleFactor(0.6)
             .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
             .background(RoundedRectangle(cornerRadius: 2).fill(WindScale.color(kmh)))
+            .padding(.horizontal, 0.5)
+    }
+}
+
+/// Cloud cover of a column: the more clouds, the lighter the cell.
+struct CloudCell: View {
+    let percent: Double?
+
+    var body: some View {
+        Text(percent.map { Fmt.number($0, decimals: 0) } ?? "–")
+            .font(.system(size: 9, weight: .semibold))
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(maxWidth: .infinity, minHeight: 14, maxHeight: 14)
+            .background(RoundedRectangle(cornerRadius: 2).fill(Color.white.opacity(0.06 + 0.34 * ((percent ?? 0) / 100))))
             .padding(.horizontal, 0.5)
     }
 }

@@ -40,6 +40,8 @@ struct HourItem: Identifiable {
     var wind: Double? = nil
     var windDir: Double? = nil
     var gust: Double? = nil
+    var dewPoint: Double? = nil
+    var cloud: Double? = nil
 }
 
 /// Sunrise or sunset inside the hourly strip.
@@ -114,7 +116,9 @@ enum WeatherDerived {
                 precip: h.precipMm[i],
                 wind: h.windKmh[i],
                 windDir: h.windDirDeg[i],
-                gust: h.gustMaxKmh[i]
+                gust: h.gustMaxKmh[i],
+                dewPoint: h.dewPointC?[i],
+                cloud: h.cloudPct?[i]
             ))
             if items.count == limit { break }
         }

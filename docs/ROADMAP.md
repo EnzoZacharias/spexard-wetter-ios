@@ -68,10 +68,13 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Wochentag beim Tageswechsel; Tipp öffnet das Meteogramm. Groß: höhere Kurve, Regenzeile immer
       sichtbar (0 = trocken), Regenrisiko-Zeile, Legende passend zu den Zeilen
 
+- [x] `mock_hours` aus dem vollen Fixture `vorhersage__stunden` (Taupunkt, Bewölkung, Modellspanne,
+      Sonnenminuten, Basis kurzfrist/global); Verlauf-Widget mit gestrichelter Taupunktlinie und
+      Wolkenzeile (groß), Regen/Böen der Spalte = die 3 Stunden danach (Werte gelten für die Stunde davor);
+      24-Stunden-Leiste mit Modus „Luft“ (Taupunkt, Bewölkung), Tagesdetail mit Taupunkt und Bewölkung
+
 ## Als Nächstes
 
-- [ ] Taupunkt als zweite Linie im Verlauf: `/vorhersage/stunden` liefert keinen Taupunkt (nur das
-      Meteogramm je Modell) – dafür bräuchte der Endpunkt eine Taupunkt-Reihe
 
 
 ## Hinweise

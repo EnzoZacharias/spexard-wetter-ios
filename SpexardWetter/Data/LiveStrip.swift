@@ -13,6 +13,10 @@ struct StripColumn: Identifiable {
     let precip: Double?
     /// Highest hourly rain probability of the step (percent).
     let rainProb: Double?
+    /// Dew point at the column hour (only where the server has short-range models).
+    let dewPoint: Double?
+    /// Cloud cover at the column hour (percent).
+    let cloud: Double?
     /// Mean wind at the column hour.
     let wind: Double?
     /// Highest gust of the step.
@@ -80,7 +84,8 @@ struct LiveValues {
 }
 
 extension WeatherDerived {
-    /// Columns every `step` hours from the current hour on, `count` at most (fewer where the
+    /// Columns every `step` hours from the current hour on; precipitation and gusts cover the
+    /// `step` hours after the column time, `count` at most (fewer where the
     /// hourly forecast ends).
     static func strip(_ hours: HoursResponse?, reference: Date, step: Int = 3, count: Int = 14) -> [StripColumn] {
         guard let h = hours?.hours else { return [] }
@@ -97,7 +102,8 @@ extension WeatherDerived {
             var rain: Double?
             var gustMax: Double?
             var probMax: Double?
-            for s in 0..<step {
+            // precipitation, gusts and the rain chance of an hour stand at its end (14:00 = 13-14 Uhr)
+            for s in 1...step {
                 guard let j = index[t.addingTimeInterval(Double(s) * 3600)] else { continue }
                 if let p = h.precipMm[j] { rain = (rain ?? 0) + p }
                 if let q = h.rainProbPct[j] { probMax = Swift.max(probMax ?? q, q) }
@@ -116,6 +122,8 @@ extension WeatherDerived {
                 temp: h.tC[i],
                 precip: rain,
                 rainProb: probMax,
+                dewPoint: h.dewPointC?[i],
+                cloud: h.cloudPct?[i],
                 wind: h.windKmh[i],
                 gust: gustMax ?? h.gustMaxKmh[i],
                 windDir: h.windDirDeg[i],

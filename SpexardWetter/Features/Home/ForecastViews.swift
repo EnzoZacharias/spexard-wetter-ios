@@ -21,10 +21,17 @@ struct MoreLink: View {
 }
 
 enum HourlyMode: String, CaseIterable, Identifiable {
-    case regen, wind
+    case regen, wind, luft
 
     var id: String { rawValue }
-    var label: String { self == .regen ? "Regen" : "Wind" }
+
+    var label: String {
+        switch self {
+        case .regen: return "Regen"
+        case .wind: return "Wind"
+        case .luft: return "Luft"
+        }
+    }
 }
 
 struct HourlyStrip: View {
@@ -76,7 +83,7 @@ struct HourlyStrip: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 180)
+                .frame(width: 240)
                 ScrollView(.horizontal) {
                     HStack(alignment: .top, spacing: 18) {
                         ForEach(entries) { entry in
@@ -89,6 +96,11 @@ struct HourlyStrip: View {
                     .padding(.vertical, 2)
                 }
                 .scrollIndicators(.hidden)
+                if mode == .luft {
+                    Text("Tp = Taupunkt (nur solange die Kurzfrist-Modelle rechnen), darunter die Bewölkung")
+                        .font(.caption2)
+                        .opacity(0.7)
+                }
             }
         }
         .card()
@@ -130,7 +142,21 @@ struct HourCell: View {
                 .frame(height: 30)
             Text(Fmt.temp(item.temp))
                 .font(.title3.weight(.semibold))
-            if mode == .wind {
+            if mode == .luft {
+                // dew point and cloud cover of the hour (dew point only for short-range hours)
+                VStack(spacing: 2) {
+                    Text(item.dewPoint.map { "Tp " + Fmt.temp($0) } ?? " ")
+                        .font(.caption2.weight(.semibold))
+                    Text(item.cloud.map { "\(Int($0.rounded())) %" } ?? " ")
+                        .font(.system(size: 9))
+                        .opacity(0.8)
+                    Image(systemName: "cloud.fill")
+                        .font(.system(size: 9))
+                        .opacity(0.25 + 0.75 * ((item.cloud ?? 0) / 100))
+                }
+                .foregroundStyle(Palette.cold)
+                .frame(height: 40)
+            } else if mode == .wind {
                 VStack(spacing: 2) {
                     if let dir = item.windDir {
                         // the arrow points where the wind blows to (from the direction + 180°)
@@ -173,6 +199,8 @@ struct HourCell: View {
         if let p = item.rainProb, p >= 10 { text += ", Regenrisiko \(Fmt.percent(p))" }
         if let mm = item.precip, mm > 0 { text += ", \(Fmt.precip(mm))" }
         if let w = item.wind { text += ", Wind \(Fmt.wind(w))\(item.windDir.map { " aus " + Fmt.compass($0) } ?? "")" }
+        if let d = item.dewPoint { text += ", Taupunkt \(Fmt.temp(d))" }
+        if let c = item.cloud { text += ", Bewölkung \(Fmt.percent(c))" }
         return text
     }
 

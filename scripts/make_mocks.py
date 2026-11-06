@@ -16,6 +16,7 @@ from pathlib import Path
 # app mock name -> fixture below web/fixtures
 MOCKS: dict[str, str] = {
     "mock_alerts": "scenarios/warnung/weather_alerts__include_reports-false.json",
+    "mock_hours": "api/vorhersage__stunden.json",
     "mock_nowcast": "rain_nowcast.json",
     "mock_radar": "api/radar__bilder.json",
     "mock_bericht_heute": "api/wetterbericht__art-heute.json",

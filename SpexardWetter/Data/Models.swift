@@ -188,6 +188,20 @@ struct HoursResponse: Decodable {
         let windDirDeg: Series<Double>
         let gustMaxKmh: Series<Double>
         let symbol: Series<Int>
+        /// "kurzfrist" (ICON-D2, ECMWF, GFS, AROME, with dew point and EPS) or "global".
+        let basis: Series<String>?
+        /// Spread of the models.
+        let tMinC: Series<Double>?
+        let tMaxC: Series<Double>?
+        /// Only for "kurzfrist" hours (null for "global").
+        let dewPointC: Series<Double>?
+        /// Wettest model.
+        let precipMaxMm: Series<Double>?
+        /// "1/4" = models with at least 0.1 mm / models with data.
+        let wetModels: Series<String>?
+        let cloudPct: Series<Double>?
+        /// Sunshine minutes of the hour before (DWD MOSMIX, where it has hours).
+        let sunMin: Series<Double>?
     }
 
     struct Sun: Decodable {
@@ -196,8 +210,16 @@ struct HoursResponse: Decodable {
         let sunset: String?
     }
 
+    struct Day: Decodable {
+        let date: String
+        @Lenient var cloudMeanPct: Double?
+        @Lenient var sunH: Double?
+    }
+
     let hours: Hours
     let sun: [Sun]?
+    let days: [Day]?
+    let mosmixStation: String?
 }
 
 // MARK: - /api/v1/tools/weather_forecast?days=16

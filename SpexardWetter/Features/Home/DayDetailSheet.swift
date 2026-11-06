@@ -127,7 +127,10 @@ struct DayDetailSheet: View {
                 TimeChart(
                     title: "Temperatur Stunde für Stunde",
                     unit: "°C",
-                    series: [ChartSeries("Temperatur", color: Palette.warm, times: inDay, values: h.tC.expanded(n))],
+                    series: [
+                        ChartSeries("Temperatur", color: Palette.warm, times: inDay, values: h.tC.expanded(n)),
+                        ChartSeries("Taupunkt", color: Palette.cold, dashed: true, times: inDay, values: h.dewPointC?.expanded(n) ?? []),
+                    ].filter { !$0.isEmpty },
                     domain: start...end,
                     nights: ChartTime.nights((model.hours?.sun ?? []).map { ($0.date, $0.sunrise, $0.sunset) }, within: start...end),
                     minSpan: 4
@@ -142,6 +145,17 @@ struct DayDetailSheet: View {
                     decimals: 1,
                     zeroText: "kein Niederschlag im Zeitraum"
                 )
+                let clouds = h.cloudPct?.expanded(n) ?? []
+                if clouds.contains(where: { $0 != nil }) {
+                    TimeChart(
+                        title: "Bewölkung",
+                        unit: "%",
+                        series: [ChartSeries("Bewölkung", color: Color.white.opacity(0.85), style: .area, times: inDay, values: clouds)],
+                        domain: start...end,
+                        zeroBased: true,
+                        minSpan: 100
+                    )
+                }
             }
         }
     }
