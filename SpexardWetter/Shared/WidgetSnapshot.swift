@@ -1,7 +1,7 @@
 import Foundation
 
 extension Endpoint {
-    static let forecast2 = Endpoint(path: "/api/v1/tools/weather_forecast?days=2", mock: "mock_forecast")
+    static let forecast7 = Endpoint(path: "/api/v1/tools/weather_forecast?days=7", mock: "mock_forecast")
 }
 
 /// Everything a widget shows, taken from the server's answers (shared by the widget extension and
@@ -16,6 +16,8 @@ struct WidgetSnapshot {
     let min: Double?
     let max: Double?
     let hours: [HourItem]
+    /// The next days (large widget).
+    let days: [DayItem]
     let rainHeadline: String?
     /// Radar nowcast at the location in 5-minute steps (measured, then forecast).
     let rainSteps: [NowcastResponse.Step]
@@ -37,7 +39,7 @@ struct WidgetSnapshot {
         let api = APIClient()
         async let nowCall: Fetched<WeatherNow> = api.fetch(.now, timeout: 15)
         async let hoursCall: Fetched<HoursResponse> = api.fetch(.hours, timeout: 15)
-        async let forecastCall: Fetched<ForecastResponse> = api.fetch(.forecast2, timeout: 15)
+        async let forecastCall: Fetched<ForecastResponse> = api.fetch(.forecast7, timeout: 15)
         async let nowcastCall: Fetched<NowcastResponse> = api.fetch(.nowcast, timeout: 15)
         async let alertsCall: Fetched<AlertsResponse> = api.fetch(.alerts, timeout: 15)
         guard let now = try? await nowCall else { return nil }
@@ -65,6 +67,7 @@ struct WidgetSnapshot {
             min: range.min,
             max: range.max,
             hours: WeatherDerived.hourItems(hours?.value, reference: reference, limit: 6),
+            days: Array(days.prefix(6)),
             rainHeadline: nowcast?.value.headline,
             rainSteps: nowcast?.value.steps ?? [],
             rainText: nowcast?.value.summary?.text,

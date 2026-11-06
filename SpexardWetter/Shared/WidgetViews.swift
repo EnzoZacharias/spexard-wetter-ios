@@ -20,6 +20,7 @@ struct WidgetContent: View {
     private var content: some View {
         switch family {
         case .systemMedium: MediumWidget(snapshot: snapshot)
+        case .systemLarge: LargeWidget(snapshot: snapshot)
         case .accessoryRectangular: RectangularWidget(snapshot: snapshot)
         case .accessoryCircular: CircularWidget(snapshot: snapshot)
         case .accessoryInline: InlineWidget(snapshot: snapshot)
@@ -181,17 +182,32 @@ struct CircularWidget: View {
     let snapshot: WidgetSnapshot?
 
     var body: some View {
-        ZStack {
-            AccessoryWidgetBackground()
-            VStack(spacing: 0) {
-                Image(systemName: snapshot?.symbol ?? "questionmark")
-                    .font(.system(size: 15))
-                Text(Fmt.temp(snapshot?.temp))
-                    .font(.system(size: 19, weight: .semibold))
-                    .minimumScaleFactor(0.6)
+        if let s = snapshot, let t = s.temp, let lo = s.min, let hi = s.max, hi > lo {
+            // today's range from the forecast as the gauge, the current value on it
+            Gauge(value: Swift.min(Swift.max(t, lo), hi), in: lo...hi) {
+                Image(systemName: s.symbol)
+            } currentValueLabel: {
+                Text(Fmt.temp(t))
+            } minimumValueLabel: {
+                Text(Fmt.number(lo, decimals: 0))
+            } maximumValueLabel: {
+                Text(Fmt.number(hi, decimals: 0))
             }
+            .gaugeStyle(.accessoryCircular)
+            .accessibilityLabel("Aktuell \(Fmt.temp(t)), heute \(Fmt.temp(lo)) bis \(Fmt.temp(hi))")
+        } else {
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 0) {
+                    Image(systemName: snapshot?.symbol ?? "questionmark")
+                        .font(.system(size: 15))
+                    Text(Fmt.temp(snapshot?.temp))
+                        .font(.system(size: 19, weight: .semibold))
+                        .minimumScaleFactor(0.6)
+                }
+            }
+            .accessibilityElement(children: .combine)
         }
-        .accessibilityElement(children: .combine)
     }
 }
 
@@ -325,5 +341,79 @@ struct WidgetPlaceholder: View {
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .redacted(reason: .placeholder)
+    }
+}
+
+/// Large widget: current values, the next hours and the next days.
+struct LargeWidget: View {
+    let snapshot: WidgetSnapshot?
+
+    var body: some View {
+        if let s = snapshot {
+            VStack(alignment: .leading, spacing: 10) {
+                MediumWidget(snapshot: s)
+                    .frame(height: 120)
+                Divider().overlay(.white.opacity(0.3))
+                let lows = s.days.compactMap(\.tmin)
+                let highs = s.days.compactMap(\.tmax)
+                let range = (lows.min() ?? 0)...Swift.max(highs.max() ?? 1, (lows.min() ?? 0) + 1)
+                ForEach(s.days) { day in
+                    HStack(spacing: 8) {
+                        Text(day.label == "Heute" || day.label == "Morgen" ? day.label : Fmt.weekdayShort(day.date))
+                            .font(.footnote.weight(.semibold))
+                            .frame(width: 52, alignment: .leading)
+                        Image(systemName: day.symbol)
+                            .symbolRenderingMode(.multicolor)
+                            .font(.footnote)
+                            .frame(width: 22)
+                        Text(day.rainProb.map { $0 >= 10 ? Fmt.percent($0) : "" } ?? "")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(Palette.rain)
+                            .frame(width: 34, alignment: .leading)
+                        Text(Fmt.temp(day.tmin)).font(.footnote).opacity(0.8).frame(width: 30, alignment: .trailing)
+                        TempBar(low: day.tmin, high: day.tmax, range: range).frame(height: 5)
+                        Text(Fmt.temp(day.tmax)).font(.footnote.weight(.semibold)).frame(width: 30, alignment: .trailing)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(.white)
+        } else {
+            WidgetNoData()
+        }
+    }
+}
+
+/// Min-max bar of a day within the range of all days, coloured from cold to warm.
+struct TempBar: View {
+    let low: Double?
+    let high: Double?
+    let range: ClosedRange<Double>
+
+    var body: some View {
+        GeometryReader { geo in
+            let span = max(range.upperBound - range.lowerBound, 0.1)
+            let lo = ((low ?? high ?? range.lowerBound) - range.lowerBound) / span
+            let hi = ((high ?? low ?? range.upperBound) - range.lowerBound) / span
+            ZStack(alignment: .leading) {
+                Capsule().fill(.white.opacity(0.18))
+                Capsule()
+                    .fill(LinearGradient(colors: [Self.color(low), Self.color(high)], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: max(geo.size.width * (hi - lo), 6))
+                    .offset(x: geo.size.width * lo)
+            }
+        }
+    }
+
+    /// Blue below 0 °C, green-yellow mild, orange-red warm.
+    static func color(_ t: Double?) -> Color {
+        guard let t else { return .white }
+        switch t {
+        case ..<0: return Color(red: 0.55, green: 0.75, blue: 1.0)
+        case ..<8: return Color(red: 0.45, green: 0.85, blue: 0.85)
+        case ..<15: return Color(red: 0.70, green: 0.88, blue: 0.45)
+        case ..<22: return Color(red: 1.0, green: 0.80, blue: 0.30)
+        default: return Color(red: 1.0, green: 0.50, blue: 0.30)
+        }
     }
 }

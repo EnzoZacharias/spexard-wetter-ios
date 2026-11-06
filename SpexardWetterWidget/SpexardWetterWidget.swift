@@ -59,7 +59,7 @@ struct SpexardWeatherWidget: Widget {
         }
         .configurationDisplayName("Spexard Wetter")
         .description("Aktuelle Temperatur, die nächsten Stunden und Regen in den nächsten zwei Stunden.")
-        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryCircular, .accessoryInline])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryRectangular, .accessoryCircular, .accessoryInline])
     }
 }
 

@@ -262,37 +262,3 @@ struct DayRow: View {
         return Fmt.percent(p)
     }
 }
-
-/// Min-max bar of a day within the range of all days, coloured from cold to warm.
-struct TempBar: View {
-    let low: Double?
-    let high: Double?
-    let range: ClosedRange<Double>
-
-    var body: some View {
-        GeometryReader { geo in
-            let span = max(range.upperBound - range.lowerBound, 0.1)
-            let lo = ((low ?? high ?? range.lowerBound) - range.lowerBound) / span
-            let hi = ((high ?? low ?? range.upperBound) - range.lowerBound) / span
-            ZStack(alignment: .leading) {
-                Capsule().fill(.white.opacity(0.18))
-                Capsule()
-                    .fill(LinearGradient(colors: [Self.color(low), Self.color(high)], startPoint: .leading, endPoint: .trailing))
-                    .frame(width: max(geo.size.width * (hi - lo), 6))
-                    .offset(x: geo.size.width * lo)
-            }
-        }
-    }
-
-    /// Blue below 0 °C, green-yellow mild, orange-red warm.
-    static func color(_ t: Double?) -> Color {
-        guard let t else { return .white }
-        switch t {
-        case ..<0: return Color(red: 0.55, green: 0.75, blue: 1.0)
-        case ..<8: return Color(red: 0.45, green: 0.85, blue: 0.85)
-        case ..<15: return Color(red: 0.70, green: 0.88, blue: 0.45)
-        case ..<22: return Color(red: 1.0, green: 0.80, blue: 0.30)
-        default: return Color(red: 1.0, green: 0.50, blue: 0.30)
-        }
-    }
-}

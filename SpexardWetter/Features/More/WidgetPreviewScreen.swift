@@ -29,6 +29,9 @@ struct WidgetPreviewScreen: View {
                 section("Mittel") {
                     systemWidget(.systemMedium, width: 364, height: 170)
                 }
+                section("Groß") {
+                    systemWidget(.systemLarge, width: 364, height: 382)
+                }
                 section("Regen in 2 Stunden") {
                     rainWidget()
                     accessoryRain()
