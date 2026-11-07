@@ -72,6 +72,7 @@ struct TrendContent: View {
             if let weeks = data.weeks, !weeks.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
                     CardTitle("Wochen 2 bis 6", systemImage: "calendar", info: "ec46")
+                    GlossaryNotesView(["polarwirbel", "nao", "ao"])
                     ForEach(weeks) { week in
                         weekRow(week)
                         Divider().overlay(.white.opacity(0.15))

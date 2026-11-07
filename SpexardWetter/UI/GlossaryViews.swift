@@ -160,17 +160,25 @@ extension NoteCallout {
     }
 }
 
-/// The server's current notes for these glossary ids, stacked; nothing when no value is conspicuous.
+/// The server's current notes for these glossary ids (or of one day), stacked; nothing when no
+/// value is conspicuous.
 struct GlossaryNotesView: View {
     let ids: [String]
+    var day: Date?
     @ObservedObject private var store = GlossaryNotes.shared
 
     init(_ ids: [String]) {
         self.ids = ids
     }
 
+    /// The notes on the local weather of this day (any glossary id).
+    init(day: Date) {
+        self.ids = []
+        self.day = day
+    }
+
     var body: some View {
-        let notes = store.notes(ids)
+        let notes = day.map { store.notes(onDay: $0) } ?? store.notes(ids)
         if !notes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(notes, id: \.self) { note in

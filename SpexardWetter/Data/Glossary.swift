@@ -156,6 +156,8 @@ final class GlossaryNotes: ObservableObject {
 
     @Published private(set) var notes: [GlossaryNote] = []
     @Published private(set) var date: Date?
+    /// When the server made the notes ("heute"/"morgen" in `wann` count from there).
+    @Published private(set) var generatedAt: Date?
     private var loading = false
 
     private init() {}
@@ -171,11 +173,30 @@ final class GlossaryNotes: ObservableObject {
         } else {
             notes = result.value.hinweise
         }
+        generatedAt = Fmt.parse(result.value.generatedAt)
         date = result.fromCache ? nil : result.date
     }
 
     /// The notes of these glossary ids, in the given order.
     func notes(_ ids: [String]) -> [GlossaryNote] {
         ids.flatMap { id in notes.filter { $0.id == id } }
+    }
+
+    /// The notes on the local weather of one day: `wann` names it ("heute", "morgen" from the
+    /// server's answer time, or "Mo 09.11. 06 Uhr"). Large-scale signals belong to no single day.
+    func notes(onDay day: Date) -> [GlossaryNote] {
+        GlossaryNotes.notes(notes, onDay: day, generatedAt: generatedAt ?? Date())
+    }
+
+    nonisolated static func notes(_ notes: [GlossaryNote], onDay day: Date, generatedAt: Date) -> [GlossaryNote] {
+        let cal = Fmt.calendar
+        let key = String(format: "%02d.%02d.", cal.component(.day, from: day), cal.component(.month, from: day))
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: generatedAt) ?? generatedAt
+        return notes.filter { note in
+            guard let wann = note.wann?.lowercased(), !(note.bezug ?? "").hasPrefix("large_scale") else { return false }
+            if wann.hasPrefix("jetzt") || wann.hasPrefix("heute") { return cal.isDate(day, inSameDayAs: generatedAt) }
+            if wann.hasPrefix("morgen") { return cal.isDate(day, inSameDayAs: tomorrow) }
+            return wann.contains(key)
+        }
     }
 }
