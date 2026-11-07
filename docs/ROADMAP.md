@@ -92,14 +92,23 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Verlauf-Widget: das Spalten-Symbol beschreibt dieselben 3 Stunden wie die Regenzeile (Nebel, Regen,
       Schnee oder Gewitter einer dieser Stunden gewinnt, sonst die mittlere Stunde)
 
+- [x] Hinweise auch an den Meteogramm-Diagrammen (Temperatur: Frost, Bodenfrost, Glätte, Nebel; Wind: Böen, LLJ;
+      Wolken: Inversion; Druck: Drucktendenz; CAPE: CAPE, LI), im Tagesdetail (Hinweise, deren `wann` den Tag nennt,
+      ohne Großwetterlage), beim Trend (Polarwirbel, NAO, AO) und auf den Karten (Glossar-Ids der Ebene aus dem Katalog);
+      großes Widget mit einer Hinweis-Zeile (stärkere zuerst, „+N“ für weitere), Vorschau `-screen widgets -option gross`
+- [x] Mehr → Historie (`/api/v1/historie?zeitraum=tage|wochen|monate|jahre`): heute bisher im Garten, Satz zur
+      Abweichung vom Normal, Tiefst-bis-Höchst-Balken mit dem Normal 1991–2020 dahinter, Zeitraum-Liste mit Mittel,
+      Abweichung und Kenntagen, Rekorde Garten und Station, DWD-Station mit Niederschlag, Böe, Schnee, Bodenfrost,
+      Garten gegen Station. Beispieldaten aus dem Endpunkt-Code von v2 (53507af) mit den echten Stundenwerten des
+      Gartensensors seit 31.10. und den echten DWD-KL-Zips (`-screen historie -option monate`)
+
 ## Als Nächstes
 
-- [ ] Branch `wip-lexikon-hinweise` (Lexikon, Info-Knöpfe, Hinweise, Karten-Marker, Widget-Symbol) ist noch
-      nicht in CI gebaut: per PR bauen lassen, Screenshots `lexikon`, `lexikon-cape`, `home`, `profil`,
-      `karten*` prüfen, dann nach `main`
-- [ ] Historie-Screen, sobald `/api/v1/historie` auf v2 liegt; danach Profi-Daten (Pollen, UV, Luft, ...)
-- [ ] Hinweis-Zeile im großen Widget (`/api/v1/glossar/hinweise`)
-
+- [ ] PR #1 (`wip-lexikon-hinweise`) nach `main` mergen: das Mergen ohne Review hat der Agent nicht selbst gemacht;
+      erst danach gibt es eine neue IPA unter „latest“
+- [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
+      optional ein Historie-Widget („heute bisher“ + Rekord des Monats)
+- [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
 - [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,
       Stunden und Umkreis), danach deren Diagramme mit Regen in den Screenshots prüfen
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)

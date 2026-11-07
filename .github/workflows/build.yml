@@ -92,6 +92,8 @@ jobs:
           shot widgets-gross -screen widgets -option gross
           shot gefahren -screen warnungen -scrollBottom
           shot messwerte -screen messwerte
+          shot historie -screen historie
+          shot historie-monate -screen historie -option monate
           shot meteogramm -screen meteogramm
           shot meteogramm-ecmwf -screen meteogramm -option ecmwf
           shot modelle -screen modelle

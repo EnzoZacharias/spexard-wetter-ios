@@ -5,6 +5,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case karten
     case warnungen
     case messwerte
+    case historie
     case meteogramm
     case modelle
     case ensembles
@@ -23,6 +24,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .karten: return ("Karten", "ICON-D2 für NRW: Regen, Schnee, Böen, CAPE …", "map.fill", "/karten")
         case .warnungen: return ("Warnungen & Gefahren", "Amtliche Warnungen des DWD", "exclamationmark.triangle.fill", "/gefahren")
         case .messwerte: return ("Messwerte", "Stationen der Umgebung, 24 bis 72 Stunden", "chart.xyaxis.line", "/messwerte")
+        case .historie: return ("Historie", "Gartensensor und DWD-Stationen: Tage, Wochen, Monate, Rekorde", "clock.arrow.circlepath", "/historie")
         case .meteogramm: return ("Meteogramm", "Stunde für Stunde je Modell", "chart.bar.xaxis", "/meteogramm")
         case .modelle: return ("Modellvergleich", "ICON, ECMWF, GFS und UKMO nebeneinander", "square.stack.3d.up.fill", "/modelle")
         case .ensembles: return ("Ensembles", "Temperaturfahnen, Regenrisiko, Sicherheit je Tag", "point.3.filled.connected.trianglepath.dotted", "/ensembles")
@@ -46,6 +48,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     static let groups: [MoreGroup] = [
         MoreGroup(title: "Karten", items: [.karten]),
         MoreGroup(title: "Jetzt und heute", items: [.warnungen, .messwerte]),
+        MoreGroup(title: "Rückblick", items: [.historie]),
         MoreGroup(title: "Vorhersage", items: [.meteogramm, .modelle, .ensembles, .trend]),
         MoreGroup(title: "Hintergrund", items: [.grosswetterlage, .profil, .modellguete]),
         MoreGroup(title: "Wissen", items: [.lexikon]),
@@ -58,6 +61,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .karten: MapsScreen()
         case .warnungen: WarningsScreen(home: home)
         case .messwerte: MeasurementsScreen()
+        case .historie: HistoryScreen()
         case .meteogramm: MeteogramScreen()
         case .modelle: ModelsScreen()
         case .ensembles: EnsemblesScreen()
