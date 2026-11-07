@@ -114,6 +114,9 @@ jobs:
           shot regen-standort -tab radar -radarPoint -scenario regen
           shot regen-widgets -screen widgets -scenario regen
           shot regen-tag -showDay 2026-11-04 -scenario regen
+          shot regen-meteogramm -screen meteogramm -scenario regen
+          shot regen-modelle -screen modelle -option precip -scenario regen
+          shot regen-ensembles -screen ensembles -option regen -scenario regen
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots

@@ -43,7 +43,7 @@ enum ModelVariable: String, CaseIterable, Identifiable {
 /// The deterministic models side by side: hourly curves per model and the daily values.
 struct ModelsScreen: View {
     @StateObject private var loader = Loader<ModelHoursResponse>()
-    @State private var variable: ModelVariable = .temp
+    @State private var variable: ModelVariable = LaunchArgs.option.flatMap(ModelVariable.init(rawValue:)) ?? .temp
     @State private var hiddenModels: Set<String> = []
 
     var body: some View {

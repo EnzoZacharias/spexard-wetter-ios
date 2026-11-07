@@ -5,7 +5,8 @@
 The recorded answers of the website are all dry, so this script writes modified copies of the
 app's mock files: `SpexardWetter/Resources/mock_<name>_szenario_regen.json`. The rain values are
 MADE UP (a band of rain crossing the location in the radar, a matching nowcast and some wet
-hours). The app reads these files only with `-mock -scenario regen`; never as real data.
+hours, also in the meteograms, the model comparison and the ICON-D2-EPS rain). The app reads
+these files only with `-mock -scenario regen`; never as real data.
 """
 
 from __future__ import annotations
@@ -225,8 +226,89 @@ def hours() -> None:
     save("mock_hours", d)
 
 
+# --- the same wet hours in the model answers (meteogram, model comparison, ensemble) -------------
+MODEL_FACTOR = {"icon_d2": 1.0, "arome": 1.3, "ecmwf": 0.7, "gfs": 0.5, "icon": 0.9, "ukmo": 0.0}
+"""How much of the made-up rain each model gets (they disagree, as real models do; UKMO stays dry)."""
+
+
+def wet_hour(t: str) -> tuple[float, int] | None:
+    return WET_HOURS.get(t[:16])
+
+
+def meteogram(model: str) -> None:
+    d = copy.deepcopy(load(f"mock_meteogramm_{model}"))
+    h = d["hourly"]
+    for i, t in enumerate(h["time"]):
+        wet = wet_hour(t)
+        if wet is None or h["precip_mm"][i] is None:
+            continue
+        mm = round(wet[0] * MODEL_FACTOR[model], 1)
+        if mm <= 0:
+            continue
+        h["precip_mm"][i] = mm
+        for key, value in (("cloud_pct", 100), ("cloud_low_pct", 85), ("rh_pct", 96)):
+            if key in h and h[key][i] is not None:
+                h[key][i] = value
+        if h.get("weather_code") and h["weather_code"][i] is not None:
+            h["weather_code"][i] = 63 if mm >= 1 else 61
+    save(f"mock_meteogramm_{model}", d)
+
+
+def models() -> None:
+    d = copy.deepcopy(load("mock_modelle_stunden"))
+    wet_index = {i: wet_hour(t) for i, t in enumerate(d["time"]) if wet_hour(t)}
+    added: dict[str, dict[str, float]] = {}
+    for name, series in d["models"].items():
+        for i, (mm, _) in wet_index.items():
+            value = round(mm * MODEL_FACTOR.get(name, 0.0), 1)
+            if series["precip_mm"][i] is not None and value > 0:
+                series["precip_mm"][i] = value
+                day = d["time"][i][:10]
+                added.setdefault(name, {}).setdefault(day, 0.0)
+                added[name][day] += value
+    summary = d["summary"]
+    for i in wet_index:
+        values = [s["precip_mm"][i] for s in d["models"].values() if s["precip_mm"][i] is not None]
+        if not values:
+            continue
+        summary["precip_mm"][i] = round(sum(values) / len(values), 1)
+        summary["precip_max_mm"][i] = max(values)
+        summary["wet_models"][i] = f"{sum(1 for v in values if v >= 0.1)}/{len(values)}"
+    for name, days in d["days"].items():
+        for row in days:
+            extra = added.get(name, {}).get(row["date"])
+            if extra:
+                row["precip_mm"] = round((row.get("precip_mm") or 0) + extra, 1)
+    save("mock_modelle_stunden", d)
+
+
+def ensemble_rain() -> None:
+    d = copy.deepcopy(load("mock_ensembles_regen"))
+    n = len(d["members"])
+    for i, t in enumerate(d["time"]):
+        wet = wet_hour(t)
+        if wet is None:
+            continue
+        mm, chance = wet
+        wet_members = round(n * chance / 100)
+        for j, member in enumerate(d["members"]):
+            # the wet members spread from a third to twice the made-up amount
+            member[i] = round(mm * (0.3 + 1.7 * j / max(n - 1, 1)), 1) if j >= n - wet_members else 0.0
+        values = sorted(m[i] for m in d["members"])
+        for k, th in enumerate(d["thresholds"]):
+            hit = sum(1 for v in values if (v > th["value"] if th["strict"] else v >= th["value"]))
+            d["pct"][k][i] = round(100 * hit / n)
+        d["p50"][i] = round((values[(n - 1) // 2] + values[n // 2]) / 2, 1)
+        d["max"][i] = values[-1]
+    save("mock_ensembles_regen", d)
+
+
 if __name__ == "__main__":
     nowcast("mock_nowcast", full=False)
     nowcast("mock_nowcast_full", full=True)
     radar()
     hours()
+    for m in ("icon_d2", "arome", "ecmwf", "gfs"):
+        meteogram(m)
+    models()
+    ensemble_rain()
