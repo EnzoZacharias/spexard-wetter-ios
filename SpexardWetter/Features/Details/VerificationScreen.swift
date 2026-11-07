@@ -54,7 +54,10 @@ struct VerificationContent: View {
             }
             if let lines = data.aussagen, !lines.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    CardTitle(periodTitle, systemImage: "checkmark.seal")
+                    HStack(spacing: 2) {
+                        CardTitle(periodTitle, systemImage: "checkmark.seal", info: "mae")
+                        InfoButton("bias")
+                    }
                     ForEach(lines, id: \.self) { line in
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Text("•")

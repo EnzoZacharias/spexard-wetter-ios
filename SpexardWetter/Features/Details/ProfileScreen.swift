@@ -24,6 +24,7 @@ struct ProfileScreen: View {
     @StateObject private var sounding = Loader<SoundingResponse>()
     @StateObject private var section = Loader<CrossSectionResponse>()
     @State private var view: ProfileView = LaunchArgs.option.flatMap(ProfileView.init(rawValue:)) ?? .sonde
+    static let noteIds = ["cape", "lifted_index", "inversion", "llj", "nullgradgrenze", "warmschicht"]
 
     var body: some View {
         ScrollView {
@@ -35,6 +36,8 @@ struct ProfileScreen: View {
                 }
                 .pickerStyle(.segmented)
 
+                // the server's notes on the forecast profile (ICON-D2/ECMWF) when a value is conspicuous
+                GlossaryNotesView(Self.noteIds)
                 if view == .sonde {
                     if sounding.fromCache { OfflineBanner(date: sounding.date) }
                     if let data = sounding.value {
@@ -112,7 +115,7 @@ struct SoundingContent: View {
 
             if temp.count > 1 {
                 VStack(alignment: .leading, spacing: 8) {
-                    CardTitle("Temperatur und Taupunkt über der Höhe", systemImage: "arrow.up.and.down")
+                    CardTitle("Temperatur und Taupunkt über der Höhe", systemImage: "arrow.up.and.down", info: "radiosonde")
                     HStack(spacing: 12) {
                         Label("Temperatur", systemImage: "line.diagonal").foregroundStyle(Palette.warm)
                         Label("Taupunkt", systemImage: "line.diagonal").foregroundStyle(Palette.cold)
@@ -210,19 +213,32 @@ struct SoundingContent: View {
         VStack(alignment: .leading, spacing: 10) {
             CardTitle("Kennwerte", systemImage: "list.bullet.rectangle")
             HStack(alignment: .top, spacing: 8) {
-                Fact(label: "Nullgradgrenze", value: Fmt.value(data.nullgradMslM, 0, "m NN"))
-                Fact(label: "Feuchtkugel-Null", value: Fmt.value(data.feuchtkugelNullMslM, 0, "m NN"))
+                Fact(label: "Nullgradgrenze", value: Fmt.value(data.nullgradMslM, 0, "m NN"), info: "nullgradgrenze")
+                Fact(label: "Feuchtkugel-Null", value: Fmt.value(data.feuchtkugelNullMslM, 0, "m NN"), info: "schneefallgrenze")
                 Fact(label: "Wasserdampfsäule", value: Fmt.value(data.indizes?.niederschlagswasserMm, 1, "mm"))
             }
             HStack(alignment: .top, spacing: 8) {
-                Fact(label: "Lifted Index", value: Fmt.value(data.indizes?.liftedIndexK, 1, "K"))
+                Fact(label: "Lifted Index", value: Fmt.value(data.indizes?.liftedIndexK, 1, "K"), info: "lifted_index")
                 Fact(label: "Showalter", value: Fmt.value(data.indizes?.showalterK, 1, "K"))
                 Fact(label: "K-Index", value: Fmt.value(data.indizes?.kIndex, 0))
+            }
+            if !(data.pakete ?? []).isEmpty {
+                HStack(spacing: 2) {
+                    Text("Gehobene Luftpakete").font(.caption2.weight(.semibold)).opacity(0.75)
+                    InfoButton("cape", compact: true)
+                    InfoButton("cin", compact: true)
+                }
             }
             ForEach(Array((data.pakete ?? []).enumerated()), id: \.offset) { _, p in
                 Text("\(p.name ?? "Paket"): CAPE \(Fmt.value(p.capeJKg, 0, "J/kg")), CIN \(Fmt.value(p.cinJKg, 0, "J/kg")), Hebungskondensation in \(Fmt.value(p.lclM, 0, "m"))")
                     .font(.caption)
                     .opacity(0.85)
+            }
+            if !(data.inversionen ?? []).isEmpty {
+                HStack(spacing: 2) {
+                    Text("Inversionen").font(.caption2.weight(.semibold)).opacity(0.75)
+                    InfoButton("inversion", compact: true)
+                }
             }
             ForEach(Array((data.inversionen ?? []).enumerated()), id: \.offset) { _, inv in
                 Text("\(inv.type ?? "Inversion"): \(Fmt.value(inv.baseM, 0)) bis \(Fmt.value(inv.topM, 0, "m")), \(Fmt.value(inv.strengthK, 1, "K")) wärmer")

@@ -10,11 +10,36 @@ struct ModelMapView: UIViewRepresentable {
     let center: CLLocationCoordinate2D?
     let placeName: String
     let image: CGImage?
+    /// Places of the largest/smallest value of the shown frame.
+    var extremes: [Extreme] = []
     /// Heights covered by the controls on top and at the bottom.
     var topInset: CGFloat = 0
     var bottomInset: CGFloat = 0
     let accessibilityText: String
     var onTap: ((CLLocationCoordinate2D) -> Void)?
+
+    struct Extreme: Equatable {
+        let id: String
+        let coordinate: CLLocationCoordinate2D
+        let text: String
+
+        static func == (a: Extreme, b: Extreme) -> Bool {
+            a.id == b.id && a.text == b.text && a.coordinate.latitude == b.coordinate.latitude && a.coordinate.longitude == b.coordinate.longitude
+        }
+    }
+
+    final class ExtremeAnnotation: NSObject, MKAnnotation {
+        let coordinate: CLLocationCoordinate2D
+        let text: String
+        let isMax: Bool
+
+        init(_ extreme: Extreme) {
+            coordinate = extreme.coordinate
+            text = extreme.text
+            isMax = extreme.id == "max"
+            super.init()
+        }
+    }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -61,6 +86,11 @@ struct ModelMapView: UIViewRepresentable {
         context.coordinator.image = image
         context.coordinator.onTap = onTap
         context.coordinator.renderer?.show(image)
+        if context.coordinator.extremes != extremes {
+            context.coordinator.extremes = extremes
+            map.removeAnnotations(map.annotations.filter { $0 is ExtremeAnnotation })
+            map.addAnnotations(extremes.map(ExtremeAnnotation.init))
+        }
         map.accessibilityValue = accessibilityText
         let insets = context.coordinator.insets
         if abs(insets.top - topInset) > 1 || abs(insets.bottom - bottomInset) > 1 {
@@ -80,6 +110,7 @@ struct ModelMapView: UIViewRepresentable {
         var rect: MKMapRect?
         var insets: (top: CGFloat, bottom: CGFloat) = (0, 0)
         var userMoved = false
+        var extremes: [Extreme] = []
 
         @objc func tapped(_ gesture: UITapGestureRecognizer) {
             guard let map = gesture.view as? MKMapView else { return }
@@ -113,6 +144,27 @@ struct ModelMapView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            if let extreme = annotation as? ExtremeAnnotation {
+                let view = mapView.dequeueReusableAnnotationView(withIdentifier: "extreme") ?? MKAnnotationView(annotation: extreme, reuseIdentifier: "extreme")
+                view.annotation = extreme
+                view.subviews.forEach { $0.removeFromSuperview() }
+                let label = UILabel()
+                label.text = " \(extreme.text) "
+                label.font = .systemFont(ofSize: 11, weight: .bold)
+                label.textColor = .white
+                label.backgroundColor = UIColor.black.withAlphaComponent(0.55)
+                label.layer.cornerRadius = 4
+                label.layer.masksToBounds = true
+                label.sizeToFit()
+                view.addSubview(label)
+                view.frame = label.frame
+                view.centerOffset = .zero
+                view.isEnabled = false
+                view.canShowCallout = false
+                view.isAccessibilityElement = false
+                view.displayPriority = .required
+                return view
+            }
             guard let text = annotation as? TextAnnotation else { return nil }
             let view = mapView.dequeueReusableAnnotationView(withIdentifier: "place") ?? MKAnnotationView(annotation: text, reuseIdentifier: "place")
             view.annotation = text

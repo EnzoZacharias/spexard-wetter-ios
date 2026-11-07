@@ -119,6 +119,10 @@ struct TimeChart: View {
     var barWidth: TimeInterval = 3600
     /// Shown over the chart when every value is 0 (e.g. "kein Niederschlag").
     var zeroText: String?
+    /// Glossary entry behind the chart (info button next to the title).
+    var info: String?
+    /// Glossary ids whose current notes of the server ("Was heißt das jetzt") appear under the chart.
+    var notes: [String] = []
 
     private var values: [Double] { series.flatMap { $0.points.map(\.value) } }
 
@@ -144,11 +148,20 @@ struct TimeChart: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(title).font(.subheadline.weight(.semibold))
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(title).font(.subheadline.weight(.semibold)).accessibilityHidden(true)
+                if let info { InfoButton(info, compact: true) }
                 Spacer(minLength: 6)
-                Text(unit).font(.caption).opacity(0.7)
+                Text(unit).font(.caption).opacity(0.7).accessibilityHidden(true)
             }
+            chartBlock
+            if !notes.isEmpty { GlossaryNotesView(notes, compact: true) }
+        }
+        .card()
+    }
+
+    private var chartBlock: some View {
+        VStack(alignment: .leading, spacing: 8) {
             if let subtitle {
                 Text(subtitle).font(.caption2).opacity(0.7)
             }
@@ -182,7 +195,6 @@ struct TimeChart: View {
                     }
             }
         }
-        .card()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title) in \(unit)")
         .accessibilityValue(accessibilitySummary)

@@ -85,26 +85,32 @@ struct CardTitle: View {
     let text: String
     let systemImage: String
     var trailing: String?
+    /// Glossary entry of the card's main value (info button next to the title).
+    var info: String?
 
-    init(_ text: String, systemImage: String, trailing: String? = nil) {
+    init(_ text: String, systemImage: String, trailing: String? = nil, info: String? = nil) {
         self.text = text
         self.systemImage = systemImage
         self.trailing = trailing
+        self.info = info
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Label(text, systemImage: systemImage)
-                .font(.footnote.weight(.semibold))
-                .textCase(.uppercase)
-            Spacer(minLength: 8)
-            if let trailing {
-                Text(trailing).font(.footnote)
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                Label(text, systemImage: systemImage)
+                    .font(.footnote.weight(.semibold))
+                    .textCase(.uppercase)
+                Spacer(minLength: 8)
+                if let trailing {
+                    Text(trailing).font(.footnote)
+                }
             }
+            .opacity(0.8)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isHeader)
+            if let info { InfoButton(info) }
         }
-        .opacity(0.8)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -187,18 +193,24 @@ struct OfflineBanner: View {
     }
 }
 
-/// Key fact: small label above a value.
+/// Key fact: small label above a value; `info` adds the glossary button next to the label.
 struct Fact: View {
     let label: String
     let value: String
+    var info: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.caption2).opacity(0.75)
-            Text(value).font(.footnote.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
+        HStack(alignment: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label).font(.caption2).opacity(0.75)
+                Text(value).font(.footnote.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
+            }
+            .accessibilityElement(children: .combine)
+            if let info {
+                InfoButton(info, compact: true)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
     }
 }
 

@@ -25,9 +25,10 @@ struct WarningsScreen: View {
                         StateMessage(kind: .loading).card()
                     }
 
-                    CardTitle("Gefahren vor Ort", systemImage: "thermometer.snowflake")
+                    CardTitle("Gefahren vor Ort", systemImage: "thermometer.snowflake", info: "mosmix")
                         .padding(.top, 8)
                         .id("matrix")
+                    GlossaryNotesView(["frost", "bodenfrost", "glaette", "nebel"])
                     if let value = matrix.value {
                         HazardMatrixView(matrix: value, reference: home.reference)
                     } else if let error = matrix.error {

@@ -36,6 +36,7 @@ struct HomeView: View {
                         if let report = model.report {
                             ReportTeaser(report: report) { openTab(.bericht) }
                         }
+                        AttentionCard()
                         NowDetailsCard(now: model.now, sun: model.todaySun)
                         DailyList(
                             items: model.days,

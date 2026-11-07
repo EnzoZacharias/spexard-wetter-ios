@@ -5,6 +5,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case karten
     case warnungen
     case messwerte
+    case historie
     case meteogramm
     case modelle
     case ensembles
@@ -14,6 +15,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case modellguete
     case status
     case widgets
+    case lexikon
 
     var id: String { rawValue }
 
@@ -22,6 +24,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .karten: return ("Karten", "ICON-D2 für NRW: Regen, Schnee, Böen, CAPE …", "map.fill", "/karten")
         case .warnungen: return ("Warnungen & Gefahren", "Amtliche Warnungen des DWD", "exclamationmark.triangle.fill", "/gefahren")
         case .messwerte: return ("Messwerte", "Stationen der Umgebung, 24 bis 72 Stunden", "chart.xyaxis.line", "/messwerte")
+        case .historie: return ("Historie", "Gartensensor und DWD-Stationen: Tage, Wochen, Monate, Rekorde", "clock.arrow.circlepath", "/historie")
         case .meteogramm: return ("Meteogramm", "Stunde für Stunde je Modell", "chart.bar.xaxis", "/meteogramm")
         case .modelle: return ("Modellvergleich", "ICON, ECMWF, GFS und UKMO nebeneinander", "square.stack.3d.up.fill", "/modelle")
         case .ensembles: return ("Ensembles", "Temperaturfahnen, Regenrisiko, Sicherheit je Tag", "point.3.filled.connected.trianglepath.dotted", "/ensembles")
@@ -31,6 +34,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .modellguete: return ("Modellgüte", "Welches Modell lag zuletzt richtig?", "checkmark.seal.fill", "/verifikation")
         case .status: return ("Status", "Zustand des Wetterservers und der Quellen", "server.rack", "/status")
         case .widgets: return ("Widgets", "Vorschau für Home- und Sperrbildschirm", "rectangle.3.group.fill", nil)
+        case .lexikon: return ("Lexikon", "CAPE, Inversion, NAO, Taupunkt … einfach erklärt", "book.fill", "/glossar")
         }
     }
 
@@ -44,8 +48,10 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     static let groups: [MoreGroup] = [
         MoreGroup(title: "Karten", items: [.karten]),
         MoreGroup(title: "Jetzt und heute", items: [.warnungen, .messwerte]),
+        MoreGroup(title: "Rückblick", items: [.historie]),
         MoreGroup(title: "Vorhersage", items: [.meteogramm, .modelle, .ensembles, .trend]),
         MoreGroup(title: "Hintergrund", items: [.grosswetterlage, .profil, .modellguete]),
+        MoreGroup(title: "Wissen", items: [.lexikon]),
         MoreGroup(title: "App und Server", items: [.widgets, .status]),
     ]
 
@@ -55,6 +61,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .karten: MapsScreen()
         case .warnungen: WarningsScreen(home: home)
         case .messwerte: MeasurementsScreen()
+        case .historie: HistoryScreen()
         case .meteogramm: MeteogramScreen()
         case .modelle: ModelsScreen()
         case .ensembles: EnsemblesScreen()
@@ -64,6 +71,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .modellguete: VerificationScreen()
         case .status: StatusScreen()
         case .widgets: WidgetPreviewScreen()
+        case .lexikon: LexikonScreen()
         }
     }
 }

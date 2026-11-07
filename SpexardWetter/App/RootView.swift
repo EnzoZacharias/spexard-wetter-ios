@@ -21,6 +21,7 @@ struct RootView: View {
     @State private var tab: AppTab = LaunchArgs.tab ?? (LaunchArgs.screen != nil ? .mehr : .wetter)
     @State private var home = HomeModel()
     @State private var morePath: [MoreDestination] = LaunchArgs.screen.flatMap(MoreDestination.init(rawValue:)).map { [$0] } ?? []
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         TabView(selection: $tab) {
@@ -53,6 +54,14 @@ struct RootView: View {
         .environment(\.calendar, Fmt.calendar)
         .preferredColorScheme(.dark)
         .onChange(of: tab) { _, _ in Haptics.selection() }
+        // glossary texts (once) and the notes on conspicuous values for every screen
+        .task {
+            await Glossary.shared.refresh()
+            await GlossaryNotes.shared.refresh()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await GlossaryNotes.shared.refresh() } }
+        }
         .onOpenURL { url in
             guard let route = AppRoute(url: url) else { return }
             switch route {

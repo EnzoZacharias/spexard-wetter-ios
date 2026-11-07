@@ -7,6 +7,7 @@ struct StripColumn: Identifiable {
     let hour: String
     /// Weekday ("Sa") on the first column of a new day, else nil.
     let day: String?
+    /// Weather of the same hours as the rain row (the `step` hours after the column time).
     let symbol: String
     let temp: Double?
     /// Sum of the hourly precipitation of the step (nil when the server has no values).
@@ -102,12 +103,15 @@ extension WeatherDerived {
             var rain: Double?
             var gustMax: Double?
             var probMax: Double?
-            // precipitation, gusts and the rain chance of an hour stand at its end (14:00 = 13-14 Uhr)
+            var weather: Int?
+            // precipitation, gusts, the rain chance and the weather code of an hour stand at its end
+            // (14:00 = 13-14 Uhr), so the column's symbol and rain describe the same hours
             for s in 1...step {
                 guard let j = index[t.addingTimeInterval(Double(s) * 3600)] else { continue }
                 if let p = h.precipMm[j] { rain = (rain ?? 0) + p }
                 if let q = h.rainProbPct[j] { probMax = Swift.max(probMax ?? q, q) }
                 if let g = h.gustMaxKmh[j] { gustMax = Swift.max(gustMax ?? g, g) }
+                weather = Self.stepWeather(weather, h.symbol[j], middle: s == (step + 1) / 2)
             }
             let day = Fmt.calendar.component(.day, from: t)
             let dayLabel = previousDay != nil && previousDay != day ? Fmt.weekdayShort(t) : nil
@@ -118,7 +122,7 @@ extension WeatherDerived {
                 id: t,
                 hour: Fmt.hour(t),
                 day: dayLabel,
-                symbol: WeatherSymbol.name(code: h.symbol[i], night: night),
+                symbol: WeatherSymbol.name(code: weather ?? h.symbol[i], night: night),
                 temp: h.tC[i],
                 precip: rain,
                 rainProb: probMax,
@@ -131,6 +135,18 @@ extension WeatherDerived {
             ))
         }
         return out
+    }
+
+    /// Weather code of a step: fog, precipitation or thunder of any hour wins (the highest WMO code
+    /// from 45 on, as the rain row sums every hour), else the code of the middle hour.
+    static func stepWeather(_ current: Int?, _ code: Int?, middle: Bool) -> Int? {
+        guard let code else { return current }
+        guard let current else { return code }
+        let significant = { (c: Int) in c >= 45 }
+        if significant(code) || significant(current) {
+            return significant(current) && (!significant(code) || current >= code) ? current : code
+        }
+        return middle ? code : current
     }
 }
 

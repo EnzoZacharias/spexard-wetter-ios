@@ -29,6 +29,28 @@ enum ModelVariable: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Glossary entry of the quantity (info button at the chart).
+    var glossaryId: String? {
+        switch self {
+        case .temp: return "temperatur_2m"
+        case .precip: return "niederschlagsmenge"
+        case .wind: return "beaufort"
+        case .gust: return "boee"
+        case .cloud: return "bewoelkung"
+        }
+    }
+
+    /// The server's notes shown at the chart when one of these values is conspicuous now.
+    var noteIds: [String] {
+        switch self {
+        case .temp: return ["frost"]
+        case .wind: return ["llj"]
+        case .gust: return ["boee"]
+        case .cloud: return ["inversion", "nebel"]
+        case .precip: return []
+        }
+    }
+
     func series(_ m: ModelHoursResponse.ModelSeries) -> Series<Double>? {
         switch self {
         case .temp: return m.tC
@@ -43,7 +65,7 @@ enum ModelVariable: String, CaseIterable, Identifiable {
 /// The deterministic models side by side: hourly curves per model and the daily values.
 struct ModelsScreen: View {
     @StateObject private var loader = Loader<ModelHoursResponse>()
-    @State private var variable: ModelVariable = .temp
+    @State private var variable: ModelVariable = LaunchArgs.option.flatMap(ModelVariable.init(rawValue:)) ?? .temp
     @State private var hiddenModels: Set<String> = []
 
     var body: some View {
@@ -103,7 +125,9 @@ struct ModelsScreen: View {
                 zeroBased: variable != .temp,
                 minSpan: variable == .temp ? 4 : (variable == .cloud ? 100 : 2),
                 decimals: variable == .precip ? 1 : 0,
-                height: 200
+                height: 200,
+                info: variable.glossaryId,
+                notes: variable.noteIds
             )
             ScrollView(.horizontal) {
                 HStack(spacing: 8) {
@@ -180,7 +204,7 @@ struct DailyModelTable: View {
         let ids = data.modelIds.filter { !(data.days?[$0] ?? []).isEmpty }
         let dates = Array(Set(ids.flatMap { id in (data.days?[id] ?? []).map(\.date) })).sorted()
         VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Tageswerte je Modell", systemImage: "tablecells")
+            CardTitle("Tageswerte je Modell", systemImage: "tablecells", info: "modellspanne")
             ScrollView(.horizontal) {
                 Grid(alignment: .trailing, horizontalSpacing: 14, verticalSpacing: 6) {
                     GridRow {

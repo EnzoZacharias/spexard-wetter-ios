@@ -19,6 +19,7 @@ struct DayDetailSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if let item { header(item) }
+                    if let date = Fmt.parse(dayId) { GlossaryNotesView(day: date) }
                     if let ens = day?.ecmwfEns { ensembleCard(ens) }
                     if let models = day?.models, !models.isEmpty { modelsCard(models) }
                     hourly

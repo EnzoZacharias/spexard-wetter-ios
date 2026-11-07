@@ -89,8 +89,12 @@ jobs:
           shot bericht -tab bericht
           shot bericht-woche -tab bericht -option woche
           shot widgets -screen widgets
+          shot widgets-gross -screen widgets -option gross
+          shot widgets-historie -screen widgets -option historie
           shot gefahren -screen warnungen -scrollBottom
           shot messwerte -screen messwerte
+          shot historie -screen historie
+          shot historie-monate -screen historie -option monate
           shot meteogramm -screen meteogramm
           shot meteogramm-ecmwf -screen meteogramm -option ecmwf
           shot modelle -screen modelle
@@ -102,6 +106,8 @@ jobs:
           shot profil-schnitt -screen profil -option icon_d2
           shot modellguete -screen modellguete
           shot status -screen status
+          shot lexikon -screen lexikon
+          shot lexikon-cape -screen lexikon -entry cape
           # made-up rainy test answers (mock_*_szenario_regen.json), only for these screenshots
           shot regen-home -scenario regen
           WAIT=14 shot regen-radar -tab radar -scenario regen
@@ -109,6 +115,9 @@ jobs:
           shot regen-standort -tab radar -radarPoint -scenario regen
           shot regen-widgets -screen widgets -scenario regen
           shot regen-tag -showDay 2026-11-04 -scenario regen
+          shot regen-meteogramm -screen meteogramm -scenario regen
+          shot regen-modelle -screen modelle -option precip -scenario regen
+          shot regen-ensembles -screen ensembles -option regen -scenario regen
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots

@@ -81,14 +81,44 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Ebenen-Chips (Niederschlag 1 h / 3 h / seit Laufbeginn als eine Wahl), Zeitregler mit Abspielen,
       Lauf und Gültigkeitszeit, Legende mit den Stufen des Servers, Wert am Standort und höchster Wert im
       Ausschnitt, Tipp auf die Karte nennt die Farbstufe; Knopf im Radar-Tab. Beispieldaten aus einem echten
-      Lauf (18 UTC vom 6.11., +0 bis +12 h) mit `scripts/make_map_mocks.py` (`-screen karten -option boeen -mapFrame 1`)
+      Lauf (18 UTC vom 6.11., +0 bis +12 h) mit `scripts/make_map_mocks.py` (`-screen karten -option boeen -mapFrame 1`);
+      Satz je Ebene, Orte und Marker (▲/▼) des größten und kleinsten Werts aus dem Katalog
+- [x] Lernen: Texte aus `/api/v1/glossar` (mitgelieferte Kopie `Resources/glossar.json` für offline), kleiner
+      (i)-Knopf an den Profi-Werten (Startseite, Profil, Großwetterlage, Messwerte, Ensembles, Trend, Modellgüte,
+      Modellvergleich, Gefahren, Karten), Hinweise „Was heißt das jetzt“ aus `/api/v1/glossar/hinweise` direkt am
+      Wert und nur, wenn der Server einen Wert auffällig findet (Schwellen nur auf dem Server); Startseite
+      „Gerade auffällig“ mit Sprung zur passenden Seite; Mehr → Lexikon mit Suche (`-screen lexikon -entry cape`)
+
+- [x] Verlauf-Widget: das Spalten-Symbol beschreibt dieselben 3 Stunden wie die Regenzeile (Nebel, Regen,
+      Schnee oder Gewitter einer dieser Stunden gewinnt, sonst die mittlere Stunde)
+
+- [x] Hinweise auch an den Meteogramm-Diagrammen (Temperatur: Frost, Bodenfrost, Glätte, Nebel; Wind: Böen, LLJ;
+      Wolken: Inversion; Druck: Drucktendenz; CAPE: CAPE, LI), im Tagesdetail (Hinweise, deren `wann` den Tag nennt,
+      ohne Großwetterlage), beim Trend (Polarwirbel, NAO, AO) und auf den Karten (Glossar-Ids der Ebene aus dem Katalog);
+      großes Widget mit einer Hinweis-Zeile (stärkere zuerst, „+N“ für weitere), Vorschau `-screen widgets -option gross`
+- [x] Mehr → Historie (`/api/v1/historie?zeitraum=tage|wochen|monate|jahre`): heute bisher im Garten, Satz zur
+      Abweichung vom Normal, Tiefst-bis-Höchst-Balken mit dem Normal 1991–2020 dahinter, Zeitraum-Liste mit Mittel,
+      Abweichung und Kenntagen, Rekorde Garten und Station, DWD-Station mit Niederschlag, Böe, Schnee, Bodenfrost,
+      Garten gegen Station. Beispieldaten aus dem Endpunkt-Code von v2 (53507af) mit den echten Stundenwerten des
+      Gartensensors seit 31.10. und den echten DWD-KL-Zips (`-screen historie -option monate`); Kenntage als
+      Lexikon-Chips
+- [x] Regen-Szenario auch in Meteogramm (alle vier Modelle), Modellvergleich (`-option precip`) und Regen-Ensemble
+      (ICON-D2-EPS, `-screen ensembles -option regen`): dieselben ausgedachten Abendstunden, je Modell anders stark
+- [x] Modellvergleich: (i) je Größe und Hinweise am Diagramm (Frost, LLJ, Böen, Inversion/Nebel); Hinweise unter
+      Diagrammen zweizeilig, Tipp zeigt den ganzen Text
 
 ## Als Nächstes
 
-- [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,
-      Stunden und Umkreis), danach deren Diagramme mit Regen in den Screenshots prüfen
-- [ ] Spalten-Symbol und Regenwert im Verlauf-Widget zeigen leicht verschobene Stunden (Symbol zur
-      Spaltenzeit, Regen der 3 Stunden danach) – eventuell das Symbol der Spaltenmitte nehmen
+- [ ] PR #1 (`wip-lexikon-hinweise`) nach `main` mergen: das Mergen ohne Review hat der Agent nicht selbst gemacht;
+      erst danach gibt es eine neue IPA unter „latest“. Gebaut und geprüft bis 0d7ff76 (Lexikon, Hinweise, Karten,
+      Widget-Zeile); Historie, Regen-Szenario, Historie-Widget kompilierten im Simulator-Build, ihre Screenshots
+      (`historie`, `historie-monate`, `regen-meteogramm`, `regen-modelle`, `regen-ensembles`, `widgets-historie`)
+      noch ansehen
+- [ ] Widget „Historie Garten“ (klein, mittel, Sperrbildschirm; `/api/v1/historie?zeitraum=monate`, alle 30 Minuten)
+      auf dem Gerät prüfen
+- [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
+      Historie-Widget ist da (siehe oben)
+- [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
 - [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
 

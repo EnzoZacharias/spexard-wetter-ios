@@ -376,11 +376,44 @@ struct LargeWidget: View {
                     }
                 }
                 Spacer(minLength: 0)
+                if let note = s.notes.first {
+                    WidgetNoteRow(note: note, more: s.notes.count - 1)
+                }
             }
             .foregroundStyle(.white)
         } else {
             WidgetNoData()
         }
+    }
+}
+
+/// One line of the server's note on a conspicuous value ("Was heißt das jetzt"), in the large widget.
+struct WidgetNoteRow: View {
+    let note: GlossaryNote
+    /// Further notes not shown.
+    var more = 0
+
+    var body: some View {
+        let tint = note.isAlert ? Color(red: 1.0, green: 0.62, blue: 0.25) : Color(red: 1.0, green: 0.84, blue: 0.35)
+        HStack(alignment: .top, spacing: 5) {
+            Image(systemName: "lightbulb.fill")
+                .font(.system(size: 10))
+                .foregroundStyle(tint)
+                .padding(.top, 1)
+            (Text((note.begriff ?? "Was heißt das jetzt") + ": ").fontWeight(.semibold).foregroundStyle(tint)
+                + Text(note.text))
+                .font(.system(size: 10.5))
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+            if more > 0 {
+                Spacer(minLength: 0)
+                Text("+\(more)")
+                    .font(.system(size: 9, weight: .semibold))
+                    .opacity(0.7)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Was heißt das jetzt, \(note.begriff ?? ""): \(note.text)" + (more > 0 ? ". \(more) weitere Hinweise in der App." : ""))
     }
 }
 

@@ -98,7 +98,9 @@ struct MeteogramContent: View {
                     ],
                     domain: domain,
                     nights: nights,
-                    minSpan: 4
+                    minSpan: 4,
+                    info: "taupunkt",
+                    notes: ["frost", "bodenfrost", "glaette", "nebel"]
                 )
                 TimeChart(
                     title: "Niederschlag",
@@ -110,7 +112,8 @@ struct MeteogramContent: View {
                     minSpan: 1,
                     decimals: 1,
                     barWidth: 3600,
-                    zeroText: "kein Niederschlag im Zeitraum"
+                    zeroText: "kein Niederschlag im Zeitraum",
+                    info: "niederschlagsmenge"
                 )
                 TimeChart(
                     title: "Wind und Böen",
@@ -122,7 +125,9 @@ struct MeteogramContent: View {
                     domain: domain,
                     nights: nights,
                     zeroBased: true,
-                    minSpan: 20
+                    minSpan: 20,
+                    info: "boee",
+                    notes: ["boee", "llj"]
                 )
                 TimeChart(
                     title: "Bewölkung",
@@ -135,7 +140,9 @@ struct MeteogramContent: View {
                     domain: domain,
                     nights: nights,
                     zeroBased: true,
-                    minSpan: 100
+                    minSpan: 100,
+                    info: "bewoelkung",
+                    notes: ["inversion"]
                 )
                 TimeChart(
                     title: "Luftdruck",
@@ -143,7 +150,9 @@ struct MeteogramContent: View {
                     series: [ChartSeries("Luftdruck", color: Color(red: 0.85, green: 0.75, blue: 1.0), times: times, values: values(data.hourly.pressureHpa))],
                     domain: domain,
                     nights: nights,
-                    minSpan: 6
+                    minSpan: 6,
+                    info: "luftdruck",
+                    notes: ["drucktendenz"]
                 )
                 let sun = values(data.hourly.sunMin)
                 if sun.contains(where: { ($0 ?? 0) > 0 }) {
@@ -167,7 +176,9 @@ struct MeteogramContent: View {
                         domain: domain,
                         nights: nights,
                         zeroBased: true,
-                        minSpan: 200
+                        minSpan: 200,
+                        info: "cape",
+                        notes: ["cape", "lifted_index"]
                     )
                 }
             } else {

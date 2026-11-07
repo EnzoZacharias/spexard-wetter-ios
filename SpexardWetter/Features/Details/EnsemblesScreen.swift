@@ -111,7 +111,11 @@ struct PlumeCard: View {
         let hi = (all.max() ?? 1) + 1
         let dates = times.compactMap { $0 }
         VStack(alignment: .leading, spacing: 8) {
-            Text(data.model?.label ?? "Ensemble").font(.headline)
+            HStack(spacing: 2) {
+                Text(data.model?.label ?? "Ensemble").font(.headline)
+                InfoButton("eps")
+                InfoButton("perzentile")
+            }
             Text("Temperatur in 2 m: jede dünne Linie ist ein Lauf (\(data.model?.members ?? members.count) Läufe), die Fläche umfasst 80 % der Läufe (10 bis 90 %), die dicke Linie ist der Median.")
                 .font(.caption)
                 .opacity(0.8)
@@ -188,7 +192,10 @@ struct RainChanceCard: View {
         }
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(data.label ?? "Regen-Ensemble").font(.headline)
+                HStack(spacing: 2) {
+                    Text(data.label ?? "Regen-Ensemble").font(.headline)
+                    InfoButton("regenwahrscheinlichkeit")
+                }
                 Text("Anteil der \(data.membersCount.map(String.init) ?? "") Läufe mit mehr Regen als die Schwelle, je Stunde.")
                     .font(.caption)
                     .opacity(0.8)
@@ -234,7 +241,7 @@ struct CertaintyCard: View {
         let highs = rows.compactMap(\.tmaxP90)
         let range = (lows.min() ?? 0)...max((highs.max() ?? 1), (lows.min() ?? 0) + 1)
         VStack(alignment: .leading, spacing: 8) {
-            CardTitle("Sicherheit je Tag", systemImage: "scope")
+            CardTitle("Sicherheit je Tag", systemImage: "scope", info: "konfidenz")
             Text("Balken: Höchstwert, in dem 80 % der Läufe liegen (10 bis 90 %), Strich = Median.")
                 .font(.caption)
                 .opacity(0.8)

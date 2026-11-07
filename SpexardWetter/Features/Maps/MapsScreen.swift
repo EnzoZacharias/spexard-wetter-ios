@@ -19,6 +19,7 @@ struct MapsScreen: View {
     @State private var imageMissing = false
     @State private var probe: CLLocationCoordinate2D?
     @State private var showInfo = false
+    @State private var sentenceExpanded = false
     /// Lower edge of the layer picker on the screen (the map runs under the navigation bar).
     @State private var topEdge: CGFloat = 160
     /// Run whose frame was chosen at the start (a reload of the same run keeps the slider).
@@ -199,6 +200,7 @@ struct MapsScreen: View {
             center: center,
             placeName: RadarScreen.shortPlace(data.location?.label),
             image: image,
+            extremes: extremes(layer, frame),
             topInset: topEdge + 6,
             bottomInset: panelHeight + 14,
             accessibilityText: accessibilityText(data, layer, frame),
@@ -208,6 +210,19 @@ struct MapsScreen: View {
             }
         )
         .ignoresSafeArea(edges: .top)
+    }
+
+    /// Markers at the places of the largest and smallest value of the shown frame.
+    private func extremes(_ layer: MapsResponse.Layer, _ frame: MapsResponse.Frame?) -> [ModelMapView.Extreme] {
+        guard let frame else { return [] }
+        var out: [ModelMapView.Extreme] = []
+        if let p = frame.maxBei, p.count == 2, let v = MapWords.value(frame.max, layer) {
+            out.append(.init(id: "max", coordinate: CLLocationCoordinate2D(latitude: p[0], longitude: p[1]), text: "▲ \(v)"))
+        }
+        if let p = frame.minBei, p.count == 2, let v = MapWords.value(frame.min, layer) {
+            out.append(.init(id: "min", coordinate: CLLocationCoordinate2D(latitude: p[0], longitude: p[1]), text: "▼ \(v)"))
+        }
+        return out
     }
 
     private func accessibilityText(_ data: MapsResponse, _ layer: MapsResponse.Layer, _ frame: MapsResponse.Frame?) -> String {
@@ -286,11 +301,21 @@ struct MapsScreen: View {
                 .accessibilityLabel("Was zeigt die Karte \(layer.title)?")
                 Spacer(minLength: 0)
                 if let run = data.run {
-                    Text("ICON-D2 · \(MapWords.runLabel(run))")
+                    Text(MapWords.runLabel(run))
                         .font(.caption)
                         .opacity(0.8)
                 }
             }
+            if let satz = layer.satz, !satz.isEmpty {
+                Text(satz)
+                    .font(.footnote)
+                    .lineLimit(sentenceExpanded ? nil : 2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .opacity(0.95)
+                    .onTapGesture { withAnimation(.snappy) { sentenceExpanded.toggle() } }
+                    .accessibilityHint(sentenceExpanded ? "" : "Tippen zeigt den ganzen Satz")
+            }
+            GlossaryNotesView(MapLayerInfoSheet.glossaryIds(layer))
 
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(frame.map(MapWords.validLabel) ?? "–")
@@ -401,7 +426,11 @@ struct MapsScreen: View {
 
     private func maxText(_ layer: MapsResponse.Layer, _ frame: MapsResponse.Frame) -> String {
         if let top = MapWords.value(frame.max, layer) {
-            return "höchster Wert im Ausschnitt \(top)"
+            var text = "höchster Wert \(top)" + (frame.maxOrt.map { " \($0)" } ?? " im Ausschnitt")
+            if let low = MapWords.value(frame.min, layer) {
+                text += ", tiefster \(low)" + (frame.minOrt.map { " \($0)" } ?? "")
+            }
+            return text
         }
         if let threshold = MapWords.threshold(layer) {
             return "im Ausschnitt nirgends ab \(threshold)"
@@ -549,6 +578,20 @@ struct MapLayerInfoSheet: View {
     let run: MapsResponse.Run?
     @Environment(\.dismiss) private var dismiss
 
+    /// Glossary entries behind a map layer: the server's list in the catalog (`glossar`), for an
+    /// older server the matching entry of the glossary.
+    static func glossaryIds(_ layer: MapsResponse.Layer) -> [String] {
+        if let ids = layer.glossar, !ids.isEmpty { return ids }
+        let fallback: [String: String] = [
+            "cape": "cape",
+            "nullgradgrenze": "nullgradgrenze",
+            "boeen": "boee",
+            "neuschnee": "schneefallgrenze",
+            "schneehoehe": "schneefallgrenze",
+        ]
+        return fallback[layer.id].map { [$0] } ?? []
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -570,6 +613,14 @@ struct MapLayerInfoSheet: View {
                                 Text(MapWords.range(c, layer)).font(.caption.monospacedDigit())
                             }
                         }
+                    }
+                    ForEach(Self.glossaryIds(layer).compactMap { Glossary.shared.entry($0) }) { entry in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Im Lexikon: \(entry.begriff)").font(.footnote.weight(.semibold)).opacity(0.8)
+                            GlossaryEntryView(entry: entry)
+                        }
+                        .padding(12)
+                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.white.opacity(0.08)))
                     }
                     if let run {
                         Text(runText(run)).font(.caption).opacity(0.75)
