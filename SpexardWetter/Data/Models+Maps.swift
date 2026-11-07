@@ -95,6 +95,8 @@ struct MapsResponse: Decodable {
         let period: String?
         /// One plain sentence about the whole run, only from the frame values.
         let satz: String?
+        /// Glossary entries of the layer (`/api/v1/glossar` ids), the first one is the main term.
+        let glossar: [String]?
         let legend: Legend
         let frames: [Frame]
     }

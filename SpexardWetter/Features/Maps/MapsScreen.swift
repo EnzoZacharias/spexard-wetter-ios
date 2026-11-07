@@ -315,6 +315,7 @@ struct MapsScreen: View {
                     .onTapGesture { withAnimation(.snappy) { sentenceExpanded.toggle() } }
                     .accessibilityHint(sentenceExpanded ? "" : "Tippen zeigt den ganzen Satz")
             }
+            GlossaryNotesView(MapLayerInfoSheet.glossaryIds(layer))
 
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(frame.map(MapWords.validLabel) ?? "–")
@@ -577,14 +578,19 @@ struct MapLayerInfoSheet: View {
     let run: MapsResponse.Run?
     @Environment(\.dismiss) private var dismiss
 
-    /// Glossary entry of the server behind a map layer.
-    static let glossaryId: [String: String] = [
-        "cape": "cape",
-        "nullgradgrenze": "nullgradgrenze",
-        "boeen": "boee",
-        "neuschnee": "schneefallgrenze",
-        "schneehoehe": "schneefallgrenze",
-    ]
+    /// Glossary entries behind a map layer: the server's list in the catalog (`glossar`), for an
+    /// older server the matching entry of the glossary.
+    static func glossaryIds(_ layer: MapsResponse.Layer) -> [String] {
+        if let ids = layer.glossar, !ids.isEmpty { return ids }
+        let fallback: [String: String] = [
+            "cape": "cape",
+            "nullgradgrenze": "nullgradgrenze",
+            "boeen": "boee",
+            "neuschnee": "schneefallgrenze",
+            "schneehoehe": "schneefallgrenze",
+        ]
+        return fallback[layer.id].map { [$0] } ?? []
+    }
 
     var body: some View {
         NavigationStack {
@@ -608,7 +614,7 @@ struct MapLayerInfoSheet: View {
                             }
                         }
                     }
-                    if let id = Self.glossaryId[layer.id], let entry = Glossary.shared.entry(id) {
+                    ForEach(Self.glossaryIds(layer).compactMap { Glossary.shared.entry($0) }) { entry in
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Im Lexikon: \(entry.begriff)").font(.footnote.weight(.semibold)).opacity(0.8)
                             GlossaryEntryView(entry: entry)
