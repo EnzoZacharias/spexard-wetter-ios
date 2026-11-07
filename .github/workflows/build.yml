@@ -89,6 +89,7 @@ jobs:
           shot bericht -tab bericht
           shot bericht-woche -tab bericht -option woche
           shot widgets -screen widgets
+          shot widgets-gross -screen widgets -option gross
           shot gefahren -screen warnungen -scrollBottom
           shot messwerte -screen messwerte
           shot meteogramm -screen meteogramm

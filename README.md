@@ -56,6 +56,6 @@ open SpexardWetter.xcodeproj
 Startargument `-mock` lädt die Beispieldaten aus `SpexardWetter/Resources/mock_*.json`
 (erzeugt mit `python scripts/make_mocks.py <wetter-mcp>` aus den Fixtures der Webseite). Für die
 Screenshots in CI: `-tab radar|bericht|mehr`, `-screen <seite>` (z. B. `messwerte`, `meteogramm`),
-`-option <wert>` (z. B. `ecmwf`, `woche`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
+`-option <wert>` (z. B. `ecmwf`, `woche`, `gross` für das große Widget unter `-screen widgets`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
 `-radarPoint`, `-scrollBottom`, `-mapFrame N` (Karten). Die Karten-Beispieldaten kommen aus einem echten
 Lauf, den der Server-Code verarbeitet hat: `python scripts/make_map_mocks.py <karten.json> <Laufordner>`.

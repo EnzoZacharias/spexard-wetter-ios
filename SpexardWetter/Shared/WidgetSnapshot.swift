@@ -29,6 +29,8 @@ struct WidgetSnapshot {
     let warningTitle: String?
     let warningLevel: Int?
     let warningIsPre: Bool
+    /// The server's notes on conspicuous values ("Was heißt das jetzt"), stronger ones first.
+    let notes: [GlossaryNote]
     let night: Bool
     /// When the answers were fetched; `offline` = stored answers.
     let stand: Date
@@ -46,11 +48,15 @@ struct WidgetSnapshot {
         async let forecastCall: Fetched<ForecastResponse> = api.fetch(.forecast7, timeout: 15)
         async let nowcastCall: Fetched<NowcastResponse> = api.fetch(.nowcast, timeout: 15)
         async let alertsCall: Fetched<AlertsResponse> = api.fetch(.alerts, timeout: 15)
+        async let notesCall: Fetched<GlossaryNotesResponse> = api.fetch(.glossaryNotes, timeout: 15)
         guard let now = try? await nowCall else { return nil }
         let hours = try? await hoursCall
         let forecast = try? await forecastCall
         let nowcast = try? await nowcastCall
         let alerts = try? await alertsCall
+        // a stored answer older than three hours is not shown (an old frost note is not current)
+        let notesAnswer = try? await notesCall
+        let notes = notesAnswer.flatMap { $0.fromCache && Date().timeIntervalSince($0.date) > 3 * 3600 ? nil : $0.value.hinweise } ?? []
 
         let reference: Date = APIClient.isMock ? (Fmt.parse(now.value.measuredTime) ?? Date()) : Date()
         let current = WeatherDerived.currentTemp(now.value)
@@ -80,6 +86,7 @@ struct WidgetSnapshot {
             warningTitle: top?.title,
             warningLevel: top?.stufe,
             warningIsPre: block?.topIsPre ?? false,
+            notes: notes.filter(\.isAlert) + notes.filter { !$0.isAlert },
             night: night,
             stand: now.date,
             offline: offline
