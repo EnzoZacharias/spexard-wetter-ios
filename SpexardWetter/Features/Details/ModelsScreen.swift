@@ -29,6 +29,28 @@ enum ModelVariable: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Glossary entry of the quantity (info button at the chart).
+    var glossaryId: String? {
+        switch self {
+        case .temp: return "temperatur_2m"
+        case .precip: return "niederschlagsmenge"
+        case .wind: return "beaufort"
+        case .gust: return "boee"
+        case .cloud: return "bewoelkung"
+        }
+    }
+
+    /// The server's notes shown at the chart when one of these values is conspicuous now.
+    var noteIds: [String] {
+        switch self {
+        case .temp: return ["frost"]
+        case .wind: return ["llj"]
+        case .gust: return ["boee"]
+        case .cloud: return ["inversion", "nebel"]
+        case .precip: return []
+        }
+    }
+
     func series(_ m: ModelHoursResponse.ModelSeries) -> Series<Double>? {
         switch self {
         case .temp: return m.tC
@@ -103,7 +125,9 @@ struct ModelsScreen: View {
                 zeroBased: variable != .temp,
                 minSpan: variable == .temp ? 4 : (variable == .cloud ? 100 : 2),
                 decimals: variable == .precip ? 1 : 0,
-                height: 200
+                height: 200,
+                info: variable.glossaryId,
+                notes: variable.noteIds
             )
             ScrollView(.horizontal) {
                 HStack(spacing: 8) {

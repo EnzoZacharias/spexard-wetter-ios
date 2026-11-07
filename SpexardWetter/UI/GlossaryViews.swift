@@ -33,6 +33,42 @@ struct InfoButton: View {
     }
 }
 
+/// A term as a small chip that opens its glossary text ("Frosttag ⓘ"); hidden without an entry.
+struct InfoChip: View {
+    let id: String
+    let label: String
+    @ObservedObject private var glossary = Glossary.shared
+    @State private var shown: GlossaryEntry?
+
+    init(_ id: String, label: String) {
+        self.id = id
+        self.label = label
+    }
+
+    var body: some View {
+        if let entry = glossary.entry(id) {
+            Button {
+                shown = entry
+            } label: {
+                HStack(spacing: 3) {
+                    Text(label)
+                    Image(systemName: "info.circle").opacity(0.75)
+                }
+                .font(.caption2.weight(.semibold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(.white.opacity(0.12)))
+                .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Was bedeutet \(label)?")
+            .sheet(item: $shown) { entry in
+                GlossarySheet(entry: entry)
+            }
+        }
+    }
+}
+
 /// The whole entry: short line, explanation, usual values, meaning for Spexard, example.
 struct GlossaryEntryView: View {
     let entry: GlossaryEntry

@@ -128,6 +128,7 @@ struct HistoryContent: View {
                 Text("Mittel, Kenntage und Abweichung nur aus vollständigen Tagen (ab 20 Stunden mit Daten); der laufende Tag zählt erst, wenn er vorbei ist.")
                     .font(.caption2)
                     .opacity(0.7)
+                KenntageChips()
             }
             .card()
         }
@@ -209,6 +210,25 @@ struct HistoryContent: View {
 }
 
 // MARK: - pieces
+
+/// The DWD climatological days, each opening its glossary text.
+struct KenntageChips: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Kenntage nach DWD").font(.caption2.weight(.semibold)).opacity(0.75)
+            ScrollView(.horizontal) {
+                HStack(spacing: 6) {
+                    InfoChip("frosttag", label: "Frosttag")
+                    InfoChip("eistag", label: "Eistag")
+                    InfoChip("sommertag", label: "Sommertag")
+                    InfoChip("heisser_tag", label: "Heißer Tag")
+                    InfoChip("tropennacht", label: "Tropennacht")
+                }
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+}
 
 /// The newest rows of a period list; "Alle anzeigen" shows the rest.
 struct PeriodList<Content: View>: View {
