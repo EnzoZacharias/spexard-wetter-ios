@@ -4,6 +4,7 @@ import WidgetKit
 /// The widgets of the app with the current data, plus how to add them.
 struct WidgetPreviewScreen: View {
     @State private var snapshot: WidgetSnapshot?
+    @State private var history: HistoryWidgetData?
     @State private var loaded = false
 
     var body: some View {
@@ -16,9 +17,9 @@ struct WidgetPreviewScreen: View {
             .task {
                 if !loaded { await reload() }
                 // screenshots: `-screen widgets -option gross` starts at the large widget
-                if LaunchArgs.option == "gross" {
+                if let target = LaunchArgs.option, ["gross", "historie"].contains(target) {
                     try? await Task.sleep(nanoseconds: 400_000_000)
-                    proxy.scrollTo("gross", anchor: .top)
+                    proxy.scrollTo(target, anchor: .top)
                 }
             }
         }
@@ -59,6 +60,14 @@ struct WidgetPreviewScreen: View {
                 systemWidget(.systemLarge, width: 364, height: 382)
             }
             .id("gross")
+            section("Historie Garten") {
+                HStack(alignment: .top, spacing: 14) {
+                    historyWidget(.systemSmall, width: 170, height: 170)
+                    historyWidget(.accessoryRectangular, width: 160, height: 76)
+                }
+                historyWidget(.systemMedium, width: 364, height: 170)
+            }
+            .id("historie")
             section("Regen in 2 Stunden") {
                 rainWidget()
                 accessoryRain()
@@ -74,8 +83,29 @@ struct WidgetPreviewScreen: View {
     }
 
     private func reload() async {
-        snapshot = await WidgetSnapshot.load()
+        async let main = WidgetSnapshot.load()
+        async let past = HistoryWidgetData.load()
+        snapshot = await main
+        history = await past
         loaded = true
+    }
+
+    @ViewBuilder
+    private func historyWidget(_ family: WidgetFamily, width: CGFloat, height: CGFloat) -> some View {
+        if family == .accessoryRectangular {
+            HistoryWidgetContent(family: family, data: history, placeholder: !loaded)
+                .foregroundStyle(.white)
+                .frame(width: width, height: height, alignment: .leading)
+                .padding(8)
+                .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.black.opacity(0.45)))
+        } else {
+            HistoryWidgetContent(family: family, data: history, placeholder: !loaded)
+                .padding(16)
+                .frame(width: width, height: height)
+                .background(BackgroundGradient(night: false))
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))
+        }
     }
 
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {

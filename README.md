@@ -11,10 +11,13 @@ Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darste
 - **Radar**: DWD-Radar und Nowcast als animierte Karte mit Legende, Umkreis-Satz, Regenrate unter
   dem Finger und „Radar am Standort“
 - **Bericht**: Wetterbericht für heute, das Wochenende und die Woche
-- **Mehr**: Karten (eigene ICON-D2-Karten für NRW), Warnungen & Gefahren, Messwerte, Meteogramm, Modellvergleich, Ensembles, Trend,
-  Großwetterlage, Profil (Radiosonde und Höhenschnitt), Modellgüte, Server-Status
-- **Widgets**: klein, mittel, groß, Sperrbildschirm (rechteckig, rund, einzeilig) und
-  „Regen in 2 Stunden“
+- **Mehr**: Karten (eigene ICON-D2-Karten für NRW), Warnungen & Gefahren, Messwerte, Historie (Gartensensor
+  und DWD-Stationen je Tag, Woche, Monat, Jahr), Meteogramm, Modellvergleich, Ensembles, Trend,
+  Großwetterlage, Profil (Radiosonde und Höhenschnitt), Modellgüte, Lexikon, Server-Status
+- **Lernen**: (i) an den Profi-Werten öffnet die Erklärung des Servers; ist ein Wert gerade auffällig,
+  steht direkt daneben „Was heißt das jetzt“ (Schwellen nur auf dem Server, `/api/v1/glossar/hinweise`)
+- **Widgets**: klein, mittel, groß (mit Hinweis-Zeile), Sperrbildschirm (rechteckig, rund, einzeilig),
+  „Verlauf & Live“, „Regen in 2 Stunden“ und „Historie Garten“
 - Offline: die letzte Antwort jeder Seite bleibt gespeichert und erscheint mit ihrem Stand
 
 Der Stand der Arbeit steht in [docs/ROADMAP.md](docs/ROADMAP.md).
@@ -56,6 +59,6 @@ open SpexardWetter.xcodeproj
 Startargument `-mock` lädt die Beispieldaten aus `SpexardWetter/Resources/mock_*.json`
 (erzeugt mit `python scripts/make_mocks.py <wetter-mcp>` aus den Fixtures der Webseite). Für die
 Screenshots in CI: `-tab radar|bericht|mehr`, `-screen <seite>` (z. B. `messwerte`, `meteogramm`),
-`-option <wert>` (z. B. `ecmwf`, `woche`, `gross` für das große Widget unter `-screen widgets`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
+`-option <wert>` (z. B. `ecmwf`, `woche`, `gross`/`historie` für das große bzw. das Historie-Widget unter `-screen widgets`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
 `-radarPoint`, `-scrollBottom`, `-mapFrame N` (Karten). Die Karten-Beispieldaten kommen aus einem echten
 Lauf, den der Server-Code verarbeitet hat: `python scripts/make_map_mocks.py <karten.json> <Laufordner>`.

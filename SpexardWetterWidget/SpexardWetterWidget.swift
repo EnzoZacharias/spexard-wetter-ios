@@ -112,11 +112,67 @@ struct SpexardLiveStripWidget: Widget {
     }
 }
 
+// MARK: - Historie (own provider: only this widget asks for the history)
+
+struct HistoryEntry: TimelineEntry {
+    let date: Date
+    let data: HistoryWidgetData?
+    var placeholder = false
+}
+
+struct HistoryProvider: TimelineProvider {
+    func placeholder(in context: Context) -> HistoryEntry {
+        HistoryEntry(date: Date(), data: nil, placeholder: true)
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (HistoryEntry) -> Void) {
+        Task {
+            completion(HistoryEntry(date: Date(), data: await HistoryWidgetData.load()))
+        }
+    }
+
+    /// The garden log grows every 10 minutes; the next load after 30 minutes (15 after a failure).
+    func getTimeline(in context: Context, completion: @escaping (Timeline<HistoryEntry>) -> Void) {
+        Task {
+            let data = await HistoryWidgetData.load()
+            let minutes: Double = data == nil ? 15 : 30
+            let entry = HistoryEntry(date: Date(), data: data)
+            completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(minutes * 60))))
+        }
+    }
+}
+
+struct HistoryWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: HistoryEntry
+
+    var body: some View {
+        HistoryWidgetContent(family: family, data: entry.data, placeholder: entry.placeholder)
+            .containerBackground(for: .widget) {
+                BackgroundGradient(night: false)
+            }
+            .widgetURL(URL(string: "spexardwetter://historie"))
+    }
+}
+
+/// Today so far in the garden, the month and the records of the own sensor.
+struct SpexardHistoryWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "SpexardHistorie", provider: HistoryProvider()) { entry in
+            HistoryWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Historie Garten")
+        .description("Tiefst- und Höchstwert des Gartensensors heute, im Monat und seit Beginn der Messung.")
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
+    }
+}
+
 @main
 struct SpexardWidgetBundle: WidgetBundle {
     var body: some Widget {
         SpexardWeatherWidget()
         SpexardLiveStripWidget()
         SpexardRainWidget()
+        SpexardHistoryWidget()
     }
 }

@@ -70,6 +70,7 @@ targets:
       - path: SpexardWetter/Data/WeatherDerived.swift
       - path: SpexardWetter/Data/LiveStrip.swift
       - path: SpexardWetter/Data/Glossary.swift
+      - path: SpexardWetter/Data/Models+History.swift
       - path: SpexardWetter/Shared
       - path: SpexardWetter/UI/Theme.swift
       - path: SpexardWetter/UI/GlossaryViews.swift
