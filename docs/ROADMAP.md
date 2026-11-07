@@ -100,7 +100,12 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Abweichung vom Normal, Tiefst-bis-Höchst-Balken mit dem Normal 1991–2020 dahinter, Zeitraum-Liste mit Mittel,
       Abweichung und Kenntagen, Rekorde Garten und Station, DWD-Station mit Niederschlag, Böe, Schnee, Bodenfrost,
       Garten gegen Station. Beispieldaten aus dem Endpunkt-Code von v2 (53507af) mit den echten Stundenwerten des
-      Gartensensors seit 31.10. und den echten DWD-KL-Zips (`-screen historie -option monate`)
+      Gartensensors seit 31.10. und den echten DWD-KL-Zips (`-screen historie -option monate`); Kenntage als
+      Lexikon-Chips
+- [x] Regen-Szenario auch in Meteogramm (alle vier Modelle), Modellvergleich (`-option precip`) und Regen-Ensemble
+      (ICON-D2-EPS, `-screen ensembles -option regen`): dieselben ausgedachten Abendstunden, je Modell anders stark
+- [x] Modellvergleich: (i) je Größe und Hinweise am Diagramm (Frost, LLJ, Böen, Inversion/Nebel); Hinweise unter
+      Diagrammen zweizeilig, Tipp zeigt den ganzen Text
 
 ## Als Nächstes
 
@@ -109,8 +114,6 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
       optional ein Historie-Widget („heute bisher“ + Rekord des Monats)
 - [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
-- [ ] Regen-Szenario auch für Meteogramm, Modellvergleich und Ensembles (bisher nur Radar, Nowcast,
-      Stunden und Umkreis), danach deren Diagramme mit Regen in den Screenshots prüfen
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
 - [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
 
