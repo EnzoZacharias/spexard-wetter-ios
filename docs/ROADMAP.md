@@ -110,9 +110,14 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 ## Als Nächstes
 
 - [ ] PR #1 (`wip-lexikon-hinweise`) nach `main` mergen: das Mergen ohne Review hat der Agent nicht selbst gemacht;
-      erst danach gibt es eine neue IPA unter „latest“
+      erst danach gibt es eine neue IPA unter „latest“. Gebaut und geprüft bis 0d7ff76 (Lexikon, Hinweise, Karten,
+      Widget-Zeile); Historie, Regen-Szenario, Historie-Widget kompilierten im Simulator-Build, ihre Screenshots
+      (`historie`, `historie-monate`, `regen-meteogramm`, `regen-modelle`, `regen-ensembles`, `widgets-historie`)
+      noch ansehen
+- [ ] Widget „Historie Garten“ (klein, mittel, Sperrbildschirm; `/api/v1/historie?zeitraum=monate`, alle 30 Minuten)
+      auf dem Gerät prüfen
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
-      optional ein Historie-Widget („heute bisher“ + Rekord des Monats)
+      Historie-Widget ist da (siehe oben)
 - [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
 - [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
