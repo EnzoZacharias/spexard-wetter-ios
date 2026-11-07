@@ -105,6 +105,9 @@ struct NoteCallout: View {
     var level: String?
     /// "ICON-D2 · Sa 07.11." (where the value comes from and when it occurs).
     var caption: String?
+    /// Two lines until tapped (next to charts, where the full text would push the chart away).
+    var compact = false
+    @State private var expanded = false
 
     private var tint: Color {
         switch level {
@@ -126,10 +129,15 @@ struct NoteCallout: View {
                     .foregroundStyle(tint)
                 Text(text)
                     .font(.footnote)
+                    .lineLimit(compact && !expanded ? 2 : nil)
                     .fixedSize(horizontal: false, vertical: true)
                 if let caption, !caption.isEmpty {
                     Text(caption).font(.caption2).opacity(0.75)
                 }
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if compact { withAnimation(.snappy) { expanded.toggle() } }
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(title): \(text)\(caption.map { ". \($0)" } ?? "")")
@@ -149,13 +157,14 @@ struct NoteCallout: View {
 }
 
 extension NoteCallout {
-    init(note: GlossaryNote) {
+    init(note: GlossaryNote, compact: Bool = false) {
         self.init(
             text: note.text,
             title: note.titel ?? "Was heißt das jetzt",
             glossaryId: note.id,
             level: note.stufe,
-            caption: [note.quelle, note.wann].compactMap { $0 }.filter { !$0.isEmpty && $0 != "jetzt" }.joined(separator: " · ")
+            caption: [note.quelle, note.wann].compactMap { $0 }.filter { !$0.isEmpty && $0 != "jetzt" }.joined(separator: " · "),
+            compact: compact
         )
     }
 }
@@ -165,10 +174,12 @@ extension NoteCallout {
 struct GlossaryNotesView: View {
     let ids: [String]
     var day: Date?
+    var compact = false
     @ObservedObject private var store = GlossaryNotes.shared
 
-    init(_ ids: [String]) {
+    init(_ ids: [String], compact: Bool = false) {
         self.ids = ids
+        self.compact = compact
     }
 
     /// The notes on the local weather of this day (any glossary id).
@@ -182,7 +193,7 @@ struct GlossaryNotesView: View {
         if !notes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(notes, id: \.self) { note in
-                    NoteCallout(note: note)
+                    NoteCallout(note: note, compact: compact)
                 }
             }
         }

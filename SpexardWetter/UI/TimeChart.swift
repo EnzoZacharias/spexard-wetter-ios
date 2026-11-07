@@ -155,7 +155,7 @@ struct TimeChart: View {
                 Text(unit).font(.caption).opacity(0.7).accessibilityHidden(true)
             }
             chartBlock
-            if !notes.isEmpty { GlossaryNotesView(notes) }
+            if !notes.isEmpty { GlossaryNotesView(notes, compact: true) }
         }
         .card()
     }

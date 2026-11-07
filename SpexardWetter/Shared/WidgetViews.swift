@@ -403,7 +403,7 @@ struct WidgetNoteRow: View {
             (Text((note.begriff ?? "Was heißt das jetzt") + ": ").fontWeight(.semibold).foregroundStyle(tint)
                 + Text(note.text))
                 .font(.system(size: 10.5))
-                .lineLimit(2)
+                .lineLimit(3)
                 .fixedSize(horizontal: false, vertical: true)
             if more > 0 {
                 Spacer(minLength: 0)
