@@ -167,6 +167,9 @@ struct PlaceLiteScreen: View {
                     if let data = loader.value {
                         PlaceHeader(place: place, data: data)
                         PlaceWarnings(warnings: data.warnungen, area: data.ort?.warnzelle ?? place.name, reference: reference)
+                        ForEach(data.hinweise ?? [], id: \.self) { note in
+                            NoteCallout(note: note)
+                        }
                         HourlyStrip(items: data.hourItems(), sunEvents: data.sunEvents(), title: "Nächste 48 Stunden", modes: [.regen, .wind])
                         let days = data.dayItems(reference: reference)
                         DailyList(items: days, range: Self.range(days))

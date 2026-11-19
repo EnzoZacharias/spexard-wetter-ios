@@ -98,6 +98,8 @@ struct PlaceForecastResponse: Decodable {
     let tage: [Day]?
     /// nil = not available, [] = none.
     let warnungen: [DwdWarning]?
+    /// The server's notes for this place (frost, strong gusts today or tomorrow; home thresholds).
+    let hinweise: [GlossaryNote]?
     let sourceErrors: [SourceProblem]?
 
     /// The hours as items of the hourly strip.
