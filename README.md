@@ -17,7 +17,8 @@ Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darste
   „Ort nach Wahl“ (klein, mittel, Sperrbildschirm; Ort per „Widget bearbeiten“ mit der Suche des Servers)
 - **Umwelt & Himmel** (`/api/v1/umwelt`): Sonne (Bogen über den Tag, Tageslänge und Änderung, bürgerliche
   Dämmerung, Höchststand, 7 Tage), Mond (Phase, Beleuchtung, Auf-/Untergang, nächste Hauptphasen),
-  Luftqualität der UBA-Station mit Schadstoffen und 24 Stunden, Pollenflug (DWD, Ostwestfalen) und UV-Index (DWD);
+  Luftqualität der UBA-Station mit Schadstoffen und 24 Stunden, Pollenflug (DWD, Ostwestfalen), UV-Index (DWD) und
+  Biowetter für Wetterfühlige (DWD, je Tageshälfte);
   auf der Startseite als Karte, sobald der Server den Endpunkt hat
 - **Mehr**: Karten (eigene ICON-D2-Karten für NRW), Warnungen & Gefahren, Umwelt & Himmel, Messwerte, Historie (Gartensensor
   und DWD-Stationen je Tag, Woche, Monat, Jahr), Meteogramm, Modellvergleich, Ensembles, Trend,

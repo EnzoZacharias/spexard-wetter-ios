@@ -128,6 +128,9 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
 - [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
+- [x] Umwelt: Biowetter des DWD (Gefahrenindizes für Wetterfühlige, NRW) je Tageshälfte als Chips, sechs Formkreise
+      mit Farbe der Stufe und dem Wortlaut des DWD, thermische Belastung, Empfehlungen, Hinweis bei „hoher Gefährdung“;
+      Sonnenbogen sagt nachts, wann die Sonne aufgeht; Beispieldaten und Lexikon von v2 (9da6d34)
 - [x] Widget „Ort nach Wahl“ (neue Art `SpexardOrt`, App-Intent-Parameter `PlaceEntity` mit der Ortssuche des Servers
       im Widget-Editor; Ort, Breite/Länge mit 2 Stellen und Region stecken in der Id, daher ohne App Group):
       klein, mittel (5 Stunden im 3-Stunden-Takt), Sperrbildschirm; Modellwert jetzt, Max/Min, erste Warnung der Gemeinde;
