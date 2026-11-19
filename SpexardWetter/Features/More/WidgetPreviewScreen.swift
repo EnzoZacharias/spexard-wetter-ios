@@ -5,6 +5,7 @@ import WidgetKit
 struct WidgetPreviewScreen: View {
     @State private var snapshot: WidgetSnapshot?
     @State private var history: HistoryWidgetData?
+    @State private var now: WeatherNow?
     @State private var loaded = false
 
     var body: some View {
@@ -17,7 +18,7 @@ struct WidgetPreviewScreen: View {
             .task {
                 if !loaded { await reload() }
                 // screenshots: `-screen widgets -option gross` starts at the large widget
-                if let target = LaunchArgs.option, ["gross", "historie"].contains(target) {
+                if let target = LaunchArgs.option, ["gross", "historie", "messwert"].contains(target) {
                     try? await Task.sleep(nanoseconds: 400_000_000)
                     proxy.scrollTo(target, anchor: .top)
                 }
@@ -68,6 +69,21 @@ struct WidgetPreviewScreen: View {
                 historyWidget(.systemMedium, width: 364, height: 170)
             }
             .id("historie")
+            section("Messwert (einstellbar)") {
+                HStack(alignment: .top, spacing: 14) {
+                    measurementWidget(.taupunkt)
+                    measurementWidget(.boeen)
+                }
+                HStack(alignment: .top, spacing: 14) {
+                    measurementAccessory(.luftdruck, family: .accessoryRectangular, width: 172, height: 76)
+                    measurementAccessory(.feuchte, family: .accessoryCircular, width: 76, height: 76)
+                }
+                Text("Welcher Wert: Widget lange drücken, „Widget bearbeiten“ und die Messgröße wählen (Temperatur, Taupunkt, Luftfeuchte, Wind, Böen, Luftdruck, Regen der letzten Stunde, Sichtweite).")
+                    .font(.caption)
+                    .opacity(0.85)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .id("messwert")
             section("Regen in 2 Stunden") {
                 rainWidget()
                 accessoryRain()
@@ -85,9 +101,32 @@ struct WidgetPreviewScreen: View {
     private func reload() async {
         async let main = WidgetSnapshot.load()
         async let past = HistoryWidgetData.load()
+        async let current: Fetched<WeatherNow> = APIClient().fetch(.now)
         snapshot = await main
         history = await past
+        now = (try? await current)?.value
         loaded = true
+    }
+
+    private func measurementData(_ kind: MeasurementKind) -> MeasurementWidgetData? {
+        now.flatMap { MeasurementWidgetData(kind, now: $0, offline: false) }
+    }
+
+    private func measurementWidget(_ kind: MeasurementKind) -> some View {
+        MeasurementWidgetContent(family: .systemSmall, data: measurementData(kind), kind: kind, placeholder: !loaded)
+            .padding(16)
+            .frame(width: 170, height: 170)
+            .background(BackgroundGradient(night: true))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))
+    }
+
+    private func measurementAccessory(_ kind: MeasurementKind, family: WidgetFamily, width: CGFloat, height: CGFloat) -> some View {
+        MeasurementWidgetContent(family: family, data: measurementData(kind), kind: kind, placeholder: !loaded)
+            .foregroundStyle(.white)
+            .frame(width: width, height: height, alignment: .leading)
+            .padding(8)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.black.opacity(0.45)))
     }
 
     @ViewBuilder
