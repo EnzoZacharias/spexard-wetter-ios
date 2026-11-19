@@ -43,6 +43,16 @@ struct WeatherNowIntent: AppIntent {
     }
 }
 
+struct EnvironmentIntent: AppIntent {
+    static var title: LocalizedStringResource = "Umwelt heute"
+    static var description = IntentDescription("Luftqualität, Pollenflug, UV-Index, Sonne und Mond von heute.")
+
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let text = await SiriAnswers.loadEnvironment()
+        return .result(value: text, dialog: "\(text)")
+    }
+}
+
 /// The phrases Siri knows without any setup. Every phrase names the app (Apple's rule); the app
 /// shows them under Mehr → Siri & Kurzbefehle (`SiriScreen`, keep both lists the same).
 struct SpexardShortcuts: AppShortcutsProvider {
@@ -84,6 +94,16 @@ struct SpexardShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Wetter jetzt",
             systemImageName: "cloud.sun"
+        )
+        AppShortcut(
+            intent: EnvironmentIntent(),
+            phrases: [
+                "\(.applicationName) Pollen",
+                "\(.applicationName) Umwelt",
+                "Wie ist die Luft bei \(.applicationName)",
+            ],
+            shortTitle: "Umwelt heute",
+            systemImageName: "aqi.medium"
         )
     }
 }

@@ -21,6 +21,8 @@ struct SiriScreen: View {
              phrases: ["Spexard Wetter Warnungen", "gibt es eine Wetterwarnung bei Spexard Wetter?"]),
         Item(id: "wetter", title: "Wetter jetzt", icon: "cloud.sun",
              phrases: ["wie ist das Wetter bei Spexard Wetter?", "Wetter jetzt bei Spexard Wetter"]),
+        Item(id: "umwelt", title: "Umwelt heute", icon: "aqi.medium",
+             phrases: ["Spexard Wetter Pollen", "wie ist die Luft bei Spexard Wetter?"]),
     ]
 
     @State private var answers: [String: String] = [:]
@@ -93,11 +95,13 @@ struct SiriScreen: View {
         async let rain = SiriAnswers.loadRain()
         async let warnings = SiriAnswers.loadWarnings()
         async let weather = SiriAnswers.loadWeather()
+        async let environment = SiriAnswers.loadEnvironment()
         let g = await garden
         let r = await rain
         let w = await warnings
         let n = await weather
-        answers = ["garten": g, "regen": r, "warnungen": w, "wetter": n]
+        let u = await environment
+        answers = ["garten": g, "regen": r, "warnungen": w, "wetter": n, "umwelt": u]
         date = Date()
     }
 }

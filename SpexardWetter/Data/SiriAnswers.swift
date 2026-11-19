@@ -113,6 +113,37 @@ enum SiriAnswers {
         }.joined(separator: " ")
     }
 
+    // MARK: environment
+
+    /// "Luftqualität gut an der UBA-Station Bielefeld-Ost, 21:00 Uhr. Pollen: heute keine Belastung. UV-Index heute 0, niedrig. …"
+    static func environment(_ e: EnvironmentResponse, stand: Date, offline: Bool) -> String {
+        var parts: [String] = []
+        if let air = e.luft, let text = air.text {
+            var sentence = "Luftqualität \(text)"
+            if let station = air.station { sentence += " an der UBA-Station \(station)" }
+            if let t = Fmt.parse(air.stand) { sentence += ", \(Fmt.time(t)) Uhr" }
+            parts.append(sentence + ".")
+        }
+        if let types = e.pollen?.arten, !types.isEmpty {
+            let today = types
+                .filter { ($0.heute?.wert ?? 0) > 0 }
+                .sorted { ($0.heute?.wert ?? 0) > ($1.heute?.wert ?? 0) }
+                .map { "\($0.name ?? $0.id) \($0.heute?.text ?? "")" }
+            parts.append(today.isEmpty ? "Pollen: heute keine Belastung." : "Pollen heute: " + today.joined(separator: ", ") + ".")
+        }
+        if let day = e.uv?.heute, let index = day.uvIndex {
+            parts.append("UV-Index heute \(Fmt.number(index, decimals: 0))" + (day.stufe.map { ", \($0)" } ?? "") + ".")
+        }
+        if let sun = e.astro?.sonne, let rise = Fmt.parse(sun.aufgang), let set = Fmt.parse(sun.untergang) {
+            parts.append("Sonne von \(Fmt.time(rise)) bis \(Fmt.time(set)) Uhr.")
+        }
+        if let moon = e.astro?.mond, let pct = moon.beleuchtungPct {
+            parts.append("Mond: \(moon.phase ?? "Mond"), \(Int(pct.rounded())) Prozent beleuchtet.")
+        }
+        guard !parts.isEmpty else { return "Der Wetterserver hat gerade keine Umweltdaten." }
+        return parts.joined(separator: " ") + offlineNote(stand, offline: offline)
+    }
+
     // MARK: loading (Siri, Shortcuts and the app's Siri screen)
 
     static func loadGarden() async -> String {
@@ -133,6 +164,16 @@ enum SiriAnswers {
         guard let result: Fetched<AlertsResponse> = try? await APIClient().fetch(.alerts, timeout: 8) else { return noServer }
         let reference = APIClient.isMock ? (Fmt.parse(result.value.generatedAt) ?? Date()) : Date()
         return warnings(result.value, reference: reference, stand: result.date, offline: result.fromCache)
+    }
+
+    static func loadEnvironment() async -> String {
+        do {
+            let result: Fetched<EnvironmentResponse> = try await APIClient().fetch(.environment, timeout: 8)
+            return environment(result.value, stand: result.date, offline: result.fromCache)
+        } catch {
+            // an older server answers 404: say so instead of "not reachable"
+            return (error as? LocalizedError)?.errorDescription ?? noServer
+        }
     }
 
     static func loadWeather() async -> String {
