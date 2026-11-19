@@ -97,6 +97,8 @@ struct EnvironmentResponse: Decodable {
         let text: String?
         /// The station does not measure every pollutant of the index.
         let unvollstaendig: Bool?
+        /// The last measured hour is older than six hours (the server then gives no note).
+        let veraltet: Bool?
         let werte: [AirValue]?
         let verlauf: AirHistory?
     }

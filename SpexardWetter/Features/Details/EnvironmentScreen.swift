@@ -295,7 +295,7 @@ struct AirCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            CardTitle("Luftqualität", systemImage: "aqi.medium", trailing: Fmt.parse(air.stand).map { "\(Fmt.time($0)) Uhr" }, info: "luftqualitaet")
+            CardTitle("Luftqualität", systemImage: "aqi.medium", trailing: standText, info: "luftqualitaet")
             HStack(alignment: .center, spacing: 12) {
                 Text(air.text ?? "–")
                     .font(.title2.weight(.bold))
@@ -322,6 +322,10 @@ struct AirCard: View {
                 }
                 .accessibilityElement(children: .combine)
             }
+            if air.veraltet == true {
+                Label("Die letzte Messung ist älter als sechs Stunden.", systemImage: "clock.badge.exclamationmark")
+                    .font(.caption.weight(.semibold))
+            }
             if air.unvollstaendig == true {
                 Text("Die Station misst nicht alle Schadstoffe des Index; er gilt für die gemessenen.")
                     .font(.caption2)
@@ -332,6 +336,13 @@ struct AirCard: View {
             }
         }
         .card()
+    }
+
+    /// "21:00 Uhr", with the day when the measurement is old.
+    private var standText: String? {
+        guard let stand = Fmt.parse(air.stand) else { return nil }
+        let clock = "\(Fmt.time(stand)) Uhr"
+        return air.veraltet == true ? "\(Fmt.weekdayShort(stand)) \(Fmt.dayMonth(stand)) \(clock)" : clock
     }
 
     private var stationText: String {
