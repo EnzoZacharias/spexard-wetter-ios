@@ -714,7 +714,10 @@ struct EnvironmentHomeCard: View {
                                         if let color = tile.color {
                                             Circle().fill(color).frame(width: 9, height: 9)
                                         }
-                                        Text(tile.value).font(.callout.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                                        Text(tile.value)
+                                            .font(.callout.weight(.semibold))
+                                            .lineLimit(2)
+                                            .fixedSize(horizontal: false, vertical: true)
                                     }
                                     if let note = tile.note {
                                         Text(note).font(.caption2).opacity(0.65).lineLimit(2)
