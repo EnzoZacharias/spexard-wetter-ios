@@ -658,6 +658,24 @@ struct EnvironmentHomeCard: View {
         if let day = data.uv?.heute, let index = day.uvIndex {
             out.append(Tile(id: "uv", icon: "sun.max.trianglebadge.exclamationmark", title: "UV-Index heute", value: Fmt.number(index, decimals: 0) + (day.stufe.map { " · \($0)" } ?? ""), note: data.uv?.ort.map { "DWD \($0)" }, color: EnvironmentScale.uvColor(index)))
         }
+        if let section = data.biowetter?.abschnitte?.first, let effects = section.wirkungen, !effects.isEmpty {
+            // the strongest effect of the next half day, and in how many of the six groups it occurs
+            let rank = ["hoch": 3, "gering": 2, "kein": 1, "positiv": 0]
+            if let worst = effects.max(by: { (rank[$0.stufe ?? ""] ?? -1) < (rank[$1.stufe ?? ""] ?? -1) }) {
+                let same = effects.filter { $0.stufe == worst.stufe }.count
+                out.append(Tile(
+                    id: "bio",
+                    icon: "heart.text.square",
+                    title: "Biowetter " + BioCard.label(section),
+                    value: worst.wert ?? "–",
+                    note: "\(same) von \(effects.count) Bereichen",
+                    color: EnvironmentScale.bioColor(worst.stufe)
+                ))
+            }
+        }
+        if let sun = data.astro?.sonne, let minutes = sun.tageslaengeMin {
+            out.append(Tile(id: "sonne", icon: "sun.horizon.fill", title: "Tageslänge", value: EnvironmentScale.duration(minutes), note: EnvironmentScale.change(sun.aenderungMin), color: nil))
+        }
         if let moon = data.astro?.mond {
             let pct = moon.beleuchtungPct.map { "\(Int($0.rounded())) %" } ?? ""
             out.append(Tile(id: "mond", icon: EnvironmentScale.moonSymbol(moon.phase, waxing: moon.zunehmend), title: "Mond", value: pct, note: moon.phase, color: nil))
