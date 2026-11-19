@@ -88,7 +88,7 @@ struct PlacePickerSheet: View {
                     }
                 }
                 Section {
-                    Text("Für andere Orte zeigt die App eine schlanke Ansicht: Modellwerte jetzt, 48 Stunden, 16 Tage und die amtlichen Warnungen der Gemeinde. Die Liste bleibt nur auf diesem iPhone; Widgets und Siri zeigen weiter \(homeLabel).")
+                    Text("Für andere Orte zeigt die App eine schlanke Ansicht: Modellwerte jetzt, 48 Stunden, 16 Tage und die amtlichen Warnungen der Gemeinde. Die Liste bleibt nur auf diesem iPhone. Radar, Bericht, Mehr, Widgets und Siri zeigen immer \(homeLabel).")
                         .font(.caption)
                     Text("Ortssuche: Open-Meteo Geocoding (GeoNames, CC BY 4.0)").font(.caption2).opacity(0.7)
                 }
@@ -194,7 +194,7 @@ struct PlaceLiteScreen: View {
                     StandFooter(
                         date: loader.date,
                         fromCache: loader.fromCache,
-                        sources: "Vorhersage: Open-Meteo (best_match, CC BY 4.0) · Warnungen: Deutscher Wetterdienst via Bright Sky"
+                        sources: "Vorhersage: Open-Meteo (best_match, CC BY 4.0) · Warnungen: Deutscher Wetterdienst via Bright Sky · Radar, Bericht und Mehr zeigen \(homeLabel)"
                     )
                 }
                 .padding(.horizontal, 16)
@@ -234,7 +234,8 @@ struct PlaceHeader: View {
         let now = data.jetzt
         let today = data.tage?.first
         VStack(spacing: 4) {
-            Text(data.ort?.name ?? place.name)
+            // the searched name (the warn cell may name the larger municipality around it)
+            Text(place.name)
                 .font(.title3.weight(.semibold))
                 .padding(.top, 8)
             if let region = place.region ?? [data.ort?.kreis, data.ort?.land].compactMap({ $0 }).joined(separator: ", ").nilIfEmpty {

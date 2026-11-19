@@ -29,7 +29,9 @@ struct RootView: View {
             // another place of the favourites: the lean view; home: the full start screen
             Group {
                 if let place = places.selected {
+                    // own screen per place: no forecast of the previous place while the new one loads or fails
                     PlaceLiteScreen(place: place, homeLabel: home.locationLabel)
+                        .id(place.id)
                 } else {
                     HomeView(model: home, openTab: { tab = $0 })
                 }

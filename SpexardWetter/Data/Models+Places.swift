@@ -110,9 +110,11 @@ struct PlaceForecastResponse: Decodable {
         return h.zeit.indices.compactMap { i -> HourItem? in
             guard let date = Fmt.parse(h.zeit[i]) else { return nil }
             let day = at(h.istTag, i).map { $0 == 1 } ?? true
+            // 48 hours pass midnight twice: the new day by its weekday
+            let label = Fmt.calendar.component(.hour, from: date) == 0 ? Fmt.weekdayShort(date) + " 0 Uhr" : Fmt.hour(date) + " Uhr"
             return HourItem(
                 id: date,
-                label: Fmt.hour(date) + " Uhr",
+                label: label,
                 symbol: WeatherSymbol.name(code: at(h.wetterCode, i), night: !day),
                 temp: at(h.temperaturC, i),
                 rainProb: at(h.regenWahrscheinlichkeitPct, i),
