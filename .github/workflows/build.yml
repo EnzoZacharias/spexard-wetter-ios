@@ -111,6 +111,8 @@ jobs:
           shot widgets-messwert -screen widgets -option messwert
           WAIT=10 shot siri -screen siri
           shot gefahren -screen warnungen -scrollBottom
+          shot umwelt -screen umwelt
+          shot umwelt-unten -screen umwelt -scrollBottom
           shot messwerte -screen messwerte
           shot historie -screen historie
           shot historie-monate -screen historie -option monate
@@ -137,6 +139,9 @@ jobs:
           shot regen-meteogramm -screen meteogramm -scenario regen
           shot regen-modelle -screen modelle -option precip -scenario regen
           shot regen-ensembles -screen ensembles -option regen -scenario regen
+          # made-up pollen, UV and air values (mock_umwelt_szenario_belastung.json)
+          shot belastung-umwelt -screen umwelt -scrollBottom -scenario belastung
+          shot belastung-pollen -screen umwelt -scrollBottom -option pollen -scenario belastung
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots
