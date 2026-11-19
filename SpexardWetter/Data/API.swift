@@ -40,9 +40,12 @@ enum APIError: LocalizedError {
         case .noServer: return "Keine Server-Adresse eingetragen."
         case .badURL(let url): return "Ungültige Adresse: \(url)"
         case .http(let code, let message):
+            // the server is older than the app (the new pages land with its next update)
+            if code == 404, message == nil || message == "Unbekannter API-Pfad" {
+                return "Das kann der Wetterserver noch nicht: Er braucht ein Update."
+            }
             if let message, !message.isEmpty { return message }
             if code == 429 { return "Zu viele Anfragen in kurzer Zeit. Bitte gleich noch einmal versuchen." }
-            if code == 404 { return "Diese Daten gibt es auf dem Server nicht." }
             if code >= 500 { return "Der Wetterserver hat einen Fehler gemeldet (\(code))." }
             return "Der Server antwortet mit Fehler \(code)."
         case .decoding(let what): return "Antwort nicht lesbar (\(what))."

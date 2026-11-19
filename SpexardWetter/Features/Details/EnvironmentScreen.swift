@@ -35,14 +35,7 @@ struct EnvironmentScreen: View {
                     EnvironmentContent(data: data)
                         .opacity(loader.loading ? 0.6 : 1)
                 } else if let error = loader.error {
-                    VStack(spacing: 6) {
-                        StateMessage(kind: .error, text: error) { await loader.reload() }
-                        Text("Pollen, UV, Luftqualität sowie Sonne und Mond brauchen einen aktuellen Wetterserver.")
-                            .font(.caption)
-                            .opacity(0.75)
-                            .multilineTextAlignment(.center)
-                    }
-                    .card()
+                    StateMessage(kind: .error, text: error) { await loader.reload() }.card()
                 } else {
                     StateMessage(kind: .loading).card()
                 }
