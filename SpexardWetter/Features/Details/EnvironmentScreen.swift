@@ -90,6 +90,9 @@ struct EnvironmentContent: View {
             } else {
                 missing("UV-Index", "Der UV-Gefahrenindex des DWD fehlt gerade.")
             }
+            if let bio = data.biowetter, let sections = bio.abschnitte, !sections.isEmpty {
+                BioCard(bio: bio, sections: sections, notes: notes("biowetter"))
+            }
             ForEach(data.sourceErrors ?? [], id: \.self) { problem in
                 Label("\(problem.source ?? "Quelle"): \(problem.message ?? "nicht erreichbar")", systemImage: "exclamationmark.circle")
                     .font(.caption)
@@ -486,6 +489,87 @@ struct PollenCard: View {
     private var issueText: String {
         var text = "Pollenflug-Gefahrenindex des DWD" + (pollen.region.map { ", \($0)" } ?? "")
         if let issued = Fmt.parse(pollen.ausgabe) { text += " · Ausgabe \(Fmt.weekdayShort(issued)) \(Fmt.time(issued)) Uhr" }
+        return text
+    }
+}
+
+// MARK: - Biowetter
+
+/// DWD health weather: per half day how the weather affects six groups of complaints.
+struct BioCard: View {
+    let bio: EnvironmentResponse.Bio
+    let sections: [EnvironmentResponse.BioSection]
+    let notes: [GlossaryNote]
+    @State private var selected = 0
+
+    var body: some View {
+        let index = min(selected, sections.count - 1)
+        let section = sections[index]
+        VStack(alignment: .leading, spacing: 10) {
+            CardTitle("Biowetter", systemImage: "heart.text.square", trailing: "für Wetterfühlige", info: "biowetter")
+            ScrollView(.horizontal) {
+                HStack(spacing: 6) {
+                    ForEach(sections.indices, id: \.self) { i in
+                        Button {
+                            withAnimation(.snappy) { selected = i }
+                            Haptics.selection()
+                        } label: {
+                            Text(Self.label(sections[i]))
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Capsule().fill(.white.opacity(i == index ? 0.32 : 0.12)))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityAddTraits(i == index ? .isSelected : [])
+                    }
+                }
+            }
+            .scrollIndicators(.hidden)
+            ForEach(section.wirkungen ?? [], id: \.self) { effect in
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Circle().fill(EnvironmentScale.bioColor(effect.stufe)).frame(width: 9, height: 9).accessibilityHidden(true)
+                    Text(effect.kurz ?? effect.name ?? "–").font(.footnote)
+                    Spacer(minLength: 4)
+                    Text(effect.wert ?? "–").font(.caption).opacity(0.85).multilineTextAlignment(.trailing)
+                }
+                .accessibilityElement(children: .combine)
+            }
+            if let thermal = section.thermisch, !thermal.isEmpty {
+                Text("Thermische Belastung: \(thermal)").font(.caption).opacity(0.85)
+            }
+            ForEach(section.empfehlungen ?? [], id: \.self) { advice in
+                Label {
+                    Text((advice.name.map { "\($0): " } ?? "") + (advice.wert ?? ""))
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "hand.raised")
+                }
+                .font(.caption)
+            }
+            ForEach(notes, id: \.self) { note in
+                NoteCallout(note: note)
+            }
+            Text(sourceText).font(.caption2).opacity(0.7)
+        }
+        .card()
+    }
+
+    /// "heute nachm.", "morgen vorm.", "Sa vorm.".
+    static func label(_ s: EnvironmentResponse.BioSection) -> String {
+        let day: String
+        switch s.tag {
+        case "heute": day = "heute"
+        case "morgen": day = "morgen"
+        default: day = Fmt.parse(s.datum).map { Fmt.weekdayShort($0) } ?? (s.tag ?? "")
+        }
+        let part = s.teil == "vormittags" ? "vorm." : s.teil == "nachmittags" ? "nachm." : (s.teil ?? "")
+        return "\(day) \(part)"
+    }
+
+    private var sourceText: String {
+        var text = "Gefahrenindizes für Wetterfühlige des DWD" + (bio.gebiet.map { ", \($0)" } ?? "")
+        if let issued = Fmt.parse(bio.ausgabe) { text += " · Ausgabe \(Fmt.weekdayShort(issued)) \(Fmt.time(issued)) Uhr" }
         return text
     }
 }

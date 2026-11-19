@@ -10,6 +10,8 @@ struct EnvironmentResponse: Decodable {
     let pollen: Pollen?
     let uv: UV?
     let luft: Air?
+    /// DWD health weather for weather-sensitive people (NRW), per half day.
+    let biowetter: Bio?
     let astro: Astro?
     /// The server's notes on conspicuous values of this answer (pollen, UV, air).
     let hinweise: [GlossaryNote]?
@@ -103,6 +105,43 @@ struct EnvironmentResponse: Decodable {
         let verlauf: AirHistory?
     }
 
+    // MARK: health weather (Biowetter)
+
+    struct BioDetail: Decodable, Hashable {
+        let name: String?
+        let wert: String?
+    }
+
+    /// One of the six groups of complaints ("Formkreise") of the DWD.
+    struct BioEffect: Decodable, Hashable {
+        let name: String?
+        let kurz: String?
+        /// The DWD's words ("geringe Gefährdung", "kein Einfluss", "positiver Einfluss").
+        let wert: String?
+        /// positiv | kein | gering | hoch (nil = unknown words, shown as they are).
+        let stufe: String?
+        let einzeln: [BioDetail]?
+    }
+
+    struct BioSection: Decodable {
+        let datum: String?
+        /// heute | morgen | uebermorgen
+        let tag: String?
+        /// vormittags | nachmittags
+        let teil: String?
+        let wirkungen: [BioEffect]?
+        /// Thermal stress in words ("schwache Kältereize", "keine").
+        let thermisch: String?
+        let empfehlungen: [BioDetail]?
+    }
+
+    struct Bio: Decodable {
+        let gebiet: String?
+        let ausgabe: String?
+        let naechsteAusgabe: String?
+        let abschnitte: [BioSection]?
+    }
+
     // MARK: sun and moon
 
     struct SunDay: Decodable, Identifiable {
@@ -191,6 +230,17 @@ enum EnvironmentScale {
         case 2: return Color(red: 0.98, green: 0.84, blue: 0.27)
         case 3: return Color(red: 0.93, green: 0.36, blue: 0.27)
         case 4: return Color(red: 0.62, green: 0.12, blue: 0.22)
+        default: return .white.opacity(0.2)
+        }
+    }
+
+    /// Biowetter level: green positive, grey none, yellow low, red high risk.
+    static func bioColor(_ level: String?) -> Color {
+        switch level {
+        case "positiv": return Color(red: 0.36, green: 0.78, blue: 0.48)
+        case "kein": return .white.opacity(0.35)
+        case "gering": return Color(red: 0.98, green: 0.84, blue: 0.27)
+        case "hoch": return Color(red: 0.93, green: 0.30, blue: 0.24)
         default: return .white.opacity(0.2)
         }
     }
