@@ -48,6 +48,8 @@ MOCKS: dict[str, str] = {
     "mock_profil_schnitt_icon_d2": "api/profil__schnitt__modell-icon_d2.json",
     "mock_profil_schnitt_ecmwf": "api/profil__schnitt__modell-ecmwf.json",
     "mock_umwelt": "api/umwelt.json",
+    "mock_ort": "api/ort__lat-52.09__lon-8.74.json",
+    "mock_orte_suche": "api/orte__suche__q-Bad_Salzuflen.json",
 }
 
 # keys the app does not read, per mock (keeps the files small)
