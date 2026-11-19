@@ -128,6 +128,9 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
 - [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
+- [x] Startseiten-Karte Umwelt mit Biowetter der nächsten Tageshälfte (stärkste Stufe, in wie vielen der sechs Bereiche)
+      und Tageslänge (`-scrollUmwelt`); andere Orte zeigen die Frost- und Böen-Hinweise des Servers (`hinweise` von `/ort`);
+      Orte-Knopf ohne eigene Kapsel (das Glas der Leiste reicht)
 - [x] Umwelt: Biowetter des DWD (Gefahrenindizes für Wetterfühlige, NRW) je Tageshälfte als Chips, sechs Formkreise
       mit Farbe der Stufe und dem Wortlaut des DWD, thermische Belastung, Empfehlungen, Hinweis bei „hoher Gefährdung“;
       Sonnenbogen sagt nachts, wann die Sonne aufgeht; Beispieldaten und Lexikon von v2 (9da6d34)
