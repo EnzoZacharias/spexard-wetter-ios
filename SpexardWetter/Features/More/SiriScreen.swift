@@ -14,13 +14,13 @@ struct SiriScreen: View {
     /// Mirrors `SpexardShortcuts` ("Spexard Wetter" is the app's name on the home screen).
     private static let items: [Item] = [
         Item(id: "garten", title: "Temperatur im Garten", icon: "thermometer.medium",
-             phrases: ["Spexard Wetter Garten", "Wie warm ist es im Garten bei Spexard Wetter?"]),
+             phrases: ["Spexard Wetter Garten", "wie warm ist es im Garten bei Spexard Wetter?"]),
         Item(id: "regen", title: "Regen in 2 Stunden", icon: "cloud.rain",
-             phrases: ["Spexard Wetter Regen", "Regnet es gleich bei Spexard Wetter?"]),
+             phrases: ["Spexard Wetter Regen", "regnet es gleich bei Spexard Wetter?"]),
         Item(id: "warnungen", title: "Amtliche Warnungen", icon: "exclamationmark.triangle",
-             phrases: ["Spexard Wetter Warnungen", "Gibt es eine Wetterwarnung bei Spexard Wetter?"]),
+             phrases: ["Spexard Wetter Warnungen", "gibt es eine Wetterwarnung bei Spexard Wetter?"]),
         Item(id: "wetter", title: "Wetter jetzt", icon: "cloud.sun",
-             phrases: ["Wie ist das Wetter bei Spexard Wetter?", "Wetter jetzt bei Spexard Wetter"]),
+             phrases: ["wie ist das Wetter bei Spexard Wetter?", "Wetter jetzt bei Spexard Wetter"]),
     ]
 
     @State private var answers: [String: String] = [:]
