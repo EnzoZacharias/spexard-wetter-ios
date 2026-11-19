@@ -128,6 +128,11 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
 - [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
+- [x] Andere Orte (`/api/v1/orte/suche`, `/api/v1/ort`): Knopf „Orte“ oben links im Wetter-Tab, Liste mit Heimat,
+      „Meine Orte“ (nur UserDefaults, Wischen zum Löschen) und Suche erst beim Absenden (Stern = merken); ein gewählter
+      Ort ersetzt den Wetter-Tab durch die Lite-Ansicht: Modellwert der laufenden Stunde (ausdrücklich keine Messung,
+      mit Modellhöhe), Warnungen der Gemeinde (DWD via Bright Sky), 48 Stunden (Regen/Wind), 16 Tage, „Zurück zu Spexard“;
+      Widgets und Siri bleiben bei Spexard; Beispieldaten aus den echten Fixtures (Bad Salzuflen), `-place`, `-placeSearch`
 - [x] Umwelt & Himmel (`/api/v1/umwelt`, Mehr → Umwelt & Himmel und Karte auf der Startseite): Sonne mit Tagesbogen,
       Tageslänge und Änderung zu gestern, bürgerlicher Dämmerung, Höchststand und 7 Tagen; Mond mit Phase (Symbol),
       Beleuchtung, Alter, Auf-/Untergang in Zeitfolge und nächsten Hauptphasen; Luftqualität (UBA-Index in UBA-Farben,
@@ -146,6 +151,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       auf dem Gerät prüfen
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
       Historie-Widget ist da (siehe oben)
+- [ ] Andere Orte auf dem Gerät prüfen, sobald der Pi `/api/v1/ort` hat (Tageskontingent 25 Orte; 503-Text erscheint in der Liste)
+- [ ] Widget mit Ort nach Wahl (eigener App-Intent-Parameter, da ohne App Group keine Favoriten im Widget)
 - [ ] Umwelt & Himmel auf dem Gerät prüfen, sobald der Pi `/api/v1/umwelt` hat (bis dahin bleibt die Startseiten-Karte
       weg und die Seite sagt, dass der Server zu alt ist); mitgeliefertes Lexikon um die neuen Einträge ergänzen
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)

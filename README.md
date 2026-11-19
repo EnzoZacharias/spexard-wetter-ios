@@ -11,6 +11,9 @@ Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darste
 - **Radar**: DWD-Radar und Nowcast als animierte Karte mit Legende, Umkreis-Satz, Regenrate unter
   dem Finger und „Radar am Standort“
 - **Bericht**: Wetterbericht für heute, das Wochenende und die Woche
+- **Andere Orte** (`/api/v1/orte/suche`, `/api/v1/ort`): „Orte“ oben links im Wetter-Tab; Suche (erst beim Absenden),
+  Favoriten nur auf dem Gerät; für andere Orte eine schlanke Ansicht (Modellwert jetzt, Warnungen der Gemeinde,
+  48 Stunden, 16 Tage). Spexard behält alles; Widgets und Siri zeigen weiter Spexard
 - **Umwelt & Himmel** (`/api/v1/umwelt`): Sonne (Bogen über den Tag, Tageslänge und Änderung, bürgerliche
   Dämmerung, Höchststand, 7 Tage), Mond (Phase, Beleuchtung, Auf-/Untergang, nächste Hauptphasen),
   Luftqualität der UBA-Station mit Schadstoffen und 24 Stunden, Pollenflug (DWD, Ostwestfalen) und UV-Index (DWD);
@@ -71,6 +74,7 @@ Startargument `-mock` lädt die Beispieldaten aus `SpexardWetter/Resources/mock_
 (erzeugt mit `python scripts/make_mocks.py <wetter-mcp>` aus den Fixtures der Webseite). Für die
 Screenshots in CI: `-tab radar|bericht|mehr`, `-screen <seite>` (z. B. `messwerte`, `meteogramm`),
 `-option <wert>` (z. B. `ecmwf`, `woche`, `gross`/`historie` für das große bzw. das Historie-Widget unter `-screen widgets`),
+`-place` (der Beispielort als gewählter Ort), `-placeSearch "Bad Salzuflen"` (Ortsliste mit Treffern),
 `-screen siri` (Siri-Sätze mit den Antworten aus den Beispieldaten), `-screen umwelt` (`-scrollBottom`, `-option pollen`;
 `-scenario belastung` = ausgedachte Pollen-, UV- und Luftwerte aus `scripts/make_environment_scenario.py`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
 `-radarPoint`, `-scrollBottom`, `-mapFrame N` (Karten). Die Karten-Beispieldaten kommen aus einem echten
