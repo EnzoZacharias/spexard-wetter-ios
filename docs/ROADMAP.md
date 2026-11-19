@@ -107,13 +107,22 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Modellvergleich: (i) je Größe und Hinweise am Diagramm (Frost, LLJ, Böen, Inversion/Nebel); Hinweise unter
       Diagrammen zweizeilig, Tipp zeigt den ganzen Text
 
+- [x] PR #1 gemergt (fd16a0a, Build 33 = IPA „latest“); Screenshots von Historie, Regen-Szenario und
+      Historie-Widget angesehen
+
+### Nacht 19./20.11.
+
+- [x] Feinschliff Historie: Balken von kalt (unten) nach warm (oben) eingefärbt, Legende passend dazu; bei wenigen
+      Zeiträumen (2 Monate, 3 Jahre) schmale Balken und jede Beschriftung mittig unter dem Balken („Okt“ fehlte);
+      „Was heißt das jetzt“ unter „Heute bisher“ nur noch für Hinweise, die heute betreffen
+- [x] Historie-Widget mittel: größere Werte, Monat mit Mittel und Normal („Ø 7,1°, Normal 8,0° (−0,9 K)“)
+- [x] Lexikon: Titel nur der Kurzname („CAPE“), der ganze Begriff steht als Überschrift im Text
+- [x] Diagramme: keine Punktreihe mehr auf der Nulllinie (Modellvergleich „höchster“, Regen-Ensemble
+      „stärkster Lauf“, Böen); Punkt-Reihen in der Legende als Punkt
+- [x] CI: Aufwärm-Start vor dem ersten Screenshot (Systemmitteilung verdeckte die Warnung)
+
 ## Als Nächstes
 
-- [ ] PR #1 (`wip-lexikon-hinweise`) nach `main` mergen: das Mergen ohne Review hat der Agent nicht selbst gemacht;
-      erst danach gibt es eine neue IPA unter „latest“. Gebaut und geprüft bis 0d7ff76 (Lexikon, Hinweise, Karten,
-      Widget-Zeile); Historie, Regen-Szenario, Historie-Widget kompilierten im Simulator-Build, ihre Screenshots
-      (`historie`, `historie-monate`, `regen-meteogramm`, `regen-modelle`, `regen-ensembles`, `widgets-historie`)
-      noch ansehen
 - [ ] Widget „Historie Garten“ (klein, mittel, Sperrbildschirm; `/api/v1/historie?zeitraum=monate`, alle 30 Minuten)
       auf dem Gerät prüfen
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
