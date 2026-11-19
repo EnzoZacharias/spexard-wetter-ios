@@ -95,6 +95,9 @@ jobs:
           shot home
           shot days -scrollDays
           shot tag -showDay 2026-11-05
+          # another place (example answers of /api/v1/ort and /api/v1/orte/suche)
+          shot ort -place
+          shot orte-suche -placeSearch "Bad Salzuflen"
           shot mehr -tab mehr
           shot warnungen -screen warnungen
           WAIT=14 shot radar -tab radar
