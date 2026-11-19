@@ -7,6 +7,8 @@ enum Fmt {
 
     private static let stampParser: DateFormatter = posix("yyyy-MM-dd'T'HH:mmXXXXX")
     private static let stampParserSeconds: DateFormatter = posix("yyyy-MM-dd'T'HH:mm:ssXXXXX")
+    /// Local Berlin time without offset ("2026-11-19T21:00", UBA and the computed sun and moon).
+    private static let localParser: DateFormatter = posix("yyyy-MM-dd'T'HH:mm")
     private static let dayParser: DateFormatter = posix("yyyy-MM-dd")
 
     private static func posix(_ format: String) -> DateFormatter {
@@ -35,7 +37,8 @@ enum Fmt {
     /// "2026-11-04T17:00+01:00" (with or without seconds) or "2026-11-04".
     static func parse(_ text: String?) -> Date? {
         guard let text, !text.isEmpty else { return nil }
-        return stampParser.date(from: text) ?? stampParserSeconds.date(from: text) ?? dayParser.date(from: text)
+        return stampParser.date(from: text) ?? stampParserSeconds.date(from: text) ?? localParser.date(from: text)
+            ?? dayParser.date(from: text)
     }
 
     static var calendar: Calendar {
