@@ -161,6 +161,7 @@ struct SunCard: View {
             }
         }
         .card()
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 }
 
@@ -354,6 +355,7 @@ struct AirCard: View {
             }
         }
         .card()
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 
     /// "21:00 Uhr", with the day when the measurement is old.
@@ -448,6 +450,7 @@ struct PollenCard: View {
             Text(issueText).font(.caption2).opacity(0.7)
         }
         .card()
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 
     /// "Heute", "Morgen" and the weekday after.
@@ -553,6 +556,7 @@ struct BioCard: View {
             Text(sourceText).font(.caption2).opacity(0.7)
         }
         .card()
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 
     /// "heute nachm.", "morgen vorm.", "Sa vorm.".
@@ -594,6 +598,7 @@ struct UVCard: View {
             Text(sourceText).font(.caption2).opacity(0.7)
         }
         .card()
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 
     private func column(_ label: String, _ day: EnvironmentResponse.UVDay?) -> some View {
