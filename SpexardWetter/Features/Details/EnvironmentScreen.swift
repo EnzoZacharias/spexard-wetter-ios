@@ -118,7 +118,14 @@ struct SunCard: View {
         VStack(alignment: .leading, spacing: 10) {
             CardTitle("Sonne", systemImage: "sun.max.fill", trailing: Fmt.parse(day).map { Fmt.longDate($0) }, info: "tageslaenge")
             if let rise = Fmt.parse(sun.aufgang), let set = Fmt.parse(sun.untergang), set > rise {
-                SunArc(rise: rise, set: set, now: reference, noon: Fmt.parse(sun.mittag), elevation: sun.hoechststandGrad)
+                SunArc(
+                    rise: rise,
+                    set: set,
+                    now: reference,
+                    noon: Fmt.parse(sun.mittag),
+                    elevation: sun.hoechststandGrad,
+                    nextRise: (sun.tage ?? []).dropFirst().first.flatMap { Fmt.parse($0.aufgang) }
+                )
                     .frame(height: 96)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Sonnenaufgang \(Fmt.time(rise)) Uhr, Sonnenuntergang \(Fmt.time(set)) Uhr")
@@ -162,9 +169,18 @@ struct SunArc: View {
     let now: Date
     let noon: Date?
     let elevation: Double?
+    /// Sunrise of the next day (said after sunset).
+    var nextRise: Date?
 
     private var fraction: Double {
         now.timeIntervalSince(rise) / set.timeIntervalSince(rise)
+    }
+
+    /// Before sunrise and after sunset: when the sun comes up.
+    private var nightText: String {
+        if fraction <= 0 { return "Aufgang um \(Fmt.time(rise)) Uhr" }
+        if let nextRise { return "Untergegangen · Aufgang morgen \(Fmt.time(nextRise)) Uhr" }
+        return "Untergegangen"
     }
 
     var body: some View {
@@ -197,6 +213,12 @@ struct SunArc: View {
                         .font(.caption2.monospacedDigit())
                         .opacity(0.75)
                         .position(x: w / 2, y: base - height - 10)
+                }
+                if !up {
+                    Text(nightText)
+                        .font(.caption.weight(.semibold))
+                        .opacity(0.85)
+                        .position(x: w / 2, y: base - height / 2)
                 }
             }
         }
