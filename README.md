@@ -18,6 +18,10 @@ Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darste
   steht direkt daneben „Was heißt das jetzt“ (Schwellen nur auf dem Server, `/api/v1/glossar/hinweise`)
 - **Widgets**: klein, mittel, groß (mit Hinweis-Zeile), Sperrbildschirm (rechteckig, rund, einzeilig),
   „Verlauf & Live“, „Regen in 2 Stunden“ und „Historie Garten“
+- **Siri & Kurzbefehle**: „Hey Siri, Spexard Wetter Garten“ (Temperatur im Garten), „… Regen“ (Radar-Nowcast),
+  „… Warnungen“ (DWD) und „Wie ist das Wetter bei Spexard Wetter?“; dieselben Aktionen in der Kurzbefehle-App, die
+  Sätze und die aktuellen Antworten unter Mehr → Siri & Kurzbefehle
+- **Widgets aktualisieren**: die Uhrzeit im Widget antippen lädt alle Widgets neu (iOS 17)
 - Offline: die letzte Antwort jeder Seite bleibt gespeichert und erscheint mit ihrem Stand
 
 Der Stand der Arbeit steht in [docs/ROADMAP.md](docs/ROADMAP.md).
@@ -59,6 +63,7 @@ open SpexardWetter.xcodeproj
 Startargument `-mock` lädt die Beispieldaten aus `SpexardWetter/Resources/mock_*.json`
 (erzeugt mit `python scripts/make_mocks.py <wetter-mcp>` aus den Fixtures der Webseite). Für die
 Screenshots in CI: `-tab radar|bericht|mehr`, `-screen <seite>` (z. B. `messwerte`, `meteogramm`),
-`-option <wert>` (z. B. `ecmwf`, `woche`, `gross`/`historie` für das große bzw. das Historie-Widget unter `-screen widgets`), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
+`-option <wert>` (z. B. `ecmwf`, `woche`, `gross`/`historie` für das große bzw. das Historie-Widget unter `-screen widgets`),
+`-screen siri` (Siri-Sätze mit den Antworten aus den Beispieldaten), `-scrollDays`, `-showDay 2026-11-05`, `-radarFrame N`,
 `-radarPoint`, `-scrollBottom`, `-mapFrame N` (Karten). Die Karten-Beispieldaten kommen aus einem echten
 Lauf, den der Server-Code verarbeitet hat: `python scripts/make_map_mocks.py <karten.json> <Laufordner>`.

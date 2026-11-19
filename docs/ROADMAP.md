@@ -120,6 +120,12 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Diagramme: keine Punktreihe mehr auf der Nulllinie (Modellvergleich „höchster“, Regen-Ensemble
       „stärkster Lauf“, Böen); Punkt-Reihen in der Legende als Punkt
 - [x] CI: Aufwärm-Start vor dem ersten Screenshot (Systemmitteilung verdeckte die Warnung)
+- [x] Siri & Kurzbefehle (App Intents, ohne Entwicklerkonto): „Spexard Wetter Garten“ (Gartensensor jetzt, heute
+      Tiefst/Höchst), „… Regen“ (Nowcast-Satz), „… Warnungen“ (DWD, Stufe, bis wann), „Wie ist das Wetter bei Spexard
+      Wetter?“; Antworten mit Stand, offline mit Hinweis; als Aktionen in der Kurzbefehle-App mit Text als Ergebnis;
+      Mehr → Siri & Kurzbefehle zeigt Sätze und aktuelle Antworten (`-screen siri`); Entwicklungssprache Deutsch;
+      CI schreibt die erkannten Sätze nach `build-appintents.log`
+- [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
 
 ## Als Nächstes
 
@@ -128,7 +134,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
       Historie-Widget ist da (siehe oben)
 - [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
-- [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele)
+- [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
+- [ ] Siri auf dem Gerät prüfen (Siri-Sprache Deutsch; „Spexard“ muss Siri verstehen, sonst eigenen Kurzbefehl anlegen)
 - [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
 
 ## Hinweise
