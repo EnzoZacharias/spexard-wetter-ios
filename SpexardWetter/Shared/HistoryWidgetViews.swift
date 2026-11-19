@@ -18,6 +18,9 @@ struct HistoryWidgetData {
     let monthHigh: Value?
     /// Mean of the month's complete days minus the normal 1991–2020.
     let monthDeviation: Double?
+    /// Mean of the month's complete days and the normal mean of the same days.
+    let monthMean: Double?
+    let monthNormalMean: Double?
     let recordHigh: Value?
     let recordLow: Value?
     let recordsSince: Date?
@@ -45,6 +48,8 @@ struct HistoryWidgetData {
         monthLow = month?.tminC.map { Value(celsius: $0, when: day(month?.tminZeit)) }
         monthHigh = month?.tmaxC.map { Value(celsius: $0, when: day(month?.tmaxZeit)) }
         monthDeviation = month?.abweichungK
+        monthMean = month?.tmittelC
+        monthNormalMean = month?.normal?.tmittelC
         let records = garden.rekorde
         recordHigh = records?.hoechstwert?.wertC.map { Value(celsius: $0, when: day(records?.hoechstwert?.datum)) }
         recordLow = records?.tiefstwert?.wertC.map { Value(celsius: $0, when: day(records?.tiefstwert?.datum)) }
@@ -112,8 +117,9 @@ struct HistoryWidgetContent: View {
                 Label("Garten heute", systemImage: "clock.arrow.circlepath")
                     .font(.system(size: 12, weight: .semibold))
                     .lineLimit(1)
-                valueLine("arrow.down", d.todayLow, color: Palette.cold, size: 24)
-                valueLine("arrow.up", d.todayHigh, color: Palette.warm, size: 24)
+                Spacer(minLength: 0)
+                valueLine("arrow.down", d.todayLow, color: Palette.cold, size: 28)
+                valueLine("arrow.up", d.todayHigh, color: Palette.warm, size: 28)
                 Spacer(minLength: 0)
                 if let hours = d.todayHours {
                     Text("\(hours) Stunden mit Daten · \(Fmt.time(d.stand))")
@@ -124,8 +130,9 @@ struct HistoryWidgetContent: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             VStack(alignment: .leading, spacing: 5) {
                 if let name = d.monthName {
-                    block(name, low: d.monthLow, high: d.monthHigh, note: d.monthDeviation.map(Self.deviationText))
+                    block(name, low: d.monthLow, high: d.monthHigh, note: Self.monthNote(d))
                 }
+                Spacer(minLength: 0)
                 block(
                     "Rekorde" + (d.recordsSince.map { " seit \(Fmt.dayMonth($0))" } ?? ""),
                     low: d.recordLow,
@@ -193,6 +200,15 @@ struct HistoryWidgetContent: View {
                 Text(note).font(.system(size: 9)).opacity(0.75).lineLimit(1).minimumScaleFactor(0.7)
             }
         }
+    }
+
+    /// "Ø 7,1°, Normal 8,0° (−0,9 K)" from the complete days of the month.
+    static func monthNote(_ d: HistoryWidgetData) -> String? {
+        guard let mean = d.monthMean else { return d.monthDeviation.map(deviationText) }
+        var text = "Ø " + Fmt.temp(mean, decimals: 1)
+        if let normal = d.monthNormalMean { text += ", Normal " + Fmt.temp(normal, decimals: 1) }
+        if let dev = d.monthDeviation { text += " (" + (dev > 0 ? "+" : "") + Fmt.number(dev, decimals: 1) + " K)" }
+        return text
     }
 
     /// "−0,9 K zum Normal" (mean of the complete days).
