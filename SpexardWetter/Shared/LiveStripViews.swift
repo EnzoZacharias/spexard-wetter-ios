@@ -62,8 +62,7 @@ struct LiveStripWidget: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(s.shortPlace)
                         .font(.system(size: 10, weight: .semibold))
-                    Text(live.temp.shortSource + " " + Fmt.time(live.temp.time))
-                        .font(.system(size: 8))
+                    RefreshTimeButton(text: live.temp.shortSource + " " + Fmt.time(live.temp.time), font: .system(size: 8))
                         .opacity(0.7)
                 }
                 .lineLimit(1)
@@ -142,7 +141,7 @@ struct LiveStripWidget: View {
             HStack(spacing: 8) {
                 Text("Kurve: Temperatur, gestrichelt: Taupunkt · Zeilen: Regen mm in 3 h · Regenrisiko % · Wolken % · Wind · Böen km/h · Pfeil: wohin der Wind weht")
                 Spacer(minLength: 0)
-                Text(Fmt.time(live.temp.time ?? s.stand))
+                RefreshTimeButton(text: Fmt.time(live.temp.time ?? s.stand), font: .system(size: 8))
             }
             .font(.system(size: 8))
             .opacity(0.6)

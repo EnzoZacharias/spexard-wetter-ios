@@ -94,8 +94,7 @@ struct MediumWidget: View {
                             Text(s.shortPlace).font(.footnote.weight(.semibold)).lineLimit(1)
                             WidgetWarningMark(snapshot: s)
                         }
-                        Text(s.offline ? "Stand \(Fmt.time(s.time ?? s.stand))" : Fmt.time(s.time ?? s.stand))
-                            .font(.caption2)
+                        RefreshTimeButton(text: s.offline ? "Stand \(Fmt.time(s.time ?? s.stand))" : Fmt.time(s.time ?? s.stand))
                             .opacity(0.7)
                         HStack(alignment: .center, spacing: 6) {
                             Text(Fmt.temp(s.temp))

@@ -122,8 +122,7 @@ struct HistoryWidgetContent: View {
                 valueLine("arrow.up", d.todayHigh, color: Palette.warm, size: 28)
                 Spacer(minLength: 0)
                 if let hours = d.todayHours {
-                    Text("\(hours) Stunden mit Daten · \(Fmt.time(d.stand))")
-                        .font(.system(size: 9))
+                    RefreshTimeButton(text: "\(hours) Stunden mit Daten · \(Fmt.time(d.stand))", font: .system(size: 9))
                         .opacity(0.7)
                 }
             }
