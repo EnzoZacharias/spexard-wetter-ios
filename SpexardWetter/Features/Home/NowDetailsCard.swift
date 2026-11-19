@@ -68,7 +68,12 @@ struct NowDetailsCard: View {
         if !items.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 CardTitle("Jetzt im Detail", systemImage: "list.bullet.rectangle")
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], alignment: .leading, spacing: 10) {
+                // top-aligned: a two-line value (wind with direction) must not push its neighbour down to the middle
+                LazyVGrid(
+                    columns: [GridItem(.flexible(), spacing: 10, alignment: .topLeading), GridItem(.flexible(), spacing: 10, alignment: .topLeading)],
+                    alignment: .leading,
+                    spacing: 10
+                ) {
                     ForEach(items) { tile in
                         HStack(alignment: .top, spacing: 2) {
                             HStack(alignment: .top, spacing: 8) {
@@ -81,7 +86,11 @@ struct NowDetailsCard: View {
                                     Text(tile.title).font(.caption2).opacity(0.75)
                                     Text(tile.value).font(.callout.weight(.semibold))
                                     if let note = tile.note {
-                                        Text(note).font(.caption2).opacity(0.65).lineLimit(1).minimumScaleFactor(0.8)
+                                        Text(note)
+                                            .font(.caption2)
+                                            .opacity(0.65)
+                                            .lineLimit(2)
+                                            .fixedSize(horizontal: false, vertical: true)
                                     }
                                 }
                             }
