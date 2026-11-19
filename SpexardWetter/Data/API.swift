@@ -16,7 +16,7 @@ enum ServerSettings {
         return saved.isEmpty ? builtIn : saved
     }
 
-    /// "192.168.178.106:8080" -> "http://192.168.178.106:8080"; trailing slashes removed.
+    /// "homeassistant.local:8080" -> "http://homeassistant.local:8080"; trailing slashes removed.
     static func normalized(_ raw: String) -> String {
         var text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         while text.hasSuffix("/") { text.removeLast() }
