@@ -75,6 +75,9 @@ jobs:
             xcrun simctl io "$DEVICE" screenshot "screenshots/$name.png" >/dev/null
           }
           xcrun simctl ui "$DEVICE" appearance light
+          # warm-up launch: the system notifications after the first boot fade out before the first shot
+          WAIT=25 shot warmup
+          rm -f screenshots/warmup.png
           shot home
           shot days -scrollDays
           shot tag -showDay 2026-11-05
