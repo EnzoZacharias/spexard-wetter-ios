@@ -130,7 +130,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
 - [x] Startseiten-Karte Umwelt mit Biowetter der nächsten Tageshälfte (stärkste Stufe, in wie vielen der sechs Bereiche)
       und Tageslänge (`-scrollUmwelt`); andere Orte zeigen die Frost- und Böen-Hinweise des Servers (`hinweise` von `/ort`);
-      Orte-Knopf ohne eigene Kapsel (das Glas der Leiste reicht)
+      Orte-Knopf ohne eigene Kapsel (das Glas der Leiste reicht); Testszenario `belastung` auch mit „hoher Gefährdung“
+      im Biowetter samt Hinweis (`belastung-biowetter`)
 - [x] Umwelt: Biowetter des DWD (Gefahrenindizes für Wetterfühlige, NRW) je Tageshälfte als Chips, sechs Formkreise
       mit Farbe der Stufe und dem Wortlaut des DWD, thermische Belastung, Empfehlungen, Hinweis bei „hoher Gefährdung“;
       Sonnenbogen sagt nachts, wann die Sonne aufgeht; Beispieldaten und Lexikon von v2 (9da6d34)
@@ -168,8 +169,6 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [ ] Widget „Ort nach Wahl“ auf dem Gerät prüfen (Suche im Widget-Editor, Aktualisierung stündlich)
 - [ ] Umwelt & Himmel auf dem Gerät prüfen, sobald der Pi `/api/v1/umwelt` hat (bis dahin bleibt die Startseiten-Karte
       weg, die Seite und Siri sagen, dass der Server ein Update braucht); das mitgelieferte Lexikon hat die neuen Einträge
-- [ ] Testszenario `-scenario belastung` bei Bedarf um Biowetter mit „hoher Gefährdung“ erweitern (Hinweis am Biowetter
-      bisher nur aus dem Code, nicht aus einem Screenshot geprüft)
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
 - [ ] Widget „Messwert“ auf dem Gerät prüfen (Einstellung „Widget bearbeiten“, Aktualisierung)
 - [ ] Siri auf dem Gerät prüfen (Siri-Sprache Deutsch; „Spexard“ muss Siri verstehen, sonst eigenen Kurzbefehl anlegen)

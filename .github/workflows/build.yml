@@ -148,6 +148,7 @@ jobs:
           # made-up pollen, UV and air values (mock_umwelt_szenario_belastung.json)
           shot belastung-umwelt -screen umwelt -scrollBottom -scenario belastung
           shot belastung-pollen -screen umwelt -scrollBottom -option pollen -scenario belastung
+          shot belastung-biowetter -screen umwelt -scrollBottom -option bio -scenario belastung
           xcrun simctl ui "$DEVICE" appearance dark
           shot home-dark
           ls -la screenshots

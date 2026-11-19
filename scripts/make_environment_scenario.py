@@ -5,9 +5,9 @@
 
 The recorded answer of /api/v1/umwelt is from November: no pollen, UV 0 to 1, good air. To see the
 pollen table, the UV colours and the notes at the values, this script writes a modified copy of
-the app's mock: `SpexardWetter/Resources/mock_umwelt_szenario_belastung.json`. The pollen, UV and
-air values are MADE UP; the two notes follow the wording of the server's rules for these values
-(wetter-mcp `src/wetter_mcp/web/glossary/rules.py`, `_pollen` and `_uv`). Sun and moon stay as
+the app's mock: `SpexardWetter/Resources/mock_umwelt_szenario_belastung.json`. The pollen, UV, air
+and health weather values are MADE UP; the notes follow the wording of the server's rules for these
+values (wetter-mcp `src/wetter_mcp/web/glossary/rules.py`, `_pollen`, `_uv` and `_biowetter`). Sun and moon stay as
 recorded. The app reads this file only with `-mock -scenario belastung`; never as real data.
 """
 
@@ -51,6 +51,28 @@ def main() -> int:
     for value in luft["werte"]:
         if value["id"] in AIR:
             value["wert"], value["index"], value["text"] = AIR[value["id"]]
+    # made up: high risk for blood pressure in the first half day
+    bio_note = None
+    sections = (out.get("biowetter") or {}).get("abschnitte") or []
+    if sections:
+        first = sections[0]
+        for effect in first["wirkungen"]:
+            if effect.get("kurz") == "Herz-Kreislauf bei Bluthochdruck":
+                effect["wert"], effect["stufe"] = "hohe Gefährdung", "hoch"
+        advice = next((e["wert"] for e in first.get("empfehlungen") or [] if "Kreislauf" in (e.get("name") or "")), None)
+        when = f"{first['tag']} {first['teil']}"
+        bio_note = {
+            "id": "biowetter",
+            "stufe": "hinweis",
+            "text": f"Hohe Gefährdung durch das Wetter {when}: Herz-Kreislauf bei Bluthochdruck. Wetterfühlige "
+            "Menschen spüren solche Wetterwechsel oft deutlich" + (f" – der DWD rät: {advice}." if advice else "."),
+            "wert": "hohe Gefährdung",
+            "einheit": None,
+            "wann": when,
+            "quelle": "DWD-Biowetter, NRW",
+            "bezug": "umwelt.biowetter",
+            "titel": "Was heißt das jetzt",
+        }
     region = out["pollen"]["region"]
     out["hinweise"] = [
         {
@@ -78,6 +100,8 @@ def main() -> int:
             "titel": "Was heißt das jetzt",
         },
     ]
+    if bio_note:
+        out["hinweise"].append(bio_note)
     text = json.dumps(out, ensure_ascii=False, separators=(",", ":"))
     target = RES / "mock_umwelt_szenario_belastung.json"
     target.write_text(text + "\n", encoding="utf-8", newline="\n")
