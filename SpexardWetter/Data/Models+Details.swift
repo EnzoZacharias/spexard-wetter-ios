@@ -105,13 +105,18 @@ struct MeasurementsResponse: Decodable {
     let sun: [HoursResponse.Sun]?
     let sourceErrors: [SourceProblem]?
 
-    /// Hourly values of a measure from its primary station ("temperature_c").
+    /// Hourly values of a measure from its primary station ("temperature_c"). The dictionary keys
+    /// come as the server sends them or camel-cased, depending on the iOS version's JSONDecoder
+    /// (whether the key strategy also renames dictionary keys), so both spellings are tried.
     func series(_ measure: String) -> (station: Station, values: [Double?])? {
-        let key = APIClient.camelCase(measure)
-        let stationId = primary?[key]
-        let station = stations.first { $0.id == stationId && $0.series?[key] != nil }
-            ?? stations.first { $0.series?[key] != nil }
-        guard let station, let s = station.series?[key] else { return nil }
+        let keys = [measure, APIClient.camelCase(measure)]
+        func values(_ s: Station) -> Series<Double>? {
+            keys.lazy.compactMap { s.series?[$0] }.first
+        }
+        let stationId = keys.lazy.compactMap { primary?[$0] }.first
+        let station = stations.first { $0.id == stationId && values($0) != nil }
+            ?? stations.first { values($0) != nil }
+        guard let station, let s = values(station) else { return nil }
         return (station, s.expanded(time.count))
     }
 }
