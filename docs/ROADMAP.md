@@ -129,7 +129,9 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
 - [x] Startseiten-Karte Umwelt mit Biowetter der nächsten Tageshälfte (stärkste Stufe, in wie vielen der sechs Bereiche)
-      und Tageslänge (`-scrollUmwelt`); andere Orte zeigen die Frost- und Böen-Hinweise des Servers (`hinweise` von `/ort`);
+      und Tageslänge (`-scrollUmwelt`); andere Orte zeigen die Frost- und Böen-Hinweise des Servers (`hinweise` von `/ort`),
+      den nächsten Regen in Worten (Regel der Webseite) und den Radar-Nowcast am Ort (`nowcast`, Satz wie zu Hause;
+      im Beispiel noch ohne, daher ohne Screenshot);
       Orte-Knopf ohne eigene Kapsel (das Glas der Leiste reicht); Testszenario `belastung` auch mit „hoher Gefährdung“
       im Biowetter samt Hinweis (`belastung-biowetter`)
 - [x] Umwelt: Biowetter des DWD (Gefahrenindizes für Wetterfühlige, NRW) je Tageshälfte als Chips, sechs Formkreise

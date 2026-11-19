@@ -12,8 +12,8 @@ Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darste
   dem Finger und „Radar am Standort“
 - **Bericht**: Wetterbericht für heute, das Wochenende und die Woche
 - **Andere Orte** (`/api/v1/orte/suche`, `/api/v1/ort`): „Orte“ oben links im Wetter-Tab; Suche (erst beim Absenden),
-  Favoriten nur auf dem Gerät; für andere Orte eine schlanke Ansicht (Modellwert jetzt, Warnungen der Gemeinde,
-  48 Stunden, 16 Tage). Spexard behält alles; Widgets und Siri zeigen weiter Spexard, außer dem Widget
+  Favoriten nur auf dem Gerät; für andere Orte eine schlanke Ansicht (Modellwert jetzt, nächster Regen, Radar-Nowcast,
+  Warnungen und Hinweise der Gemeinde, 48 Stunden, 16 Tage). Spexard behält alles; Widgets und Siri zeigen weiter Spexard, außer dem Widget
   „Ort nach Wahl“ (klein, mittel, Sperrbildschirm; Ort per „Widget bearbeiten“ mit der Suche des Servers)
 - **Umwelt & Himmel** (`/api/v1/umwelt`): Sonne (Bogen über den Tag, Tageslänge und Änderung, bürgerliche
   Dämmerung, Höchststand, 7 Tage), Mond (Phase, Beleuchtung, Auf-/Untergang, nächste Hauptphasen),

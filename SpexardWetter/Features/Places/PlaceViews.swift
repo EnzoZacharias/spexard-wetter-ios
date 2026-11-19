@@ -170,6 +170,9 @@ struct PlaceLiteScreen: View {
                         ForEach(data.hinweise ?? [], id: \.self) { note in
                             NoteCallout(note: note)
                         }
+                        if let nowcast = data.nowcast {
+                            PlaceNowcastCard(summary: nowcast)
+                        }
                         HourlyStrip(items: data.hourItems(), sunEvents: data.sunEvents(), title: "Nächste 48 Stunden", modes: [.regen, .wind])
                         let days = data.dayItems(reference: reference)
                         DailyList(items: days, range: Self.range(days))
@@ -276,6 +279,31 @@ struct PlaceHeader: View {
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// Rain in the next two hours at the place (DWD radar nowcast, the same sentence as at home).
+struct PlaceNowcastCard: View {
+    let summary: NowcastResponse.Summary
+
+    var body: some View {
+        let headline = NowcastResponse(generatedAt: nil, summary: summary, radar5min: nil, sourceErrors: nil).headline
+        VStack(alignment: .leading, spacing: 6) {
+            CardTitle(
+                "Regen in 2 Stunden",
+                systemImage: "cloud.rain",
+                trailing: Fmt.parse(summary.radarAnalysis).map { "Radar \(Fmt.time($0))" },
+                info: "nowcast"
+            )
+            Text(headline).font(.title3.weight(.semibold))
+            if let text = summary.text, !text.isEmpty {
+                Text(text).font(.footnote).opacity(0.9).fixedSize(horizontal: false, vertical: true)
+            }
+            if let mm = summary.expectedMm, mm > 0 {
+                Text("Erwartete Menge \(Fmt.precip(mm))").font(.caption).opacity(0.85)
+            }
+        }
+        .card()
     }
 }
 
