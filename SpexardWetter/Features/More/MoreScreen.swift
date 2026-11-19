@@ -15,6 +15,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
     case modellguete
     case status
     case widgets
+    case siri
     case lexikon
 
     var id: String { rawValue }
@@ -34,6 +35,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .modellguete: return ("Modellgüte", "Welches Modell lag zuletzt richtig?", "checkmark.seal.fill", "/verifikation")
         case .status: return ("Status", "Zustand des Wetterservers und der Quellen", "server.rack", "/status")
         case .widgets: return ("Widgets", "Vorschau für Home- und Sperrbildschirm", "rectangle.3.group.fill", nil)
+        case .siri: return ("Siri & Kurzbefehle", "„Wie warm ist es im Garten?“, Regen, Warnungen", "mic.fill", nil)
         case .lexikon: return ("Lexikon", "CAPE, Inversion, NAO, Taupunkt … einfach erklärt", "book.fill", "/glossar")
         }
     }
@@ -52,7 +54,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         MoreGroup(title: "Vorhersage", items: [.meteogramm, .modelle, .ensembles, .trend]),
         MoreGroup(title: "Hintergrund", items: [.grosswetterlage, .profil, .modellguete]),
         MoreGroup(title: "Wissen", items: [.lexikon]),
-        MoreGroup(title: "App und Server", items: [.widgets, .status]),
+        MoreGroup(title: "App und Server", items: [.widgets, .siri, .status]),
     ]
 
     @MainActor @ViewBuilder
@@ -71,6 +73,7 @@ enum MoreDestination: String, Hashable, CaseIterable, Identifiable {
         case .modellguete: VerificationScreen()
         case .status: StatusScreen()
         case .widgets: WidgetPreviewScreen()
+        case .siri: SiriScreen()
         case .lexikon: LexikonScreen()
         }
     }
