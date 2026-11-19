@@ -106,12 +106,7 @@ enum SiriAnswers {
     }
 
     /// "Amtliche WARNUNG vor STURMBÖEN" -> "Amtliche Warnung vor Sturmböen" (no shouting in speech).
-    static func calm(_ text: String) -> String {
-        text.split(separator: " ").map { word -> String in
-            let w = String(word)
-            return w.count > 1 && w == w.uppercased() && w.rangeOfCharacter(from: .letters) != nil ? w.capitalized : w
-        }.joined(separator: " ")
-    }
+    static func calm(_ text: String) -> String { CalmText.calm(text) }
 
     // MARK: environment
 

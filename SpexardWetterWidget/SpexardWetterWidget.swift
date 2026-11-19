@@ -229,6 +229,118 @@ struct SpexardMeasurementWidget: Widget {
     }
 }
 
+// MARK: - Ort (configurable: a place of choice)
+
+/// A place found by the server's search. Everything the widget needs sits in the id, so the
+/// widget needs no list of places on the device (no App Group): "52.09|8.74|Bad Salzuflen|Kreis Lippe".
+struct PlaceEntity: AppEntity {
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Ort"
+    static var defaultQuery = PlaceEntityQuery()
+
+    let id: String
+
+    init(_ place: Place) {
+        id = [String(format: "%.2f", place.lat), String(format: "%.2f", place.lon), place.name, place.region ?? ""]
+            .map { $0.replacingOccurrences(of: "|", with: "/") }
+            .joined(separator: "|")
+    }
+
+    init?(id: String) {
+        let parts = id.components(separatedBy: "|")
+        guard parts.count >= 3, Double(parts[0]) != nil, Double(parts[1]) != nil else { return nil }
+        self.id = id
+    }
+
+    var place: Place? {
+        let parts = id.components(separatedBy: "|")
+        guard parts.count >= 3, let lat = Double(parts[0]), let lon = Double(parts[1]) else { return nil }
+        let region = parts.count > 3 && !parts[3].isEmpty ? parts[3] : nil
+        return Place(id: 0, name: parts[2], region: region, lat: lat, lon: lon, hoeheM: nil)
+    }
+
+    var displayRepresentation: DisplayRepresentation {
+        let p = place
+        return DisplayRepresentation(title: "\(p?.name ?? "Ort")", subtitle: "\(p?.region ?? "")")
+    }
+}
+
+/// The search of the server while typing in the widget's settings (each text is one request).
+struct PlaceEntityQuery: EntityStringQuery {
+    func entities(for identifiers: [PlaceEntity.ID]) async throws -> [PlaceEntity] {
+        identifiers.compactMap { PlaceEntity(id: $0) }
+    }
+
+    func entities(matching string: String) async throws -> [PlaceEntity] {
+        let text = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard text.count >= 2 else { return [] }
+        let answer: Fetched<PlaceSearchResponse> = try await APIClient().fetch(.placeSearch(text), timeout: 15)
+        return (answer.value.treffer ?? []).map { PlaceEntity($0) }
+    }
+
+    func suggestedEntities() async throws -> [PlaceEntity] { [] }
+}
+
+struct PlaceWidgetIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Ort"
+    static var description = IntentDescription("Für welchen Ort in Deutschland das Widget die Vorhersage zeigt.")
+
+    @Parameter(title: "Ort")
+    var ort: PlaceEntity?
+}
+
+struct PlaceEntry: TimelineEntry {
+    let date: Date
+    let placeName: String?
+    let data: PlaceWidgetData?
+    var placeholder = false
+}
+
+struct PlaceProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> PlaceEntry {
+        PlaceEntry(date: Date(), placeName: "Ort", data: nil, placeholder: true)
+    }
+
+    func snapshot(for configuration: PlaceWidgetIntent, in context: Context) async -> PlaceEntry {
+        await entry(configuration)
+    }
+
+    /// Model values change with the model runs: the next load after an hour (20 minutes after a failure).
+    func timeline(for configuration: PlaceWidgetIntent, in context: Context) async -> Timeline<PlaceEntry> {
+        let e = await entry(configuration)
+        let minutes: Double = e.data == nil ? 20 : 60
+        return Timeline(entries: [e], policy: .after(Date().addingTimeInterval(minutes * 60)))
+    }
+
+    private func entry(_ configuration: PlaceWidgetIntent) async -> PlaceEntry {
+        guard let place = configuration.ort?.place else { return PlaceEntry(date: Date(), placeName: nil, data: nil) }
+        return PlaceEntry(date: Date(), placeName: place.name, data: await PlaceWidgetData.load(place))
+    }
+}
+
+struct PlaceWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: PlaceEntry
+
+    var body: some View {
+        PlaceWidgetContent(family: family, data: entry.data, placeName: entry.placeName, placeholder: entry.placeholder)
+            .containerBackground(for: .widget) {
+                BackgroundGradient(night: true)
+            }
+    }
+}
+
+/// The lean forecast of a place of choice (not Spexard: that is what the other widgets show).
+struct SpexardPlaceWidget: Widget {
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: "SpexardOrt", intent: PlaceWidgetIntent.self, provider: PlaceProvider()) { entry in
+            PlaceWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Ort nach Wahl")
+        .description("Vorhersage für einen anderen Ort in Deutschland (Modellwerte, Warnungen der Gemeinde). Den Ort wählt man mit „Widget bearbeiten“.")
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
+    }
+}
+
 @main
 struct SpexardWidgetBundle: WidgetBundle {
     var body: some Widget {
@@ -237,5 +349,6 @@ struct SpexardWidgetBundle: WidgetBundle {
         SpexardRainWidget()
         SpexardHistoryWidget()
         SpexardMeasurementWidget()
+        SpexardPlaceWidget()
     }
 }
