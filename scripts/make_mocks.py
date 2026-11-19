@@ -47,6 +47,7 @@ MOCKS: dict[str, str] = {
     "mock_nowcast_full": "rain_nowcast__detail-full.json",
     "mock_profil_schnitt_icon_d2": "api/profil__schnitt__modell-icon_d2.json",
     "mock_profil_schnitt_ecmwf": "api/profil__schnitt__modell-ecmwf.json",
+    "mock_umwelt": "api/umwelt.json",
 }
 
 # keys the app does not read, per mock (keeps the files small)
