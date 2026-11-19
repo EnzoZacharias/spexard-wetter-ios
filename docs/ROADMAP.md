@@ -128,6 +128,9 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
 - [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
+- [x] Widget „Messwert“ auch mit Luftqualität (UBA-Index), Pollen heute (stärkste Art und weitere), UV-Index heute
+      (und morgen) und Mond (Beleuchtung, Phase) aus `/api/v1/umwelt`; Siri „Spexard Wetter Pollen“ / „Wie ist die Luft
+      bei Spexard Wetter?“ sagt Luft, Pollen, UV, Sonne und Mond; bei altem Server sagt Siri, dass er ein Update braucht
 - [x] Andere Orte (`/api/v1/orte/suche`, `/api/v1/ort`): Knopf „Orte“ oben links im Wetter-Tab, Liste mit Heimat,
       „Meine Orte“ (nur UserDefaults, Wischen zum Löschen) und Suche erst beim Absenden (Stern = merken); ein gewählter
       Ort ersetzt den Wetter-Tab durch die Lite-Ansicht: Modellwert der laufenden Stunde (ausdrücklich keine Messung,
