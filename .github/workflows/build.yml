@@ -112,6 +112,7 @@ jobs:
           shot widgets-gross -screen widgets -option gross
           shot widgets-historie -screen widgets -option historie
           shot widgets-messwert -screen widgets -option messwert
+          shot widgets-ort -screen widgets -option ort
           WAIT=10 shot siri -screen siri
           shot gefahren -screen warnungen -scrollBottom
           shot umwelt -screen umwelt

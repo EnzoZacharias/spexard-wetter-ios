@@ -7,6 +7,8 @@ struct WidgetPreviewScreen: View {
     @State private var history: HistoryWidgetData?
     @State private var now: WeatherNow?
     @State private var environment: EnvironmentResponse?
+    @State private var place: Place?
+    @State private var placeData: PlaceWidgetData?
     @State private var loaded = false
 
     var body: some View {
@@ -19,7 +21,7 @@ struct WidgetPreviewScreen: View {
             .task {
                 if !loaded { await reload() }
                 // screenshots: `-screen widgets -option gross` starts at the large widget
-                if let target = LaunchArgs.option, ["gross", "historie", "messwert"].contains(target) {
+                if let target = LaunchArgs.option, ["gross", "historie", "messwert", "ort"].contains(target) {
                     try? await Task.sleep(nanoseconds: 400_000_000)
                     proxy.scrollTo(target, anchor: .top)
                 }
@@ -93,6 +95,20 @@ struct WidgetPreviewScreen: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .id("messwert")
+            section("Ort nach Wahl") {
+                HStack(alignment: .top, spacing: 14) {
+                    placeWidget(.systemSmall, width: 170, height: 170)
+                    placeAccessory()
+                }
+                placeWidget(.systemMedium, width: 364, height: 170)
+                Text(place == nil
+                    ? "Noch kein Ort gewählt: im Widget „Widget bearbeiten“ antippen und einen Ort suchen. Die Vorschau zeigt den ersten Ort aus „Meine Orte“."
+                    : "Vorschau mit \(place?.name ?? "") aus „Meine Orte“; im Widget wählt man den Ort mit „Widget bearbeiten“.")
+                    .font(.caption)
+                    .opacity(0.85)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .id("ort")
             section("Regen in 2 Stunden") {
                 rainWidget()
                 accessoryRain()
@@ -116,7 +132,27 @@ struct WidgetPreviewScreen: View {
         history = await past
         now = (try? await current)?.value
         environment = (try? await env)?.value
+        let chosen = await MainActor.run { PlaceStore.shared.favorites.first ?? (APIClient.isMock ? PlaceStore.mockPlace : nil) }
+        place = chosen
+        if let chosen { placeData = await PlaceWidgetData.load(chosen) }
         loaded = true
+    }
+
+    private func placeWidget(_ family: WidgetFamily, width: CGFloat, height: CGFloat) -> some View {
+        PlaceWidgetContent(family: family, data: placeData, placeName: place?.name, placeholder: !loaded)
+            .padding(16)
+            .frame(width: width, height: height)
+            .background(BackgroundGradient(night: true))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.25)))
+    }
+
+    private func placeAccessory() -> some View {
+        PlaceWidgetContent(family: .accessoryRectangular, data: placeData, placeName: place?.name, placeholder: !loaded)
+            .foregroundStyle(.white)
+            .frame(width: 160, height: 76, alignment: .leading)
+            .padding(8)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.black.opacity(0.45)))
     }
 
     private func measurementData(_ kind: MeasurementKind) -> MeasurementWidgetData? {
