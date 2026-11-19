@@ -75,6 +75,13 @@ struct GlossaryEntryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
+            // the full term when the title above shows only its short form
+            if entry.shortName != entry.begriff {
+                Text(entry.begriff)
+                    .font(.title3.weight(.bold))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+            }
             Text(entry.kurz)
                 .font(.body.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
@@ -118,7 +125,7 @@ struct GlossarySheet: View {
             ScrollView {
                 GlossaryEntryView(entry: entry).padding(20)
             }
-            .navigationTitle(entry.begriff)
+            .navigationTitle(entry.shortName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

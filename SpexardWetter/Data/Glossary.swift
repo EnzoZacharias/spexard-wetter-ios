@@ -22,6 +22,16 @@ struct GlossaryEntry: Decodable, Identifiable, Hashable {
     let auffaelligAb: String?
 }
 
+extension GlossaryEntry {
+    /// The term without its explanation in brackets, for navigation titles:
+    /// "CAPE (konvektiv verfügbare potenzielle Energie)" -> "CAPE".
+    var shortName: String {
+        guard let cut = begriff.range(of: " (") else { return begriff }
+        let head = begriff[..<cut.lowerBound].trimmingCharacters(in: .whitespaces)
+        return head.isEmpty ? begriff : head
+    }
+}
+
 /// The glossary answer: the entries plus the category names.
 struct GlossaryResponse: Decodable {
     let entries: [GlossaryEntry]

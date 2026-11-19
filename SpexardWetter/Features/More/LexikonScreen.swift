@@ -90,7 +90,7 @@ struct LexikonEntryScreen: View {
                 .padding(16)
         }
         .screenBackground()
-        .navigationTitle(entry.begriff)
+        .navigationTitle(entry.shortName)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
