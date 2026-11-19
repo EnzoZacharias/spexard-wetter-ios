@@ -118,6 +118,7 @@ jobs:
           shot gefahren -screen warnungen -scrollBottom
           shot umwelt -screen umwelt
           shot umwelt-unten -screen umwelt -scrollBottom
+          shot umwelt-biowetter -screen umwelt -scrollBottom -option bio
           shot messwerte -screen messwerte
           shot historie -screen historie
           shot historie-monate -screen historie -option monate

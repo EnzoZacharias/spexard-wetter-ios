@@ -16,10 +16,10 @@ struct EnvironmentScreen: View {
             }
             .task {
                 await loader.loadIfNeeded(.environment, maxAge: 600)
-                // screenshots: `-scrollBottom` starts at the air quality (`-option pollen`: at the pollen)
+                // screenshots: `-scrollBottom` starts at the air quality (`-option pollen` / `bio`: there)
                 if ProcessInfo.processInfo.arguments.contains("-scrollBottom") {
                     try? await Task.sleep(nanoseconds: 400_000_000)
-                    proxy.scrollTo(LaunchArgs.option == "pollen" ? "pollen" : "luft", anchor: .top)
+                    proxy.scrollTo(["pollen", "bio"].contains(LaunchArgs.option ?? "") ? LaunchArgs.option ?? "luft" : "luft", anchor: .top)
                 }
             }
         }
@@ -91,7 +91,7 @@ struct EnvironmentContent: View {
                 missing("UV-Index", "Der UV-Gefahrenindex des DWD fehlt gerade.")
             }
             if let bio = data.biowetter, let sections = bio.abschnitte, !sections.isEmpty {
-                BioCard(bio: bio, sections: sections, notes: notes("biowetter"))
+                BioCard(bio: bio, sections: sections, notes: notes("biowetter")).id("bio")
             }
             ForEach(data.sourceErrors ?? [], id: \.self) { problem in
                 Label("\(problem.source ?? "Quelle"): \(problem.message ?? "nicht erreichbar")", systemImage: "exclamationmark.circle")
@@ -221,7 +221,7 @@ struct SunArc: View {
                     Text(nightText)
                         .font(.caption.weight(.semibold))
                         .opacity(0.85)
-                        .position(x: w / 2, y: base - height / 2)
+                        .position(x: w / 2, y: base - height * 0.25)
                 }
             }
         }
