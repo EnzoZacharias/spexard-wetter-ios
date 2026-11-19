@@ -4,7 +4,7 @@ import WidgetKit
 
 /// The quantity of the "Messwert" widget, chosen in the widget's settings (long press → Widget bearbeiten).
 enum MeasurementKind: String, AppEnum, CaseIterable {
-    case temperatur, taupunkt, feuchte, wind, boeen, luftdruck, regen, sicht
+    case temperatur, taupunkt, feuchte, wind, boeen, luftdruck, regen, sicht, luft, pollen, uv, mond
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Messgröße"
     static var caseDisplayRepresentations: [MeasurementKind: DisplayRepresentation] = [
@@ -16,7 +16,14 @@ enum MeasurementKind: String, AppEnum, CaseIterable {
         .luftdruck: "Luftdruck",
         .regen: "Regen der letzten Stunde",
         .sicht: "Sichtweite",
+        .luft: "Luftqualität (UBA)",
+        .pollen: "Pollenflug heute",
+        .uv: "UV-Index heute",
+        .mond: "Mond",
     ]
+
+    /// Values of `/api/v1/umwelt` instead of `weather_now`.
+    var isEnvironment: Bool { [.luft, .pollen, .uv, .mond].contains(self) }
 
     var label: String {
         switch self {
@@ -28,6 +35,10 @@ enum MeasurementKind: String, AppEnum, CaseIterable {
         case .luftdruck: return "Luftdruck"
         case .regen: return "Regen 1 h"
         case .sicht: return "Sicht"
+        case .luft: return "Luft"
+        case .pollen: return "Pollen"
+        case .uv: return "UV-Index"
+        case .mond: return "Mond"
         }
     }
 
@@ -41,6 +52,10 @@ enum MeasurementKind: String, AppEnum, CaseIterable {
         case .luftdruck: return "gauge.with.dots.needle.33percent"
         case .regen: return "cloud.rain"
         case .sicht: return "eye"
+        case .luft: return "aqi.medium"
+        case .pollen: return "leaf.fill"
+        case .uv: return "sun.max.trianglebadge.exclamationmark"
+        case .mond: return "moon.stars.fill"
         }
     }
 }
@@ -62,8 +77,60 @@ struct MeasurementWidgetData {
     let offline: Bool
 
     static func load(_ kind: MeasurementKind) async -> MeasurementWidgetData? {
+        if kind.isEnvironment {
+            guard let result: Fetched<EnvironmentResponse> = try? await APIClient().fetch(.environment, timeout: 15) else { return nil }
+            return MeasurementWidgetData(kind, environment: result.value, offline: result.fromCache)
+        }
         guard let result: Fetched<WeatherNow> = try? await APIClient().fetch(.now, timeout: 15) else { return nil }
         return MeasurementWidgetData(kind, now: result.value, offline: result.fromCache)
+    }
+
+    /// Air, pollen, UV and moon from `/api/v1/umwelt` (nil while the server has none).
+    init?(_ kind: MeasurementKind, environment e: EnvironmentResponse, offline: Bool) {
+        self.kind = kind
+        self.offline = offline
+        model = nil
+        switch kind {
+        case .luft:
+            guard let air = e.luft, let text = air.text else { return nil }
+            value = text
+            measured = true
+            source = "UBA " + (air.station ?? "Station")
+            time = Fmt.parse(air.stand)
+            extra = air.index.map { "Index \($0) von 4" }
+        case .pollen:
+            guard let types = e.pollen?.arten, !types.isEmpty else { return nil }
+            let today = types.compactMap { t -> (String, EnvironmentResponse.PollenDay)? in
+                guard let d = t.heute, (d.wert ?? 0) > 0 else { return nil }
+                return (t.name ?? t.id, d)
+            }.sorted { ($0.1.wert ?? 0) > ($1.1.wert ?? 0) }
+            if let top = today.first {
+                value = top.0 + " " + (top.1.stufe ?? "").replacingOccurrences(of: "-", with: "–")
+                extra = today.count > 1 ? today.dropFirst().prefix(2).map { "\($0.0) \(($0.1.stufe ?? "").replacingOccurrences(of: "-", with: "–"))" }.joined(separator: " · ") : top.1.text
+            } else {
+                value = "keine"
+                extra = "keine der \(types.count) Arten"
+            }
+            measured = false
+            source = "DWD Ostwestfalen"
+            time = Fmt.parse(e.pollen?.ausgabe)
+        case .uv:
+            guard let day = e.uv?.heute, let index = day.uvIndex else { return nil }
+            value = Fmt.number(index, decimals: 0)
+            measured = false
+            extra = [day.stufe, e.uv?.morgen?.uvIndex.map { "morgen " + Fmt.number($0, decimals: 0) }].compactMap { $0 }.joined(separator: " · ")
+            source = "DWD " + (e.uv?.ort ?? "")
+            time = Fmt.parse(e.uv?.ausgabe)
+        case .mond:
+            guard let moon = e.astro?.mond, let pct = moon.beleuchtungPct else { return nil }
+            value = "\(Int(pct.rounded())) %"
+            measured = false
+            extra = moon.phase
+            source = "berechnet"
+            time = Fmt.parse(moon.beleuchtungUm)
+        default:
+            return nil
+        }
     }
 
     init?(_ kind: MeasurementKind, now: WeatherNow, offline: Bool) {
@@ -123,6 +190,8 @@ struct MeasurementWidgetData {
             }
         case .sicht:
             filled = fill(n?.visibilityM) { Self.visibility($0) }
+        case .luft, .pollen, .uv, .mond:
+            return nil
         }
         guard let f = filled else { return nil }
         value = f.0

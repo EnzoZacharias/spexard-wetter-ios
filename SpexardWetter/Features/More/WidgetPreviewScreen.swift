@@ -6,6 +6,7 @@ struct WidgetPreviewScreen: View {
     @State private var snapshot: WidgetSnapshot?
     @State private var history: HistoryWidgetData?
     @State private var now: WeatherNow?
+    @State private var environment: EnvironmentResponse?
     @State private var loaded = false
 
     var body: some View {
@@ -78,7 +79,15 @@ struct WidgetPreviewScreen: View {
                     measurementAccessory(.luftdruck, family: .accessoryRectangular, width: 172, height: 76)
                     measurementAccessory(.feuchte, family: .accessoryCircular, width: 76, height: 76)
                 }
-                Text("Welcher Wert: Widget lange drücken, „Widget bearbeiten“ und die Messgröße wählen (Temperatur, Taupunkt, Luftfeuchte, Wind, Böen, Luftdruck, Regen der letzten Stunde, Sichtweite).")
+                HStack(alignment: .top, spacing: 14) {
+                    measurementWidget(.luft)
+                    measurementWidget(.mond)
+                }
+                HStack(alignment: .top, spacing: 14) {
+                    measurementAccessory(.pollen, family: .accessoryRectangular, width: 172, height: 76)
+                    measurementAccessory(.uv, family: .accessoryCircular, width: 76, height: 76)
+                }
+                Text("Welcher Wert: Widget lange drücken, „Widget bearbeiten“ und die Messgröße wählen (Temperatur, Taupunkt, Luftfeuchte, Wind, Böen, Luftdruck, Regen der letzten Stunde, Sichtweite, Luftqualität, Pollen, UV-Index, Mond).")
                     .font(.caption)
                     .opacity(0.85)
                     .fixedSize(horizontal: false, vertical: true)
@@ -102,14 +111,19 @@ struct WidgetPreviewScreen: View {
         async let main = WidgetSnapshot.load()
         async let past = HistoryWidgetData.load()
         async let current: Fetched<WeatherNow> = APIClient().fetch(.now)
+        async let env: Fetched<EnvironmentResponse> = APIClient().fetch(.environment)
         snapshot = await main
         history = await past
         now = (try? await current)?.value
+        environment = (try? await env)?.value
         loaded = true
     }
 
     private func measurementData(_ kind: MeasurementKind) -> MeasurementWidgetData? {
-        now.flatMap { MeasurementWidgetData(kind, now: $0, offline: false) }
+        if kind.isEnvironment {
+            return environment.flatMap { MeasurementWidgetData(kind, environment: $0, offline: false) }
+        }
+        return now.flatMap { MeasurementWidgetData(kind, now: $0, offline: false) }
     }
 
     private func measurementWidget(_ kind: MeasurementKind) -> some View {
