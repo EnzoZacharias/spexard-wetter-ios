@@ -128,6 +128,29 @@ struct PlaceForecastResponse: Decodable {
         }
     }
 
+    /// The next rain of the coming 12 hours, with the website's rule (`web/src/components/orte/words.ts`):
+    /// "Niederschlag ab etwa 02:00 Uhr", "Niederschlag bis etwa 18:00 Uhr" (wet now) or
+    /// "In den nächsten 12 Stunden trocken". An hourly sum covers the hour before its time.
+    func rainNext() -> String? {
+        guard let s = stunden, !s.zeit.isEmpty else { return nil }
+        let lookahead = 12
+        let n = min(lookahead + 1, s.zeit.count)
+        func wet(_ i: Int) -> Bool {
+            guard let list = s.niederschlagMm, list.indices.contains(i), let v = list[i] else { return false }
+            return v >= 0.1
+        }
+        func clock(_ i: Int) -> String { Fmt.time(Fmt.parse(s.zeit[i])) }
+        if wet(0) || wet(1) {
+            var end = 1
+            while end < n && wet(end) { end += 1 }
+            return end >= n ? "Niederschlag die nächsten \(lookahead) Stunden" : "Niederschlag bis etwa \(clock(end - 1)) Uhr"
+        }
+        for i in 1..<n where wet(i) {
+            return "Niederschlag ab etwa \(clock(i - 1)) Uhr"
+        }
+        return "In den nächsten \(lookahead) Stunden trocken"
+    }
+
     /// Sunrises and sunsets inside the hours.
     func sunEvents() -> [SunEvent] {
         let dates = (stunden?.zeit ?? []).compactMap { Fmt.parse($0) }

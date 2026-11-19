@@ -257,6 +257,9 @@ struct PlaceHeader: View {
             if let today, today.maxC != nil || today.minC != nil {
                 Text("Max \(Fmt.temp(today.maxC)) · Min \(Fmt.temp(today.minC))").font(.headline)
             }
+            if let rain = data.rainNext() {
+                Label(rain, systemImage: "cloud.rain").font(.footnote.weight(.semibold))
+            }
             HStack(spacing: 14) {
                 if let wind = now?.windKmh {
                     Label(Fmt.wind(wind) + (now?.windRichtungGrad.map { " aus " + Fmt.compass($0) } ?? ""), systemImage: "wind")

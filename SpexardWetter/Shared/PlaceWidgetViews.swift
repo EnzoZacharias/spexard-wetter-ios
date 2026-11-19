@@ -11,6 +11,8 @@ struct PlaceWidgetData {
     let max: Double?
     let min: Double?
     let rainProb: Double?
+    /// "Niederschlag ab etwa 02:00 Uhr" (next 12 hours).
+    let rainNext: String?
     /// Every third hour from now (medium widget).
     let hours: [HourItem]
     let warningTitle: String?
@@ -34,6 +36,7 @@ struct PlaceWidgetData {
         max = today?.maxC
         min = today?.minC
         rainProb = today?.regenWahrscheinlichkeitPct
+        rainNext = data.rainNext()
         hours = Array(data.hourItems().enumerated().filter { $0.offset % 3 == 0 }.map { $0.element }.prefix(5))
         let top = (data.warnungen ?? []).max { ($0.stufe ?? 0) < ($1.stufe ?? 0) }
         warningTitle = top.map { CalmText.calm($0.title) }
@@ -148,6 +151,8 @@ struct PlaceWidgetContent: View {
             Spacer(minLength: 0)
             if let warning = d.warningTitle {
                 Label(warning, systemImage: "exclamationmark.triangle.fill").font(.caption2.weight(.semibold)).lineLimit(1)
+            } else if let rain = d.rainNext {
+                Label(rain, systemImage: "cloud.rain").font(.caption2.weight(.semibold)).lineLimit(1)
             } else if let sky = d.sky {
                 Text(sky + (d.rainProb.map { " · Regenrisiko heute \(Fmt.percent($0))" } ?? "")).font(.caption2.weight(.semibold)).lineLimit(1)
             }
