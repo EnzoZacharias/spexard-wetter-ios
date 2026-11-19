@@ -167,7 +167,9 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [ ] Andere Orte auf dem Gerät prüfen, sobald der Pi `/api/v1/ort` hat (Tageskontingent 25 Orte; 503-Text erscheint in der Liste)
 - [ ] Widget „Ort nach Wahl“ auf dem Gerät prüfen (Suche im Widget-Editor, Aktualisierung stündlich)
 - [ ] Umwelt & Himmel auf dem Gerät prüfen, sobald der Pi `/api/v1/umwelt` hat (bis dahin bleibt die Startseiten-Karte
-      weg und die Seite sagt, dass der Server zu alt ist); mitgeliefertes Lexikon um die neuen Einträge ergänzen
+      weg, die Seite und Siri sagen, dass der Server ein Update braucht); das mitgelieferte Lexikon hat die neuen Einträge
+- [ ] Testszenario `-scenario belastung` bei Bedarf um Biowetter mit „hoher Gefährdung“ erweitern (Hinweis am Biowetter
+      bisher nur aus dem Code, nicht aus einem Screenshot geprüft)
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
 - [ ] Widget „Messwert“ auf dem Gerät prüfen (Einstellung „Widget bearbeiten“, Aktualisierung)
 - [ ] Siri auf dem Gerät prüfen (Siri-Sprache Deutsch; „Spexard“ muss Siri verstehen, sonst eigenen Kurzbefehl anlegen)
@@ -178,3 +180,5 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - Kein Mac: jeder Push auf `main` baut in GitHub Actions, macht Screenshots (`-mock`) und
   veröffentlicht die unsignierte IPA als Release `latest`.
 - Keine Adressen und keine genauen Koordinaten ins Repository (öffentlich).
+- Die Beispieldaten für Umwelt, Orte und das Lexikon stammen aus `wetter-mcp` v2 (9da6d34), geprüft mit
+  `privacy_problems()`; die IPA braucht für diese Seiten den Server-Stand v2 auf dem Pi.
