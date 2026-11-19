@@ -128,6 +128,14 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
 - [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
       Umbenennung an); jetzt werden beide Schreibweisen gesucht
+- [x] Umwelt & Himmel (`/api/v1/umwelt`, Mehr → Umwelt & Himmel und Karte auf der Startseite): Sonne mit Tagesbogen,
+      Tageslänge und Änderung zu gestern, bürgerlicher Dämmerung, Höchststand und 7 Tagen; Mond mit Phase (Symbol),
+      Beleuchtung, Alter, Auf-/Untergang in Zeitfolge und nächsten Hauptphasen; Luftqualität (UBA-Index in UBA-Farben,
+      Schadstoffe mit Klasse, 24-Stunden-Diagramm); Pollenflug (nur fliegende Arten als Tabelle heute/morgen/Tag 3,
+      sonst „keine Belastung“) und UV-Index (WHO-Farben); Hinweise des Servers direkt an der Karte; Lexikon-Knöpfe
+      (`pollenflug`, `uv_index`, `luftqualitaet`, `feinstaub`, `ozon`, `stickstoffdioxid`, `tageslaenge`, `daemmerung`,
+      `sonnenhoehe`, `mondphase`); „Gerade auffällig“ springt zu Umwelt; Beispieldaten aus dem echten Endpunkt-Code
+      (`mock_umwelt`), Testszenario `-scenario belastung` mit ausgedachten Werten
 - [x] Neues Widget „Messwert“ (einstellbar per App Intent, neue Art `SpexardMesswert`): klein, Sperrbildschirm rund,
       rechteckig und einzeilig; Wert der DWD-Station (Böen: stärkste der letzten Stunde), Station, Uhrzeit, Modellwert
       ICON-D2 daneben, Zusatz (Taupunkt: Spread, Wind/Böen: Richtung und Beaufort); Vorschau `-screen widgets -option messwert`
@@ -138,7 +146,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       auf dem Gerät prüfen
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
       Historie-Widget ist da (siehe oben)
-- [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
+- [ ] Umwelt & Himmel auf dem Gerät prüfen, sobald der Pi `/api/v1/umwelt` hat (bis dahin bleibt die Startseiten-Karte
+      weg und die Seite sagt, dass der Server zu alt ist); mitgeliefertes Lexikon um die neuen Einträge ergänzen
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
 - [ ] Widget „Messwert“ auf dem Gerät prüfen (Einstellung „Widget bearbeiten“, Aktualisierung)
 - [ ] Siri auf dem Gerät prüfen (Siri-Sprache Deutsch; „Spexard“ muss Siri verstehen, sonst eigenen Kurzbefehl anlegen)
