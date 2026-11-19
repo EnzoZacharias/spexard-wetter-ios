@@ -126,6 +126,11 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Mehr → Siri & Kurzbefehle zeigt Sätze und aktuelle Antworten (`-screen siri`); Entwicklungssprache Deutsch;
       CI schreibt die erkannten Sätze nach `build-appintents.log`
 - [x] Interaktive Widgets: Uhrzeit in Mittel/Groß, „Verlauf & Live“ und Historie ist ein Knopf zum Neuladen
+- [x] Messwerte: Diagramme fehlten (die Schlüssel der Stationsreihen kommen je nach iOS-Version mit oder ohne
+      Umbenennung an); jetzt werden beide Schreibweisen gesucht
+- [x] Neues Widget „Messwert“ (einstellbar per App Intent, neue Art `SpexardMesswert`): klein, Sperrbildschirm rund,
+      rechteckig und einzeilig; Wert der DWD-Station (Böen: stärkste der letzten Stunde), Station, Uhrzeit, Modellwert
+      ICON-D2 daneben, Zusatz (Taupunkt: Spread, Wind/Böen: Richtung und Beaufort); Vorschau `-screen widgets -option messwert`
 
 ## Als Nächstes
 
@@ -135,6 +140,7 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       Historie-Widget ist da (siehe oben)
 - [ ] Profi-Daten, sobald der Server sie hat: Pollen, UV, Luftqualität, Sonne/Mond (je mit Lexikon-Eintrag)
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
+- [ ] Widget „Messwert“ auf dem Gerät prüfen (Einstellung „Widget bearbeiten“, Aktualisierung)
 - [ ] Siri auf dem Gerät prüfen (Siri-Sprache Deutsch; „Spexard“ muss Siri verstehen, sonst eigenen Kurzbefehl anlegen)
 - [ ] Offline-Verhalten auf dem Gerät prüfen (Server nicht erreichbar)
 

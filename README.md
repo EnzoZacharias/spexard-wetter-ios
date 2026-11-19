@@ -22,6 +22,9 @@ Die App zeigt nur, was der Server liefert (keine eigene Meteorologie, nur Darste
   „… Warnungen“ (DWD) und „Wie ist das Wetter bei Spexard Wetter?“; dieselben Aktionen in der Kurzbefehle-App, die
   Sätze und die aktuellen Antworten unter Mehr → Siri & Kurzbefehle
 - **Widgets aktualisieren**: die Uhrzeit im Widget antippen lädt alle Widgets neu (iOS 17)
+- **Widget „Messwert“** (klein, Sperrbildschirm): eine Messgröße nach Wahl (Temperatur, Taupunkt, Luftfeuchte, Wind,
+  Böen, Luftdruck, Regen der letzten Stunde, Sichtweite) mit Station, Uhrzeit und dem Modellwert daneben; die Größe
+  wählt man mit „Widget bearbeiten“
 - Offline: die letzte Antwort jeder Seite bleibt gespeichert und erscheint mit ihrem Stand
 
 Der Stand der Arbeit steht in [docs/ROADMAP.md](docs/ROADMAP.md).
