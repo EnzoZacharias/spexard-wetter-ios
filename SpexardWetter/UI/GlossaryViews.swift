@@ -224,8 +224,20 @@ struct GlossaryNotesView: View {
         self.day = day
     }
 
+    /// The notes of these glossary ids that concern this day.
+    init(_ ids: [String], day: Date) {
+        self.ids = ids
+        self.day = day
+    }
+
+    private var shown: [GlossaryNote] {
+        guard let day else { return store.notes(ids) }
+        let onDay = store.notes(onDay: day)
+        return ids.isEmpty ? onDay : store.notes(ids).filter { onDay.contains($0) }
+    }
+
     var body: some View {
-        let notes = day.map { store.notes(onDay: $0) } ?? store.notes(ids)
+        let notes = shown
         if !notes.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(notes, id: \.self) { note in

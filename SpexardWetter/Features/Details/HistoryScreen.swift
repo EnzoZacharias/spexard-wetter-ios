@@ -86,7 +86,8 @@ struct HistoryContent: View {
                     Fact(label: "Tiefstwert", value: HistoryWords.valueAt(today.tminC, today.tminZeit, exact: nil, unit: .tage))
                     Fact(label: "Höchstwert", value: HistoryWords.valueAt(today.tmaxC, today.tmaxZeit, exact: nil, unit: .tage))
                 }
-                GlossaryNotesView(["frost", "bodenfrost"])
+                // only notes on today (a frost forecast for another day does not belong to today's values)
+                GlossaryNotesView(["frost", "bodenfrost"], day: Fmt.parse(today.datum) ?? Date())
             }
             .card()
         }
@@ -322,6 +323,8 @@ struct HistoryRangeChart: View {
     struct Bar: Identifiable {
         let id: String
         let date: Date
+        /// First day of the period (the axis label sits in the middle of the period).
+        let start: Date
         let low: Double
         let high: Double
         let mean: Double?
@@ -334,6 +337,7 @@ struct HistoryRangeChart: View {
             guard let start = Fmt.parse(von), let low, let high else { return nil }
             self.id = id
             date = start.addingTimeInterval(12 * 3600)
+            self.start = start
             self.low = low
             self.high = high
             self.mean = mean
@@ -353,6 +357,10 @@ struct HistoryRangeChart: View {
         return lo...max(hi, lo + 4)
     }
 
+    /// Few periods (two months, three years) get slim fixed bars instead of half the chart each.
+    private var barWidth: MarkDimension { bars.count <= 4 ? .fixed(24) : .ratio(0.5) }
+    private var normalWidth: MarkDimension { bars.count <= 4 ? .fixed(46) : .ratio(0.92) }
+
     var body: some View {
         if bars.isEmpty {
             EmptyView()
@@ -364,7 +372,7 @@ struct HistoryRangeChart: View {
                             x: .value("Zeitraum", b.date, unit: unit.calendarComponent),
                             yStart: .value("Normal Tiefstwert", nl),
                             yEnd: .value("Normal Höchstwert", nh),
-                            width: .ratio(0.92)
+                            width: normalWidth
                         )
                         .foregroundStyle(.white.opacity(0.13))
                     }
@@ -372,9 +380,13 @@ struct HistoryRangeChart: View {
                         x: .value("Zeitraum", b.date, unit: unit.calendarComponent),
                         yStart: .value("Tiefstwert", b.low),
                         yEnd: .value("Höchstwert", max(b.high, b.low + 0.2)),
-                        width: .ratio(0.5)
+                        width: barWidth
                     )
-                    .foregroundStyle(TempBar.color(b.mean ?? (b.low + b.high) / 2).opacity(b.partial ? 0.5 : 1))
+                    // cold at the bottom, warm at the top, like the day bars of the forecast
+                    .foregroundStyle(
+                        LinearGradient(colors: [TempBar.color(b.low), TempBar.color(b.high)], startPoint: .bottom, endPoint: .top)
+                    )
+                    .opacity(b.partial ? 0.5 : 1)
                     .cornerRadius(3)
                 }
                 RuleMark(y: .value("Null", 0.0))
@@ -384,9 +396,8 @@ struct HistoryRangeChart: View {
             .environment(\.calendar, Fmt.calendar)
             .chartYScale(domain: yDomain)
             .chartXAxis {
-                AxisMarks(values: .stride(by: unit.calendarComponent, count: HistoryWords.axisStride(unit, bars.count))) { value in
-                    AxisGridLine().foregroundStyle(.white.opacity(0.12))
-                    AxisValueLabel {
+                AxisMarks(values: HistoryWords.axisDates(bars.map(\.start), unit: unit)) { value in
+                    AxisValueLabel(anchor: .top) {
                         if let d = value.as(Date.self) {
                             Text(HistoryWords.axisLabel(d, unit: unit)).foregroundStyle(.white.opacity(0.75))
                         }
@@ -420,7 +431,9 @@ struct HistoryLegend: View {
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 4) {
-                RoundedRectangle(cornerRadius: 2).fill(Palette.warm).frame(width: 6, height: 12)
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(LinearGradient(colors: [TempBar.color(-1), TempBar.color(10), TempBar.color(16)], startPoint: .bottom, endPoint: .top))
+                    .frame(width: 6, height: 12)
                 Text("Tiefst bis Höchst")
             }
             HStack(spacing: 4) {
@@ -442,6 +455,7 @@ struct HistoryRainChart: View {
     private struct Item: Identifiable {
         let id: String
         let date: Date
+        let start: Date
         let mm: Double
         let normal: Double?
     }
@@ -449,12 +463,13 @@ struct HistoryRainChart: View {
     private var items: [Item] {
         periods.compactMap { p in
             guard let start = Fmt.parse(p.von), let mm = p.niederschlagMm else { return nil }
-            return Item(id: p.key, date: start.addingTimeInterval(12 * 3600), mm: mm, normal: unit == .tage ? nil : p.niederschlagNormalMm)
+            return Item(id: p.key, date: start.addingTimeInterval(12 * 3600), start: start, mm: mm, normal: unit == .tage ? nil : p.niederschlagNormalMm)
         }
     }
 
     var body: some View {
         let list = items
+        let few = list.count <= 4
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text("Niederschlag").font(.caption.weight(.semibold))
@@ -466,14 +481,14 @@ struct HistoryRainChart: View {
                     BarMark(
                         x: .value("Zeitraum", item.date, unit: unit.calendarComponent),
                         y: .value("Niederschlag", item.mm),
-                        width: .ratio(0.6)
+                        width: few ? .fixed(24) : .ratio(0.6)
                     )
                     .foregroundStyle(Palette.rain)
                     if let normal = item.normal {
                         RectangleMark(
                             x: .value("Zeitraum", item.date, unit: unit.calendarComponent),
                             y: .value("Normal", normal),
-                            width: .ratio(0.8),
+                            width: few ? .fixed(36) : .ratio(0.8),
                             height: .fixed(2)
                         )
                         .foregroundStyle(.white.opacity(0.8))
@@ -482,9 +497,8 @@ struct HistoryRainChart: View {
             }
             .environment(\.calendar, Fmt.calendar)
             .chartXAxis {
-                AxisMarks(values: .stride(by: unit.calendarComponent, count: HistoryWords.axisStride(unit, list.count))) { value in
-                    AxisGridLine().foregroundStyle(.white.opacity(0.12))
-                    AxisValueLabel {
+                AxisMarks(values: HistoryWords.axisDates(list.map(\.start), unit: unit)) { value in
+                    AxisValueLabel(anchor: .top) {
                         if let d = value.as(Date.self) {
                             Text(HistoryWords.axisLabel(d, unit: unit)).foregroundStyle(.white.opacity(0.75))
                         }
@@ -715,6 +729,18 @@ enum HistoryWords {
         let names: [String: String] = ["tmax": "Temperatur", "rr_mm": "Niederschlag", "snow_cm": "Schnee", "tg5": "Erdboden", "fx_kmh": "Wind"]
         let values = (s.werte ?? []).compactMap { names[$0] }
         return values.isEmpty ? head : "\(head): \(values.joined(separator: ", "))"
+    }
+
+    /// Axis labels in the middle of every n-th period (n from `axisStride`), the newest one always.
+    static func axisDates(_ starts: [Date], unit: HistoryUnit) -> [Date] {
+        let sorted = starts.sorted()
+        let step = axisStride(unit, sorted.count)
+        let cal = Fmt.calendar
+        return sorted.indices.filter { (sorted.count - 1 - $0) % step == 0 }.map { i in
+            let start = sorted[i]
+            let end = cal.date(byAdding: unit.calendarComponent, value: 1, to: start) ?? start.addingTimeInterval(86400)
+            return start.addingTimeInterval(end.timeIntervalSince(start) / 2)
+        }
     }
 
     static func axisStride(_ unit: HistoryUnit, _ count: Int) -> Int {
