@@ -19,6 +19,8 @@ struct AttentionCard: View {
             return .warnungen
         case "taupunkt", "spread", "beaufort", "boee", "luftdruck", "drucktendenz":
             return .messwerte
+        case "pollenflug", "uv_index", "luftqualitaet":
+            return .umwelt
         default:
             return nil
         }
