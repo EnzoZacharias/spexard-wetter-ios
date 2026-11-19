@@ -38,6 +38,9 @@ struct HomeView: View {
                         }
                         AttentionCard()
                         NowDetailsCard(now: model.now, sun: model.todaySun)
+                        if let environment = model.environment {
+                            EnvironmentHomeCard(data: environment) { openRoute(.more(.umwelt)) }
+                        }
                         DailyList(
                             items: model.days,
                             range: model.daysRange,

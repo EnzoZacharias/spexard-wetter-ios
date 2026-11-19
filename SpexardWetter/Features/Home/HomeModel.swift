@@ -11,6 +11,8 @@ final class HomeModel {
     var nowcast: NowcastResponse?
     var radarSummary: RadarSummaryResponse?
     var report: ReportResponse?
+    /// Pollen, UV, air, sun and moon (nil while the server has no `/api/v1/umwelt`).
+    var environment: EnvironmentResponse?
     var nowcastError: String?
     var errorText: String?
     var loading = false
@@ -42,6 +44,7 @@ final class HomeModel {
         async let nowcastCall: Fetched<NowcastResponse> = api.fetch(.nowcast)
         async let summaryCall: Fetched<RadarSummaryResponse> = api.fetch(.radarSummary)
         async let reportCall: Fetched<ReportResponse> = api.fetch(ReportKind.heute.endpoint)
+        async let environmentCall: Fetched<EnvironmentResponse> = api.fetch(.environment)
         var problems: [String] = []
         var cached: [Date] = []
         var fresh = 0
@@ -73,6 +76,7 @@ final class HomeModel {
         }
         radarSummary = (try? await summaryCall)?.value ?? radarSummary
         report = (try? await reportCall)?.value ?? report
+        environment = (try? await environmentCall)?.value ?? environment
         errorText = problems.isEmpty ? nil : Array(Set(problems)).sorted().joined(separator: "\n")
         offlineSince = cached.min()
         if fresh > 0 {
