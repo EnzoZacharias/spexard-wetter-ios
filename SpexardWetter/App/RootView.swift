@@ -20,14 +20,22 @@ enum LaunchArgs {
 struct RootView: View {
     @State private var tab: AppTab = LaunchArgs.tab ?? (LaunchArgs.screen != nil ? .mehr : .wetter)
     @State private var home = HomeModel()
+    @ObservedObject private var places = PlaceStore.shared
     @State private var morePath: [MoreDestination] = LaunchArgs.screen.flatMap(MoreDestination.init(rawValue:)).map { [$0] } ?? []
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         TabView(selection: $tab) {
-            HomeView(model: home, openTab: { tab = $0 })
-                .tabItem { Label("Wetter", systemImage: "cloud.sun.fill") }
-                .tag(AppTab.wetter)
+            // another place of the favourites: the lean view; home: the full start screen
+            Group {
+                if let place = places.selected {
+                    PlaceLiteScreen(place: place, homeLabel: home.locationLabel)
+                } else {
+                    HomeView(model: home, openTab: { tab = $0 })
+                }
+            }
+            .tabItem { Label("Wetter", systemImage: "cloud.sun.fill") }
+            .tag(AppTab.wetter)
             RadarScreen()
                 .tabItem { Label("Radar", systemImage: "map") }
                 .tag(AppTab.radar)

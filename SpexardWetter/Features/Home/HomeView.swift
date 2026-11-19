@@ -5,6 +5,7 @@ struct HomeView: View {
     var openTab: (AppTab) -> Void = { _ in }
     @State private var showSettings = false
     @State private var showWarnings = false
+    @State private var showPlaces = false
     @State private var selectedDay: DaySelection?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openRoute) private var openRoute
@@ -64,6 +65,8 @@ struct HomeView: View {
                         showSettings = true
                     }
                     if model.lastUpdate == nil { await model.load() }
+                    // screenshots: `-placeSearch "Bad Salzuflen"` opens the place list with the hits
+                    if LaunchArgs.value("-placeSearch") != nil { showPlaces = true }
                     if let day = LaunchArgs.value("-showDay") {
                         selectedDay = DaySelection(id: day)
                     }
@@ -75,6 +78,9 @@ struct HomeView: View {
             }
             .background(BackgroundGradient(night: model.isNight).ignoresSafeArea())
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    PlaceButton(title: "Orte") { showPlaces = true }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showSettings = true
@@ -94,6 +100,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showWarnings) {
                 WarningsSheet(block: model.alerts?.warnungen, reference: model.reference)
+            }
+            .sheet(isPresented: $showPlaces) {
+                PlacePickerSheet(homeLabel: model.locationLabel)
             }
         }
         .onChange(of: scenePhase) { _, phase in

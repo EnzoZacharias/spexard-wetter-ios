@@ -38,6 +38,9 @@ struct HourlyStrip: View {
     let items: [HourItem]
     var sunEvents: [SunEvent] = []
     var more: (() -> Void)?
+    var title = "Nächste 24 Stunden"
+    /// Other places have no dew point and cloud hours: only rain and wind.
+    var modes: [HourlyMode] = HourlyMode.allCases
     @State private var mode: HourlyMode = .regen
 
     private enum Entry: Identifiable {
@@ -67,7 +70,7 @@ struct HourlyStrip: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("Nächste 24 Stunden", systemImage: "clock")
+                Label(title, systemImage: "clock")
                     .font(.footnote.weight(.semibold))
                     .textCase(.uppercase)
                     .opacity(0.8)
@@ -78,12 +81,12 @@ struct HourlyStrip: View {
                 Text("Keine Stundenwerte").font(.footnote).opacity(0.8)
             } else {
                 Picker("Zusatzwert", selection: $mode) {
-                    ForEach(HourlyMode.allCases) { m in
+                    ForEach(modes) { m in
                         Text(m.label).tag(m)
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 240)
+                .frame(width: CGFloat(modes.count) * 80)
                 ScrollView(.horizontal) {
                     HStack(alignment: .top, spacing: 18) {
                         ForEach(entries) { entry in
