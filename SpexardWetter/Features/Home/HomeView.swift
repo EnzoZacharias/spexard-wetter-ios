@@ -41,6 +41,7 @@ struct HomeView: View {
                         NowDetailsCard(now: model.now, sun: model.todaySun)
                         if let environment = model.environment {
                             EnvironmentHomeCard(data: environment) { openRoute(.more(.umwelt)) }
+                                .id("umwelt")
                         }
                         DailyList(
                             items: model.days,
@@ -73,6 +74,11 @@ struct HomeView: View {
                     if Self.scrollToDays {
                         try? await Task.sleep(nanoseconds: 300_000_000)
                         proxy.scrollTo("days", anchor: .top)
+                    }
+                    // screenshots: `-scrollUmwelt` shows the Umwelt card
+                    if ProcessInfo.processInfo.arguments.contains("-scrollUmwelt") {
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        proxy.scrollTo("umwelt", anchor: .top)
                     }
                 }
             }
