@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -167,6 +168,67 @@ struct SpexardHistoryWidget: Widget {
     }
 }
 
+// MARK: - Messwert (configurable: which quantity)
+
+/// Settings of the "Messwert" widget (long press → Widget bearbeiten).
+struct MeasurementWidgetIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Messwert"
+    static var description = IntentDescription("Welche Messgröße das Widget zeigt.")
+
+    @Parameter(title: "Messgröße", default: .temperatur)
+    var groesse: MeasurementKind
+}
+
+struct MeasurementEntry: TimelineEntry {
+    let date: Date
+    let kind: MeasurementKind
+    let data: MeasurementWidgetData?
+    var placeholder = false
+}
+
+struct MeasurementProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> MeasurementEntry {
+        MeasurementEntry(date: Date(), kind: .temperatur, data: nil, placeholder: true)
+    }
+
+    func snapshot(for configuration: MeasurementWidgetIntent, in context: Context) async -> MeasurementEntry {
+        MeasurementEntry(date: Date(), kind: configuration.groesse, data: await MeasurementWidgetData.load(configuration.groesse))
+    }
+
+    /// The stations report every 10 minutes; the next load after 20 minutes (15 after a failure).
+    func timeline(for configuration: MeasurementWidgetIntent, in context: Context) async -> Timeline<MeasurementEntry> {
+        let data = await MeasurementWidgetData.load(configuration.groesse)
+        let minutes: Double = data == nil ? 15 : 20
+        let entry = MeasurementEntry(date: Date(), kind: configuration.groesse, data: data)
+        return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(minutes * 60)))
+    }
+}
+
+struct MeasurementWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: MeasurementEntry
+
+    var body: some View {
+        MeasurementWidgetContent(family: family, data: entry.data, kind: entry.kind, placeholder: entry.placeholder)
+            .containerBackground(for: .widget) {
+                BackgroundGradient(night: true)
+            }
+            .widgetURL(URL(string: "spexardwetter://messwerte"))
+    }
+}
+
+/// One current value of choice with its station, time and the model value next to it.
+struct SpexardMeasurementWidget: Widget {
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: "SpexardMesswert", intent: MeasurementWidgetIntent.self, provider: MeasurementProvider()) { entry in
+            MeasurementWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Messwert")
+        .description("Ein Messwert nach Wahl mit Station, Uhrzeit und dem Modellwert daneben. Welcher: lange drücken, „Widget bearbeiten“.")
+        .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryRectangular, .accessoryInline])
+    }
+}
+
 @main
 struct SpexardWidgetBundle: WidgetBundle {
     var body: some Widget {
@@ -174,5 +236,6 @@ struct SpexardWidgetBundle: WidgetBundle {
         SpexardLiveStripWidget()
         SpexardRainWidget()
         SpexardHistoryWidget()
+        SpexardMeasurementWidget()
     }
 }
