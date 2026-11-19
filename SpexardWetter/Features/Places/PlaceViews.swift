@@ -14,9 +14,6 @@ struct PlaceButton: View {
             }
             .font(.footnote.weight(.semibold))
             .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(.white.opacity(0.18)))
         }
         .accessibilityLabel("Ort: \(title). Ort wechseln")
     }
