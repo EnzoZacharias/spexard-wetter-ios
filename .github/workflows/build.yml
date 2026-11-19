@@ -46,6 +46,20 @@ jobs:
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/sim \
             CODE_SIGNING_ALLOWED=NO build 2>&1 | tee build-sim.log | grep -E "error:|warning: .*\.swift|BUILD (SUCCEEDED|FAILED)"
 
+      - name: Check the Siri metadata (App Shortcuts) and the development region
+        run: |
+          APP=build/sim/Build/Products/Debug-iphonesimulator/SpexardWetter.app
+          {
+            echo "== Info.plist"
+            plutil -p "$APP/Info.plist" | grep -iE "DevelopmentRegion|DisplayName" || true
+            echo "== Metadata.appintents"
+            ls -la "$APP/Metadata.appintents" || echo "no Metadata.appintents"
+            echo "== phrases"
+            grep -ao "[^\"]*applicationName[^\"]*" "$APP/Metadata.appintents/extract.actionsdata" | sort -u | head -40 || true
+            echo "== widget extension"
+            ls -la "$APP/PlugIns/SpexardWetterWidget.appex/Metadata.appintents" || echo "no widget Metadata.appintents"
+          } 2>&1 | tee build-appintents.log
+
       - name: Screenshots with example data (simulator)
         run: |
           DEVICE=$(xcrun simctl list devices available -j | python3 -c '
@@ -94,6 +108,7 @@ jobs:
           shot widgets -screen widgets
           shot widgets-gross -screen widgets -option gross
           shot widgets-historie -screen widgets -option historie
+          WAIT=10 shot siri -screen siri
           shot gefahren -screen warnungen -scrollBottom
           shot messwerte -screen messwerte
           shot historie -screen historie
