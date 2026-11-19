@@ -169,9 +169,13 @@ struct TimeChart: View {
                 HStack(spacing: 12) {
                     ForEach(series) { s in
                         HStack(spacing: 4) {
-                            RoundedRectangle(cornerRadius: 1.5)
-                                .fill(s.color)
-                                .frame(width: 12, height: s.style == .line ? 3 : 8)
+                            if s.style == .points {
+                                Circle().fill(s.color).frame(width: 7, height: 7)
+                            } else {
+                                RoundedRectangle(cornerRadius: 1.5)
+                                    .fill(s.color)
+                                    .frame(width: 12, height: s.style == .line ? 3 : 8)
+                            }
                             Text(s.id).font(.caption2)
                         }
                     }
@@ -232,9 +236,12 @@ struct TimeChart: View {
                         .foregroundStyle(s.color.opacity(0.35))
                         .interpolationMethod(.monotone)
                     } else if s.style == .points {
-                        PointMark(x: .value("Zeit", p.date), y: .value(s.id, p.value))
-                            .foregroundStyle(s.color)
-                            .symbolSize(14)
+                        // no row of dots along the zero line (dry hours, calm wind)
+                        if !(zeroBased && p.value <= 0) {
+                            PointMark(x: .value("Zeit", p.date), y: .value(s.id, p.value))
+                                .foregroundStyle(s.color)
+                                .symbolSize(14)
+                        }
                     } else {
                         LineMark(x: .value("Zeit", p.date), y: .value(s.id, p.value), series: .value("Reihe", s.id))
                             .foregroundStyle(s.color)
