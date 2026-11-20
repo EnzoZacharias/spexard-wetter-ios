@@ -6,7 +6,7 @@ enum Fmt {
     /// ("−0,1 °C", "95 km/h"): the space between them becomes a no-break space.
     static func keepUnits(_ text: String) -> String {
         text.replacingOccurrences(
-            of: "(\\d) (°C|°|km/h|m/s|hPa|mm|cm|kn|K|m|%)(?!\\p{L})",
+            of: "(\\d) (°C|°|km/h|km|m/s|hPa|mm|cm|kn|K|m|%)(?!\\p{L})",
             with: "$1\u{00A0}$2",
             options: .regularExpression
         )
