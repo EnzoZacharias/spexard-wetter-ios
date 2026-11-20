@@ -10,11 +10,12 @@ struct EnvironmentResponse: Decodable {
     let pollen: Pollen?
     let uv: UV?
     let luft: Air?
-    /// DWD health weather for weather-sensitive people (NRW), per half day.
-    let biowetter: Bio?
+    /// DWD health weather for weather-sensitive people (NRW), per half day. Lenient (added later): a
+    /// block the app cannot read must not blank the screen.
+    @Lenient var biowetter: Bio?
     let astro: Astro?
-    /// The server's notes on conspicuous values of this answer (pollen, UV, air).
-    let hinweise: [GlossaryNote]?
+    /// The server's notes on conspicuous values of this answer (pollen, UV, air, health weather).
+    @Lenient var hinweise: [GlossaryNote]?
     let sourceErrors: [SourceProblem]?
     let attribution: [String]?
 

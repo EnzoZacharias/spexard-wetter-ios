@@ -99,9 +99,10 @@ struct PlaceForecastResponse: Decodable {
     /// nil = not available, [] = none.
     let warnungen: [DwdWarning]?
     /// The server's notes for this place (frost, strong gusts today or tomorrow; home thresholds).
-    let hinweise: [GlossaryNote]?
+    /// Lenient like every block added later: a block the app cannot read must not blank the place.
+    @Lenient var hinweise: [GlossaryNote]?
     /// DWD radar nowcast at the place for the next two hours (same summary as at home; nil = radar not available).
-    let nowcast: NowcastResponse.Summary?
+    @Lenient var nowcast: NowcastResponse.Summary?
     let sourceErrors: [SourceProblem]?
 
     /// The hours as items of the hourly strip.
