@@ -230,7 +230,7 @@ struct MeasurementWidgetContent: View {
             switch family {
             case .accessoryCircular: circular(d)
             case .accessoryRectangular: rectangular(d)
-            case .accessoryInline: Label("\(d.kind.label) \(d.value)", systemImage: d.kind.systemImage)
+            case .accessoryInline: Label(Self.titled(d), systemImage: d.kind.systemImage)
             default: small(d)
             }
         } else if family == .systemSmall {
@@ -276,7 +276,7 @@ struct MeasurementWidgetContent: View {
 
     private func rectangular(_ d: MeasurementWidgetData) -> some View {
         VStack(alignment: .leading, spacing: 1) {
-            Label("\(d.kind.label) \(d.value)", systemImage: d.kind.systemImage)
+            Label(Self.titled(d), systemImage: d.kind.systemImage)
                 .font(.headline)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -296,7 +296,7 @@ struct MeasurementWidgetContent: View {
             AccessoryWidgetBackground()
             VStack(spacing: 0) {
                 Image(systemName: d.kind.systemImage).font(.system(size: 13))
-                Text(d.value.replacingOccurrences(of: " ", with: "\n"))
+                Text(Self.circularValue(d.value))
                     .font(.system(size: 14, weight: .semibold))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -306,6 +306,18 @@ struct MeasurementWidgetContent: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Self.accessibilityText(d))
+    }
+
+    /// Number above its unit ("1031\nhPa"); a one-character unit stays on the line ("77 %").
+    static func circularValue(_ value: String) -> String {
+        guard let space = value.lastIndex(of: " "), value[value.index(after: space)...].count > 1 else { return value }
+        return value.replacingCharacters(in: space...space, with: "\n")
+    }
+
+    /// "Luftdruck 1031 hPa", but "Pollen: keine" when the value is a word.
+    static func titled(_ d: MeasurementWidgetData) -> String {
+        guard let first = d.value.first, first.isLetter else { return "\(d.kind.label) \(d.value)" }
+        return "\(d.kind.label): \(d.value)"
     }
 
     static func accessibilityText(_ d: MeasurementWidgetData) -> String {

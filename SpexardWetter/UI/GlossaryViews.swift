@@ -170,7 +170,7 @@ struct NoteCallout: View {
                 Text(title)
                     .font(.caption.weight(.bold))
                     .foregroundStyle(tint)
-                Text(text)
+                Text(Fmt.keepUnits(text))
                     .font(.footnote)
                     .lineLimit(compact && !expanded ? 2 : nil)
                     .fixedSize(horizontal: false, vertical: true)

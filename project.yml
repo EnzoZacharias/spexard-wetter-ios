@@ -37,6 +37,8 @@ targets:
       path: SpexardWetter/Info.plist
       properties:
         CFBundleDisplayName: Spexard Wetter
+        # the system "Shortcuts" button (ShortcutsLink) is titled with the bundle name
+        CFBundleName: Spexard Wetter
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true

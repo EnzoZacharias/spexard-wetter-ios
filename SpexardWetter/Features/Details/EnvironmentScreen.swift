@@ -213,7 +213,7 @@ struct SunArc: View {
                 Text(Fmt.time(rise)).font(.caption.monospacedDigit()).position(x: 22, y: base + 12)
                 Text(Fmt.time(set)).font(.caption.monospacedDigit()).position(x: w - 22, y: base + 12)
                 if let noon {
-                    Text(Fmt.time(noon) + (elevation.map { " · " + Fmt.number($0, decimals: 0) + "°" } ?? ""))
+                    Text(Fmt.time(noon) + (elevation.map { " · " + Fmt.number($0, decimals: 1) + "°" } ?? ""))
                         .font(.caption2.monospacedDigit())
                         .opacity(0.75)
                         .position(x: w / 2, y: base - height - 10)
@@ -333,7 +333,7 @@ struct AirCard: View {
                 HStack(spacing: 8) {
                     Circle().fill(EnvironmentScale.airColor(v.index)).frame(width: 9, height: 9).accessibilityHidden(true)
                     Text(v.symbol ?? v.id).font(.footnote.weight(.semibold)).frame(width: 52, alignment: .leading)
-                    Text(v.name ?? "").font(.caption).opacity(0.8).lineLimit(1)
+                    Text(v.name ?? "").font(.caption).opacity(0.8).lineLimit(1).minimumScaleFactor(0.7)
                     if let info = Self.info(v.id) { InfoButton(info, compact: true) }
                     Spacer(minLength: 4)
                     Text(Fmt.value(v.wert, 0, v.einheit ?? "")).font(.footnote.monospacedDigit())

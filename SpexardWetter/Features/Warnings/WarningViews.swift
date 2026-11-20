@@ -82,10 +82,10 @@ struct WarningCard: View {
             Text(warning.title).font(.headline)
             Text(period).font(.footnote).opacity(0.85)
             if let description = warning.beschreibung, !description.isEmpty {
-                Text(description).font(.callout)
+                Text(Fmt.keepUnits(description)).font(.callout)
             }
             if let hints = warning.hinweise, !hints.isEmpty {
-                Text(hints).font(.footnote).opacity(0.85)
+                Text(Fmt.keepUnits(hints)).font(.footnote).opacity(0.85)
             }
             if let height = heightText {
                 Label(height, systemImage: "mountain.2").font(.footnote).opacity(0.85)
