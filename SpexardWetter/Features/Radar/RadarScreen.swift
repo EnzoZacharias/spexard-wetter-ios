@@ -317,7 +317,7 @@ struct RadarScreen: View {
         parts.append("Fläche \(RadarWords.share(f.wetPct))")
         var text = parts.joined(separator: " · ")
         if f.scattered == true { text += ". Nur verstreute Einzelpixel, oft Störechos oder Niesel." }
-        return text
+        return Fmt.keepUnits(text)
     }
 
     // MARK: work

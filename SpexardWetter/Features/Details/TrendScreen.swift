@@ -167,7 +167,7 @@ struct TrendContent: View {
     private func blockCard(_ b: TrendResponse.Block) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Tag \(b.days ?? "–")").font(.headline)
+                Text("Tag " + (b.days ?? "–").replacingOccurrences(of: "-", with: "–")).font(.headline)
                 Spacer()
                 if let level = b.confidence?.level {
                     ConfidenceBadge(level: ReportWords.confidenceLevel(level) ?? "niedrig", word: level)
@@ -179,7 +179,9 @@ struct TrendContent: View {
                 Fact(label: "Regenrisiko", value: "ECMWF \(Fmt.percent(b.ecmwfRainProbPct))\nGEFS \(Fmt.percent(b.gefsRainProbPct))\nnormal \(Fmt.percent(b.normalRainProbPct))")
             }
             if let why = b.confidence?.why {
-                Text(why).font(.caption).opacity(0.75)
+                // the server writes the spread as "Δ 1.8 K"; German decimal comma here
+                Text(Fmt.keepUnits(why.replacingOccurrences(of: "Δ (\\d+)\\.(\\d)", with: "Δ $1,$2", options: .regularExpression)))
+                    .font(.caption).opacity(0.75)
             }
         }
         .card()
