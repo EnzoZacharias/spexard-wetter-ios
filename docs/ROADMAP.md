@@ -131,7 +131,7 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [x] Startseiten-Karte Umwelt mit Biowetter der nächsten Tageshälfte (stärkste Stufe, in wie vielen der sechs Bereiche)
       und Tageslänge (`-scrollUmwelt`); andere Orte zeigen die Frost- und Böen-Hinweise des Servers (`hinweise` von `/ort`),
       den nächsten Regen in Worten (Regel der Webseite) und den Radar-Nowcast am Ort (`nowcast`, Satz wie zu Hause;
-      im Beispiel noch ohne, daher ohne Screenshot);
+      Screenshot `ort`);
       Orte-Knopf ohne eigene Kapsel (das Glas der Leiste reicht); Testszenario `belastung` auch mit „hoher Gefährdung“
       im Biowetter samt Hinweis (`belastung-biowetter`)
 - [x] Umwelt: Biowetter des DWD (Gefahrenindizes für Wetterfühlige, NRW) je Tageshälfte als Chips, sechs Formkreise
@@ -168,7 +168,8 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
       Historie-Widget ist da (siehe oben)
 - [ ] Andere Orte auf dem Gerät prüfen, sobald der Pi `/api/v1/ort` hat (Tageskontingent 25 Orte; 503-Text erscheint in der Liste)
-- [ ] Widget „Ort nach Wahl“ auf dem Gerät prüfen (Suche im Widget-Editor, Aktualisierung stündlich)
+- [ ] Widget „Ort nach Wahl“ auf dem Gerät prüfen (Suche im Widget-Editor ab 3 Buchstaben, sucht beim Tippen; der Server
+      erlaubt 60 Suchen je Tag und Besucher; Aktualisierung stündlich)
 - [ ] Umwelt & Himmel auf dem Gerät prüfen, sobald der Pi `/api/v1/umwelt` hat (bis dahin bleibt die Startseiten-Karte
       weg, die Seite und Siri sagen, dass der Server ein Update braucht); das mitgelieferte Lexikon hat die neuen Einträge
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
@@ -181,5 +182,7 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 - Kein Mac: jeder Push auf `main` baut in GitHub Actions, macht Screenshots (`-mock`) und
   veröffentlicht die unsignierte IPA als Release `latest`.
 - Keine Adressen und keine genauen Koordinaten ins Repository (öffentlich).
-- Die Beispieldaten für Umwelt, Orte und das Lexikon stammen aus `wetter-mcp` v2 (9da6d34), geprüft mit
-  `privacy_problems()`; die IPA braucht für diese Seiten den Server-Stand v2 auf dem Pi.
+- Die Beispieldaten für Umwelt und das Lexikon stammen aus `wetter-mcp` v2 9da6d34, die für Orte (mit Nowcast) aus
+  c837207, alle geprüft mit `privacy_problems()`; die IPA braucht für diese Seiten den Server-Stand v2 auf dem Pi.
+- Neue Blöcke des Servers (`biowetter`, `hinweise`, `nowcast`) liest die App nachsichtig: Passt ein Block nicht,
+  fehlt nur er, nicht die ganze Seite.
