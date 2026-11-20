@@ -112,6 +112,15 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
 
 ### Nacht 19./20.11.
 
+- [x] Durchsicht der Screenshots von Build 44 (c0e4966): Knopf zur Kurzbefehle-App hieß „SpexardWetter-Kurzbefehle“
+      (`CFBundleName` jetzt „Spexard Wetter“; ob der System-Knopf ihn nimmt, zeigt `siri-unten` des nächsten Builds); Zahl und Einheit bleiben in Server- und DWD-Texten zusammen („−0,1 °C“,
+      „95 km/h“: Hinweise, Warnungen, Radar-Satz); Schadstoffnamen der Luftqualität werden kleiner statt abgeschnitten
+      („Stickstoffdioxid“); Sonnenbogen nennt den Höchststand mit derselben Stelle wie darunter (18,6°); Messwert-Widget
+      rund: „77 %“ in einer Zeile, rechteckig/einzeilig „Pollen: keine“; Trend „Tag 8–10“ und „Δ 1,8 K“
+- [x] Live-Antworten des Pi (2.0.0.dev7) mit den Beispieldaten verglichen: `/api/v1/umwelt`, `/api/v1/ort`,
+      `/api/v1/orte/suche` haben dieselbe Form, soweit die Felder gefüllt waren (`hinweise` und `warnungen` waren leer,
+      `source_errors` fehlte); zusätzlich liefert der Server `how_to_read`, `location.lat/lon` und `sources` (in den
+      Beispieldaten entfernt, die App liest sie nicht). Keine Änderung am Dekodieren nötig
 - [x] Feinschliff Historie: Balken von kalt (unten) nach warm (oben) eingefärbt, Legende passend dazu; bei wenigen
       Zeiträumen (2 Monate, 3 Jahre) schmale Balken und jede Beschriftung mittig unter dem Balken („Okt“ fehlte);
       „Was heißt das jetzt“ unter „Heute bisher“ nur noch für Hinweise, die heute betreffen
@@ -167,11 +176,17 @@ der Wetterserver liefert; Beispieldaten für `-mock` kommen aus `wetter-mcp/web/
       auf dem Gerät prüfen
 - [ ] Historie: sobald der Pi `/api/v1/historie` hat, die echte Antwort mit den Beispieldaten vergleichen;
       Historie-Widget ist da (siehe oben)
-- [ ] Andere Orte auf dem Gerät prüfen, sobald der Pi `/api/v1/ort` hat (Tageskontingent 25 Orte; 503-Text erscheint in der Liste)
+- [ ] Andere Orte auf dem Gerät prüfen (der Pi hat `/api/v1/ort` seit 2.0.0.dev7; Tageskontingent 25 Orte; 503-Text erscheint in der Liste)
 - [ ] Widget „Ort nach Wahl“ auf dem Gerät prüfen (Suche im Widget-Editor ab 3 Buchstaben, sucht beim Tippen; der Server
       erlaubt 60 Suchen je Tag und Besucher; Aktualisierung stündlich)
-- [ ] Umwelt & Himmel auf dem Gerät prüfen, sobald der Pi `/api/v1/umwelt` hat (bis dahin bleibt die Startseiten-Karte
-      weg, die Seite und Siri sagen, dass der Server ein Update braucht); das mitgelieferte Lexikon hat die neuen Einträge
+- [ ] Umwelt & Himmel auf dem Gerät prüfen (der Pi hat `/api/v1/umwelt` seit 2.0.0.dev7, Form wie die Beispieldaten);
+      das mitgelieferte Lexikon hat die neuen Einträge
+- [ ] Stationsnamen des DWD stehen so da, wie der DWD sie schreibt („Guetersloh/Ems“, „Lippspringe, Bad“, „Delbrueck“);
+      schöner wäre eine Anzeigeform vom Server (an über 30 Stellen der App benutzt, daher nicht in der App umgeschrieben)
+- [ ] Lexikon: „J/kg“ bricht am Schrägstrich um („2500 J/“ – „kg“); zwei (i)-Knöpfe nebeneinander bei Ensembles und
+      Modellgüte (gewollt: zwei Begriffe), evtl. als ein Knopf mit Auswahl
+- [ ] Lite-Ansicht anderer Orte: „In den nächsten 12 Stunden trocken“ steht unter „Leichter Nieselregen“, wenn das Modell
+      Niesel ohne messbare Menge rechnet (Regel der Webseite); Wortlaut mit der Webseite zusammen klären
 - [ ] Widgets auf einem echten Gerät prüfen (Platzbedarf, Aktualisierung, Tippziele, Neuladen-Knopf)
 - [ ] Widget „Messwert“ auf dem Gerät prüfen (Einstellung „Widget bearbeiten“, Aktualisierung)
 - [ ] Siri auf dem Gerät prüfen (Siri-Sprache Deutsch; „Spexard“ muss Siri verstehen, sonst eigenen Kurzbefehl anlegen)
