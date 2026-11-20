@@ -115,6 +115,7 @@ jobs:
           shot widgets-messwert -screen widgets -option messwert
           shot widgets-ort -screen widgets -option ort
           WAIT=10 shot siri -screen siri
+          WAIT=10 shot siri-unten -screen siri -scrollBottom
           shot gefahren -screen warnungen -scrollBottom
           shot umwelt -screen umwelt
           shot umwelt-unten -screen umwelt -scrollBottom

@@ -29,7 +29,29 @@ struct SiriScreen: View {
     @State private var date: Date?
 
     var body: some View {
-        ScrollView {
+        ScrollViewReader { proxy in
+            ScrollView {
+                content
+            }
+            .refreshable {
+                Haptics.armRefresh()
+                await load()
+            }
+            .task {
+                if answers.isEmpty { await load() }
+                // screenshots: `-scrollBottom` shows the last answers
+                if ProcessInfo.processInfo.arguments.contains("-scrollBottom") {
+                    try? await Task.sleep(nanoseconds: 400_000_000)
+                    proxy.scrollTo("wetter", anchor: .top)
+                }
+            }
+        }
+        .screenBackground()
+        .navigationTitle("Siri & Kurzbefehle")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var content: some View {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Diese Sätze kennt Siri ohne Einrichtung (Siri auf Deutsch). Siri fragt den Wetterserver, ohne die App zu öffnen; die Antworten stehen auch in der Kurzbefehle-App bereit, z. B. für eine Automation am Morgen.")
                     .font(.footnote)
@@ -46,6 +68,7 @@ struct SiriScreen: View {
                         answerView(answers[item.id])
                     }
                     .card()
+                    .id(item.id)
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Eigene Sätze und Automationen: in der Kurzbefehle-App einen Kurzbefehl mit einer dieser Aktionen anlegen und ihm einen Namen geben, z. B. „Garten“.")
@@ -54,18 +77,9 @@ struct SiriScreen: View {
                     ShortcutsLink()
                 }
                 .card()
-                StandFooter(date: date, sources: "Antworten aus denselben Daten wie die App: Gartensensor, DWD-Radar, DWD-Warnungen")
+                StandFooter(date: date, sources: "Antworten aus denselben Daten wie die App: Gartensensor, DWD-Radar, DWD-Warnungen, Umwelt")
             }
             .padding(16)
-        }
-        .refreshable {
-            Haptics.armRefresh()
-            await load()
-        }
-        .task { if answers.isEmpty { await load() } }
-        .screenBackground()
-        .navigationTitle("Siri & Kurzbefehle")
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
