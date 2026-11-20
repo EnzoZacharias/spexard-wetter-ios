@@ -271,8 +271,9 @@ struct PlaceEntityQuery: EntityStringQuery {
     }
 
     func entities(matching string: String) async throws -> [PlaceEntity] {
+        // the editor asks while typing: from three letters on (the server allows 60 searches per day and visitor)
         let text = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard text.count >= 2 else { return [] }
+        guard text.count >= 3 else { return [] }
         let answer: Fetched<PlaceSearchResponse> = try await APIClient().fetch(.placeSearch(text), timeout: 15)
         return (answer.value.treffer ?? []).map { PlaceEntity($0) }
     }
